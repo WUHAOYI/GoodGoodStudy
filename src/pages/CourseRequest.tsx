@@ -6,11 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { 
-  BookOpen, 
-  ArrowLeft,
-  Send,
-  CheckCircle,
-  Clock
+  ArrowLeft, 
+  Send, 
+  ThumbsUp, 
+  MessageSquare, 
+  TrendingUp,
+  Users,
+  Calendar,
+  Heart
 } from 'lucide-react';
 import Header from '@/components/Header';
 import { useNavigate } from 'react-router-dom';
@@ -19,83 +22,117 @@ import { useToast } from '@/hooks/use-toast';
 const CourseRequest = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [formData, setFormData] = useState({
+  const [newRequest, setNewRequest] = useState({
     title: '',
     description: '',
-    category: '',
-    level: '',
-    estimatedDuration: '',
-    reason: ''
+    category: 'programming',
+    difficulty: 'beginner'
   });
 
-  // Mock data for previous requests
-  const [requests] = useState([
+  const [courseRequests, setCourseRequests] = useState([
     {
       id: 1,
-      title: "Advanced TypeScript Patterns",
-      category: "Programming",
-      status: "Under Review",
-      submittedDate: "2024-05-15",
-      votes: 23
+      title: "Advanced Machine Learning with Python",
+      description: "A comprehensive course covering deep learning, neural networks, and AI applications",
+      category: "data-science",
+      difficulty: "advanced",
+      votes: 145,
+      comments: 23,
+      requestedBy: "Alex Johnson",
+      requestedDate: "2024-05-20",
+      status: "under-review",
+      hasVoted: false
     },
     {
       id: 2,
-      title: "UI/UX Design with Figma",
-      category: "Design",
-      status: "Approved",
-      submittedDate: "2024-04-20",
-      votes: 45
+      title: "Mobile App Development with Flutter",
+      description: "Learn to build cross-platform mobile apps using Flutter and Dart",
+      category: "mobile",
+      difficulty: "intermediate",
+      votes: 98,
+      comments: 15,
+      requestedBy: "Sarah Chen",
+      requestedDate: "2024-05-18",
+      status: "approved",
+      hasVoted: true
     },
     {
       id: 3,
-      title: "Mobile App Development with React Native",
-      category: "Programming",
-      status: "In Development",
-      submittedDate: "2024-03-10",
-      votes: 67
+      title: "Blockchain Fundamentals",
+      description: "Understanding blockchain technology, cryptocurrencies, and smart contracts",
+      category: "technology",
+      difficulty: "beginner",
+      votes: 76,
+      comments: 8,
+      requestedBy: "Mike Wilson",
+      requestedDate: "2024-05-15",
+      status: "pending",
+      hasVoted: false
     }
   ]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.title || !formData.description || !formData.category) {
+  const handleSubmitRequest = () => {
+    if (newRequest.title && newRequest.description) {
+      const request = {
+        id: Date.now(),
+        ...newRequest,
+        votes: 1,
+        comments: 0,
+        requestedBy: "Current User",
+        requestedDate: new Date().toISOString().split('T')[0],
+        status: "pending",
+        hasVoted: true
+      };
+      
+      setCourseRequests([request, ...courseRequests]);
+      setNewRequest({ title: '', description: '', category: 'programming', difficulty: 'beginner' });
+      
       toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields.",
-        variant: "destructive"
+        title: "Course Requested!",
+        description: "Your course request has been submitted successfully.",
       });
-      return;
     }
+  };
 
-    // Simulate request submission
+  const handleVote = (requestId: number) => {
+    setCourseRequests(courseRequests.map(request => {
+      if (request.id === requestId) {
+        return {
+          ...request,
+          votes: request.hasVoted ? request.votes - 1 : request.votes + 1,
+          hasVoted: !request.hasVoted
+        };
+      }
+      return request;
+    }));
+
+    const request = courseRequests.find(r => r.id === requestId);
     toast({
-      title: "Request Submitted!",
-      description: "Your course request has been submitted for review.",
+      title: request?.hasVoted ? "Vote Removed" : "Vote Added",
+      description: request?.hasVoted ? "Your vote has been removed." : "Thank you for voting!",
     });
+  };
 
-    // Reset form
-    setFormData({
-      title: '',
-      description: '',
-      category: '',
-      level: '',
-      estimatedDuration: '',
-      reason: ''
-    });
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'programming': return 'bg-blue-100 text-blue-800';
+      case 'data-science': return 'bg-green-100 text-green-800';
+      case 'design': return 'bg-purple-100 text-purple-800';
+      case 'business': return 'bg-orange-100 text-orange-800';
+      case 'mobile': return 'bg-pink-100 text-pink-800';
+      case 'technology': return 'bg-indigo-100 text-indigo-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Approved": return "bg-green-100 text-green-800";
-      case "Under Review": return "bg-yellow-100 text-yellow-800";
-      case "In Development": return "bg-blue-100 text-blue-800";
-      default: return "bg-gray-100 text-gray-800";
+      case 'approved': return 'bg-green-100 text-green-800';
+      case 'under-review': return 'bg-yellow-100 text-yellow-800';
+      case 'pending': return 'bg-gray-100 text-gray-800';
+      case 'rejected': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
-  };
-
-  const handleBack = () => {
-    navigate('/categories');
   };
 
   return (
@@ -105,143 +142,141 @@ const CourseRequest = () => {
       <div className="container mx-auto px-6 py-8">
         <Button 
           variant="ghost" 
-          onClick={handleBack}
+          onClick={() => navigate(-1)}
           className="mb-4"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Categories
+          Back
         </Button>
 
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Request a Course</h1>
-          <p className="text-gray-600">Suggest a course you'd like to see on our platform</p>
+          <p className="text-gray-600">Suggest new courses for our platform</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Request Form */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Course Request Form</CardTitle>
-              <CardDescription>Tell us what course you'd like us to create</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Course Title *</label>
-                  <Input
-                    value={formData.title}
-                    onChange={(e) => setFormData({...formData, title: e.target.value})}
-                    placeholder="e.g., Advanced Machine Learning with Python"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Category *</label>
-                  <Input
-                    value={formData.category}
-                    onChange={(e) => setFormData({...formData, category: e.target.value})}
-                    placeholder="e.g., Programming, Design, Business"
-                    required
-                  />
-                </div>
-
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Course Request Form */}
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Submit Course Request</CardTitle>
+                <CardDescription>
+                  Tell us what course you'd like to see on our platform
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Input
+                  placeholder="Course Title"
+                  value={newRequest.title}
+                  onChange={(e) => setNewRequest({...newRequest, title: e.target.value})}
+                />
+                
+                <Textarea
+                  placeholder="Course Description - What should this course cover?"
+                  rows={4}
+                  value={newRequest.description}
+                  onChange={(e) => setNewRequest({...newRequest, description: e.target.value})}
+                />
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">Difficulty Level</label>
-                    <select 
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                      value={formData.level}
-                      onChange={(e) => setFormData({...formData, level: e.target.value})}
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Category
+                    </label>
+                    <select
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      value={newRequest.category}
+                      onChange={(e) => setNewRequest({...newRequest, category: e.target.value})}
                     >
-                      <option value="">Select level</option>
-                      <option value="Beginner">Beginner</option>
-                      <option value="Intermediate">Intermediate</option>
-                      <option value="Advanced">Advanced</option>
+                      <option value="programming">Programming</option>
+                      <option value="data-science">Data Science</option>
+                      <option value="design">Design</option>
+                      <option value="business">Business</option>
+                      <option value="mobile">Mobile Development</option>
+                      <option value="technology">Technology</option>
                     </select>
                   </div>
+                  
                   <div>
-                    <label className="block text-sm font-medium mb-2">Estimated Duration</label>
-                    <Input
-                      value={formData.estimatedDuration}
-                      onChange={(e) => setFormData({...formData, estimatedDuration: e.target.value})}
-                      placeholder="e.g., 20 hours"
-                    />
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Difficulty Level
+                    </label>
+                    <select
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      value={newRequest.difficulty}
+                      onChange={(e) => setNewRequest({...newRequest, difficulty: e.target.value})}
+                    >
+                      <option value="beginner">Beginner</option>
+                      <option value="intermediate">Intermediate</option>
+                      <option value="advanced">Advanced</option>
+                    </select>
                   </div>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Course Description *</label>
-                  <Textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData({...formData, description: e.target.value})}
-                    placeholder="Describe what this course should cover, learning objectives, and key topics..."
-                    rows={4}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Why do you need this course?</label>
-                  <Textarea
-                    value={formData.reason}
-                    onChange={(e) => setFormData({...formData, reason: e.target.value})}
-                    placeholder="Tell us why this course would be valuable to you and other learners..."
-                    rows={3}
-                  />
-                </div>
-
-                <Button type="submit" className="w-full">
+                
+                <Button onClick={handleSubmitRequest} className="w-full">
                   <Send className="h-4 w-4 mr-2" />
                   Submit Request
                 </Button>
-              </form>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
 
-          {/* Previous Requests */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Course Requests</CardTitle>
-              <CardDescription>See what other students have requested</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {requests.map((request) => (
-                <div key={request.id} className="border rounded-lg p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-semibold text-gray-900">{request.title}</h4>
-                    <Badge className={getStatusColor(request.status)}>
-                      {request.status}
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex items-center justify-between text-sm text-gray-600">
-                    <div className="flex items-center gap-4">
-                      <span>{request.category}</span>
-                      <span>•</span>
-                      <span>{request.votes} votes</span>
+          {/* Recent Course Requests */}
+          <div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Course Requests</CardTitle>
+                <CardDescription>Popular requests from the community</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {courseRequests.map((request) => (
+                  <div key={request.id} className="p-4 border rounded-lg hover:shadow-sm transition-shadow">
+                    <div className="space-y-3">
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-1">{request.title}</h4>
+                        <p className="text-sm text-gray-600 line-clamp-2">{request.description}</p>
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-2">
+                        <Badge className={getCategoryColor(request.category)}>
+                          {request.category}
+                        </Badge>
+                        <Badge className={getStatusColor(request.status)}>
+                          {request.status}
+                        </Badge>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <div className="flex items-center gap-1">
+                            <ThumbsUp className="h-4 w-4" />
+                            <span>{request.votes}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <MessageSquare className="h-4 w-4" />
+                            <span>{request.comments}</span>
+                          </div>
+                        </div>
+                        
+                        <Button
+                          variant={request.hasVoted ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handleVote(request.id)}
+                        >
+                          <Heart className={`h-4 w-4 mr-1 ${request.hasVoted ? 'fill-current' : ''}`} />
+                          {request.hasVoted ? 'Voted' : 'Vote'}
+                        </Button>
+                      </div>
+                      
+                      <div className="text-xs text-gray-500">
+                        Requested by {request.requestedBy} on {request.requestedDate}
+                      </div>
                     </div>
-                    <span>{new Date(request.submittedDate).toLocaleDateString()}</span>
                   </div>
-                  
-                  <div className="mt-2">
-                    <Button size="sm" variant="outline" className="text-xs">
-                      👍 Vote for this course
-                    </Button>
-                  </div>
-                </div>
-              ))}
-              
-              <div className="text-center pt-4">
-                <p className="text-sm text-gray-600">
-                  Want to see more requests? 
-                  <Button variant="link" className="p-0 h-auto ml-1">
-                    View all requests
-                  </Button>
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

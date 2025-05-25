@@ -186,11 +186,11 @@ const AdminDashboard = () => {
             <FileText className="h-5 w-5" />
             <span className="text-sm">Manage Resources</span>
           </Button>
-          <Button variant="outline" className="h-16 flex flex-col gap-1">
+          <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => navigate('/analytics')}>
             <BarChart3 className="h-5 w-5" />
             <span className="text-sm">Analytics</span>
           </Button>
-          <Button variant="outline" className="h-16 flex flex-col gap-1">
+          <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => navigate('/security')}>
             <Shield className="h-5 w-5" />
             <span className="text-sm">Security</span>
           </Button>

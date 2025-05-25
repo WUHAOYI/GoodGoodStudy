@@ -27,6 +27,8 @@ import LearningGoals from "./pages/LearningGoals";
 import CourseRequest from "./pages/CourseRequest";
 import TeacherManagement from "./pages/TeacherManagement";
 import ResourceManagement from "./pages/ResourceManagement";
+import Analytics from "./pages/Analytics";
+import Security from "./pages/Security";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -88,6 +90,16 @@ const App = () => (
               <Route path="/resource-management" element={
                 <ProtectedRoute allowedRoles={['admin']}>
                   <ResourceManagement />
+                </ProtectedRoute>
+              } />
+              <Route path="/analytics" element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <Analytics />
+                </ProtectedRoute>
+              } />
+              <Route path="/security" element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <Security />
                 </ProtectedRoute>
               } />
               
