@@ -1,13 +1,57 @@
-
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
 import { DollarSign, Users, BookOpen, TrendingUp, Video, FileText, Award, Heart, CheckCircle } from 'lucide-react';
 import Header from '@/components/Header';
 
 const TeachOnPlatform = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [showApplicationModal, setShowApplicationModal] = useState(false);
+  const [showLearnMoreModal, setShowLearnMoreModal] = useState(false);
+  const [applicationForm, setApplicationForm] = useState({
+    fullName: '',
+    email: '',
+    expertise: '',
+    experience: '',
+    courseIdeas: ''
+  });
+
+  const handleStartTeaching = () => {
+    setShowApplicationModal(true);
+  };
+
+  const handleLearnMore = () => {
+    setShowLearnMoreModal(true);
+  };
+
+  const handleApplicationSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Application submitted:', applicationForm);
+    toast({
+      title: "Application submitted!",
+      description: "We'll review your application and get back to you within 48 hours.",
+    });
+    setShowApplicationModal(false);
+    setApplicationForm({
+      fullName: '',
+      email: '',
+      expertise: '',
+      experience: '',
+      courseIdeas: ''
+    });
+  };
+
+  const handleApplyToTeach = () => {
+    setShowApplicationModal(true);
+  };
+
   const benefits = [
     {
       icon: DollarSign,
@@ -107,10 +151,10 @@ const TeachOnPlatform = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="px-8 py-3">
+            <Button size="lg" className="px-8 py-3" onClick={handleStartTeaching}>
               Start Teaching Today
             </Button>
-            <Button size="lg" variant="outline" className="px-8 py-3">
+            <Button size="lg" variant="outline" className="px-8 py-3" onClick={handleLearnMore}>
               Learn More
             </Button>
           </div>
@@ -210,7 +254,7 @@ const TeachOnPlatform = () => {
                   <p className="text-gray-600 mb-4">
                     Fill out our instructor application form and we'll review your profile within 2-3 business days.
                   </p>
-                  <Button className="w-full">
+                  <Button className="w-full" onClick={handleApplyToTeach}>
                     Apply to Teach
                   </Button>
                 </div>
@@ -267,13 +311,22 @@ const TeachOnPlatform = () => {
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
                     Full Name
                   </label>
-                  <Input placeholder="Enter your full name" />
+                  <Input 
+                    placeholder="Enter your full name"
+                    value={applicationForm.fullName}
+                    onChange={(e) => setApplicationForm({...applicationForm, fullName: e.target.value})}
+                  />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
                     Email Address
                   </label>
-                  <Input type="email" placeholder="Enter your email" />
+                  <Input 
+                    type="email" 
+                    placeholder="Enter your email"
+                    value={applicationForm.email}
+                    onChange={(e) => setApplicationForm({...applicationForm, email: e.target.value})}
+                  />
                 </div>
               </div>
               
@@ -281,7 +334,11 @@ const TeachOnPlatform = () => {
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
                   Area of Expertise
                 </label>
-                <Input placeholder="e.g., Web Development, Data Science, Marketing" />
+                <Input 
+                  placeholder="e.g., Web Development, Data Science, Marketing"
+                  value={applicationForm.expertise}
+                  onChange={(e) => setApplicationForm({...applicationForm, expertise: e.target.value})}
+                />
               </div>
               
               <div>
@@ -291,6 +348,8 @@ const TeachOnPlatform = () => {
                 <Textarea 
                   placeholder="Tell us about your teaching or professional experience..."
                   className="min-h-[100px]"
+                  value={applicationForm.experience}
+                  onChange={(e) => setApplicationForm({...applicationForm, experience: e.target.value})}
                 />
               </div>
               
@@ -301,10 +360,26 @@ const TeachOnPlatform = () => {
                 <Textarea 
                   placeholder="What courses would you like to create on our platform?"
                   className="min-h-[100px]"
+                  value={applicationForm.courseIdeas}
+                  onChange={(e) => setApplicationForm({...applicationForm, courseIdeas: e.target.value})}
                 />
               </div>
               
-              <Button className="w-full" size="lg">
+              <Button 
+                className="w-full" 
+                size="lg"
+                onClick={() => {
+                  if (applicationForm.fullName && applicationForm.email && applicationForm.expertise) {
+                    handleApplicationSubmit(new Event('submit') as any);
+                  } else {
+                    toast({
+                      title: "Missing information",
+                      description: "Please fill in all required fields.",
+                      variant: "destructive"
+                    });
+                  }
+                }}
+              >
                 Submit Application
               </Button>
             </CardContent>
@@ -319,11 +394,93 @@ const TeachOnPlatform = () => {
           <p className="text-xl mb-8 opacity-90">
             Join our community of expert instructors and start earning today
           </p>
-          <Button size="lg" variant="secondary" className="px-8 py-3">
+          <Button size="lg" variant="secondary" className="px-8 py-3" onClick={handleStartTeaching}>
             Get Started Now
           </Button>
         </div>
       </section>
+
+      {/* Application Modal */}
+      <Dialog open={showApplicationModal} onOpenChange={setShowApplicationModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Instructor Application</DialogTitle>
+            <DialogDescription>
+              Tell us about yourself and your teaching interests.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleApplicationSubmit} className="space-y-4">
+            <Input
+              placeholder="Full Name"
+              value={applicationForm.fullName}
+              onChange={(e) => setApplicationForm({...applicationForm, fullName: e.target.value})}
+              required
+            />
+            <Input
+              type="email"
+              placeholder="Email Address"
+              value={applicationForm.email}
+              onChange={(e) => setApplicationForm({...applicationForm, email: e.target.value})}
+              required
+            />
+            <Input
+              placeholder="Area of Expertise"
+              value={applicationForm.expertise}
+              onChange={(e) => setApplicationForm({...applicationForm, expertise: e.target.value})}
+              required
+            />
+            <Textarea
+              placeholder="Teaching Experience"
+              value={applicationForm.experience}
+              onChange={(e) => setApplicationForm({...applicationForm, experience: e.target.value})}
+            />
+            <Textarea
+              placeholder="Course Ideas"
+              value={applicationForm.courseIdeas}
+              onChange={(e) => setApplicationForm({...applicationForm, courseIdeas: e.target.value})}
+            />
+            <Button type="submit" className="w-full">
+              Submit Application
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Learn More Modal */}
+      <Dialog open={showLearnMoreModal} onOpenChange={setShowLearnMoreModal}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Learn More About Teaching</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-semibold mb-2">What You'll Get:</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• Complete course creation tools</li>
+                <li>• Marketing and promotional support</li>
+                <li>• Student engagement analytics</li>
+                <li>• Revenue sharing up to 85%</li>
+                <li>• Dedicated instructor support</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-2">How It Works:</h4>
+              <ol className="text-sm text-gray-600 space-y-1">
+                <li>1. Submit your instructor application</li>
+                <li>2. Get approved within 48 hours</li>
+                <li>3. Create and upload your course content</li>
+                <li>4. Publish and start earning from enrollments</li>
+              </ol>
+            </div>
+            <Button className="w-full" onClick={() => {
+              setShowLearnMoreModal(false);
+              setShowApplicationModal(true);
+            }}>
+              Apply Now
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

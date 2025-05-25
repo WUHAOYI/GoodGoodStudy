@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -19,7 +18,11 @@ import {
   Smartphone,
   Heart,
   Share2,
-  ArrowLeft
+  ArrowLeft,
+  Facebook,
+  Twitter,
+  Linkedin,
+  Copy
 } from 'lucide-react';
 import Header from '@/components/Header';
 import VideoPreview from '@/components/VideoPreview';
@@ -31,6 +34,7 @@ const CourseDetails = () => {
   const [course, setCourse] = useState<any>(null);
   const [showVideoPreview, setShowVideoPreview] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [showShareMenu, setShowShareMenu] = useState(false);
 
   // Extended mock course data
   const courses = [
@@ -126,27 +130,53 @@ const CourseDetails = () => {
     }
   };
 
-  const handleShare = () => {
+  const handleShare = (platform?: string) => {
     const courseUrl = window.location.href;
-    if (navigator.share) {
-      navigator.share({
-        title: course.title,
-        text: `Check out this course: ${course.title}`,
-        url: courseUrl,
-      }).catch(console.error);
+    const shareText = `Check out this course: ${course?.title}`;
+    
+    if (platform) {
+      let shareUrl = '';
+      switch (platform) {
+        case 'facebook':
+          shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(courseUrl)}`;
+          break;
+        case 'twitter':
+          shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(courseUrl)}`;
+          break;
+        case 'linkedin':
+          shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(courseUrl)}`;
+          break;
+        case 'copy':
+          navigator.clipboard.writeText(courseUrl).then(() => {
+            toast({
+              title: "Link copied!",
+              description: "Course link has been copied to clipboard",
+            });
+          }).catch(() => {
+            toast({
+              title: "Copy failed",
+              description: "Unable to copy link to clipboard",
+              variant: "destructive",
+            });
+          });
+          setShowShareMenu(false);
+          return;
+      }
+      
+      if (shareUrl) {
+        window.open(shareUrl, '_blank', 'width=600,height=400');
+        setShowShareMenu(false);
+      }
     } else {
-      navigator.clipboard.writeText(courseUrl).then(() => {
-        toast({
-          title: "Link copied!",
-          description: "Course link has been copied to clipboard",
-        });
-      }).catch(() => {
-        toast({
-          title: "Share failed",
-          description: "Unable to copy link to clipboard",
-          variant: "destructive",
-        });
-      });
+      if (navigator.share) {
+        navigator.share({
+          title: course?.title,
+          text: shareText,
+          url: courseUrl,
+        }).catch(console.error);
+      } else {
+        setShowShareMenu(!showShareMenu);
+      }
     }
   };
 
@@ -200,7 +230,7 @@ const CourseDetails = () => {
                       <Badge variant="secondary">{course.level}</Badge>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 relative">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -208,9 +238,54 @@ const CourseDetails = () => {
                     >
                       <Heart className={`h-4 w-4 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`} />
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={handleShare}>
+                    <Button variant="ghost" size="sm" onClick={() => handleShare()}>
                       <Share2 className="h-4 w-4" />
                     </Button>
+                    
+                    {/* Share Menu */}
+                    {showShareMenu && (
+                      <div className="absolute top-12 right-0 bg-white border rounded-lg shadow-lg p-4 z-10 min-w-48">
+                        <h4 className="font-semibold mb-3">Share this course</h4>
+                        <div className="space-y-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full justify-start"
+                            onClick={() => handleShare('facebook')}
+                          >
+                            <Facebook className="h-4 w-4 mr-2 text-blue-600" />
+                            Facebook
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full justify-start"
+                            onClick={() => handleShare('twitter')}
+                          >
+                            <Twitter className="h-4 w-4 mr-2 text-blue-400" />
+                            Twitter
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full justify-start"
+                            onClick={() => handleShare('linkedin')}
+                          >
+                            <Linkedin className="h-4 w-4 mr-2 text-blue-700" />
+                            LinkedIn
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full justify-start"
+                            onClick={() => handleShare('copy')}
+                          >
+                            <Copy className="h-4 w-4 mr-2" />
+                            Copy Link
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -233,6 +308,7 @@ const CourseDetails = () => {
                   </div>
                 </div>
 
+                {/* Tabs */}
                 <Tabs defaultValue="overview" className="w-full">
                   <TabsList className="grid w-full grid-cols-4">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -368,6 +444,14 @@ const CourseDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* Click outside to close share menu */}
+      {showShareMenu && (
+        <div 
+          className="fixed inset-0 z-5" 
+          onClick={() => setShowShareMenu(false)}
+        />
+      )}
 
       {/* Video Preview Modal */}
       {showVideoPreview && (

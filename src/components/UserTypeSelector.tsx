@@ -1,7 +1,6 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { GraduationCap, Users, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -58,10 +57,7 @@ const UserTypeSelector = ({ userType, onUserTypeChange }: UserTypeSelectorProps)
     <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
       <CardContent className="p-6">
         <div className="flex items-center gap-4 mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">View as:</h3>
-          <Badge variant="outline" className="text-sm">
-            Demo Mode
-          </Badge>
+          <h3 className="text-lg font-semibold text-gray-900">Explore our platform:</h3>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

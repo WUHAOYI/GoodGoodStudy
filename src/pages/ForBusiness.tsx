@@ -1,11 +1,70 @@
-
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
 import { Building2, Users, TrendingUp, Shield, Zap, Award, CheckCircle, ArrowRight } from 'lucide-react';
 import Header from '@/components/Header';
 
 const ForBusiness = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [showDemoModal, setShowDemoModal] = useState(false);
+  const [showTrialModal, setShowTrialModal] = useState(false);
+  const [demoForm, setDemoForm] = useState({
+    name: '',
+    email: '',
+    company: '',
+    teamSize: '',
+    message: ''
+  });
+  const [trialForm, setTrialForm] = useState({
+    name: '',
+    email: '',
+    company: ''
+  });
+
+  const handleScheduleDemo = () => {
+    setShowDemoModal(true);
+  };
+
+  const handleStartTrial = () => {
+    setShowTrialModal(true);
+  };
+
+  const handleDemoSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Demo request:', demoForm);
+    toast({
+      title: "Demo scheduled!",
+      description: "We'll contact you within 24 hours to schedule your demo.",
+    });
+    setShowDemoModal(false);
+    setDemoForm({ name: '', email: '', company: '', teamSize: '', message: '' });
+  };
+
+  const handleTrialSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Trial request:', trialForm);
+    toast({
+      title: "Trial activated!",
+      description: "Check your email for trial access details.",
+    });
+    setShowTrialModal(false);
+    setTrialForm({ name: '', email: '', company: '' });
+  };
+
+  const handlePlanSelect = (planName: string) => {
+    toast({
+      title: `${planName} plan selected!`,
+      description: "Our sales team will contact you to set up your account.",
+    });
+  };
+
   const features = [
     {
       icon: Users,
@@ -130,10 +189,10 @@ const ForBusiness = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="px-8 py-3">
+            <Button size="lg" className="px-8 py-3" onClick={handleStartTrial}>
               Start Free Trial
             </Button>
-            <Button size="lg" variant="outline" className="px-8 py-3">
+            <Button size="lg" variant="outline" className="px-8 py-3" onClick={handleScheduleDemo}>
               Schedule Demo
             </Button>
           </div>
@@ -231,7 +290,11 @@ const ForBusiness = () => {
                     </li>
                   ))}
                 </ul>
-                <Button className="w-full" variant={plan.popular ? "default" : "outline"}>
+                <Button 
+                  className="w-full" 
+                  variant={plan.popular ? "default" : "outline"}
+                  onClick={() => handlePlanSelect(plan.name)}
+                >
                   Get Started
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -278,15 +341,98 @@ const ForBusiness = () => {
             Join thousands of companies already using EduPlatform to upskill their teams
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" className="px-8 py-3">
+            <Button size="lg" variant="secondary" className="px-8 py-3" onClick={handleStartTrial}>
               Start Free Trial
             </Button>
-            <Button size="lg" variant="outline" className="px-8 py-3 text-white border-white hover:bg-white hover:text-blue-600">
+            <Button size="lg" variant="outline" className="px-8 py-3 text-white border-white hover:bg-white hover:text-blue-600" onClick={handleScheduleDemo}>
               Contact Sales
             </Button>
           </div>
         </div>
       </section>
+
+      {/* Demo Modal */}
+      <Dialog open={showDemoModal} onOpenChange={setShowDemoModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Schedule a Demo</DialogTitle>
+            <DialogDescription>
+              Fill out the form and we'll schedule a personalized demo for your team.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleDemoSubmit} className="space-y-4">
+            <Input
+              placeholder="Full Name"
+              value={demoForm.name}
+              onChange={(e) => setDemoForm({...demoForm, name: e.target.value})}
+              required
+            />
+            <Input
+              type="email"
+              placeholder="Work Email"
+              value={demoForm.email}
+              onChange={(e) => setDemoForm({...demoForm, email: e.target.value})}
+              required
+            />
+            <Input
+              placeholder="Company Name"
+              value={demoForm.company}
+              onChange={(e) => setDemoForm({...demoForm, company: e.target.value})}
+              required
+            />
+            <Input
+              placeholder="Team Size"
+              value={demoForm.teamSize}
+              onChange={(e) => setDemoForm({...demoForm, teamSize: e.target.value})}
+              required
+            />
+            <Textarea
+              placeholder="Tell us about your training needs..."
+              value={demoForm.message}
+              onChange={(e) => setDemoForm({...demoForm, message: e.target.value})}
+            />
+            <Button type="submit" className="w-full">
+              Schedule Demo
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Trial Modal */}
+      <Dialog open={showTrialModal} onOpenChange={setShowTrialModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Start Your Free Trial</DialogTitle>
+            <DialogDescription>
+              Get 14 days of full access to our enterprise platform.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleTrialSubmit} className="space-y-4">
+            <Input
+              placeholder="Full Name"
+              value={trialForm.name}
+              onChange={(e) => setTrialForm({...trialForm, name: e.target.value})}
+              required
+            />
+            <Input
+              type="email"
+              placeholder="Work Email"
+              value={trialForm.email}
+              onChange={(e) => setTrialForm({...trialForm, email: e.target.value})}
+              required
+            />
+            <Input
+              placeholder="Company Name"
+              value={trialForm.company}
+              onChange={(e) => setTrialForm({...trialForm, company: e.target.value})}
+              required
+            />
+            <Button type="submit" className="w-full">
+              Start Free Trial
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -183,6 +182,118 @@ const Courses = () => {
       category: "marketing",
       image: "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=400&h=250&fit=crop",
       isPaid: true,
+      isPopular: false
+    },
+    {
+      id: 13,
+      title: "AWS Cloud Computing Fundamentals",
+      instructor: "Cloud Solutions Academy",
+      price: 199,
+      rating: 4.6,
+      students: 6780,
+      duration: "35 hours",
+      level: "Intermediate",
+      category: "programming",
+      image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=250&fit=crop",
+      isPaid: true,
+      isPopular: true
+    },
+    {
+      id: 14,
+      title: "Digital Photography Masterclass",
+      instructor: "Photo Masters Studio",
+      price: 0,
+      rating: 4.7,
+      students: 9450,
+      duration: "30 hours",
+      level: "Beginner",
+      category: "design",
+      image: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400&h=250&fit=crop",
+      isPaid: false,
+      isPopular: false
+    },
+    {
+      id: 15,
+      title: "Financial Planning & Investment",
+      instructor: "Finance Expert Group",
+      price: 179,
+      rating: 4.5,
+      students: 4320,
+      duration: "25 hours",
+      level: "Intermediate",
+      category: "business",
+      image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=250&fit=crop",
+      isPaid: true,
+      isPopular: false
+    },
+    {
+      id: 16,
+      title: "Cybersecurity Essentials",
+      instructor: "Security Institute",
+      price: 249,
+      rating: 4.8,
+      students: 5890,
+      duration: "40 hours",
+      level: "Advanced",
+      category: "programming",
+      image: "https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=400&h=250&fit=crop",
+      isPaid: true,
+      isPopular: true
+    },
+    {
+      id: 17,
+      title: "Email Marketing Automation",
+      instructor: "Marketing Automation Pro",
+      price: 0,
+      rating: 4.4,
+      students: 7210,
+      duration: "15 hours",
+      level: "Beginner",
+      category: "marketing",
+      image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=250&fit=crop",
+      isPaid: false,
+      isPopular: false
+    },
+    {
+      id: 18,
+      title: "Leadership & Team Management",
+      instructor: "Executive Learning Center",
+      price: 199,
+      rating: 4.6,
+      students: 3450,
+      duration: "20 hours",
+      level: "Intermediate",
+      category: "business",
+      image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop",
+      isPaid: true,
+      isPopular: false
+    },
+    {
+      id: 19,
+      title: "3D Animation with Blender",
+      instructor: "Animation Studio",
+      price: 159,
+      rating: 4.7,
+      students: 6120,
+      duration: "45 hours",
+      level: "Advanced",
+      category: "design",
+      image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=250&fit=crop",
+      isPaid: true,
+      isPopular: true
+    },
+    {
+      id: 20,
+      title: "Node.js Backend Development",
+      instructor: "Backend Masters",
+      price: 0,
+      rating: 4.5,
+      students: 8930,
+      duration: "38 hours",
+      level: "Intermediate",
+      category: "programming",
+      image: "https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=400&h=250&fit=crop",
+      isPaid: false,
       isPopular: false
     }
   ];
