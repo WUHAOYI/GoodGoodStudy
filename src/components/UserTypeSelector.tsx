@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { GraduationCap, Users, Shield } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface UserTypeSelectorProps {
   userType: 'student' | 'teacher' | 'admin';
@@ -10,6 +11,8 @@ interface UserTypeSelectorProps {
 }
 
 const UserTypeSelector = ({ userType, onUserTypeChange }: UserTypeSelectorProps) => {
+  const navigate = useNavigate();
+
   const userTypes = [
     {
       id: 'student' as const,
@@ -18,7 +21,8 @@ const UserTypeSelector = ({ userType, onUserTypeChange }: UserTypeSelectorProps)
       icon: GraduationCap,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
-      activeColor: 'bg-blue-600'
+      activeColor: 'bg-blue-600',
+      route: '/student-dashboard'
     },
     {
       id: 'teacher' as const,
@@ -27,7 +31,8 @@ const UserTypeSelector = ({ userType, onUserTypeChange }: UserTypeSelectorProps)
       icon: Users,
       color: 'text-green-600',
       bgColor: 'bg-green-50',
-      activeColor: 'bg-green-600'
+      activeColor: 'bg-green-600',
+      route: '/teacher-dashboard'
     },
     {
       id: 'admin' as const,
@@ -36,9 +41,18 @@ const UserTypeSelector = ({ userType, onUserTypeChange }: UserTypeSelectorProps)
       icon: Shield,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50',
-      activeColor: 'bg-purple-600'
+      activeColor: 'bg-purple-600',
+      route: '/admin-dashboard'
     }
   ];
+
+  const handleUserTypeClick = (type: 'student' | 'teacher' | 'admin') => {
+    onUserTypeChange(type);
+    const selectedType = userTypes.find(ut => ut.id === type);
+    if (selectedType) {
+      navigate(selectedType.route);
+    }
+  };
 
   return (
     <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
@@ -59,7 +73,7 @@ const UserTypeSelector = ({ userType, onUserTypeChange }: UserTypeSelectorProps)
               <Button
                 key={type.id}
                 variant="ghost"
-                onClick={() => onUserTypeChange(type.id)}
+                onClick={() => handleUserTypeClick(type.id)}
                 className={`h-auto p-4 flex flex-col items-center gap-3 transition-all duration-200 ${
                   isActive 
                     ? `${type.activeColor} text-white hover:${type.activeColor}/90` 

@@ -68,18 +68,30 @@ const Header = () => {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            <a href="#" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+            <button 
+              onClick={() => navigate('/courses')}
+              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+            >
               Courses
-            </a>
-            <a href="#" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+            </button>
+            <button 
+              onClick={() => navigate('/categories')}
+              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+            >
               Categories
-            </a>
-            <a href="#" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+            </button>
+            <button 
+              onClick={() => navigate('/for-business')}
+              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+            >
               For Business
-            </a>
-            <a href="#" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+            </button>
+            <button 
+              onClick={() => navigate('/teach')}
+              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+            >
               Teach on Platform
-            </a>
+            </button>
           </nav>
 
           {/* Right Side */}
@@ -175,10 +187,10 @@ const Header = () => {
               </>
             ) : (
               <div className="flex items-center gap-2">
-                <Button variant="ghost" onClick={() => setIsLoggedIn(true)}>
+                <Button variant="ghost" onClick={() => navigate('/login')}>
                   Log In
                 </Button>
-                <Button onClick={() => setIsLoggedIn(true)}>
+                <Button onClick={() => navigate('/register')}>
                   Sign Up
                 </Button>
               </div>

@@ -1,0 +1,226 @@
+
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Search, BookOpen, Users, Award, Star, Filter } from 'lucide-react';
+import Header from '@/components/Header';
+import CourseCard from '@/components/CourseCard';
+
+const Courses = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [priceFilter, setPriceFilter] = useState('all');
+
+  // Mock course data
+  const courses = [
+    {
+      id: 1,
+      title: "Full Stack Web Development Bootcamp",
+      instructor: "Tech Academy",
+      price: 299,
+      originalPrice: 499,
+      rating: 4.8,
+      students: 12450,
+      duration: "40 hours",
+      level: "Beginner",
+      category: "programming",
+      image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=250&fit=crop",
+      isPaid: true,
+      isPopular: true
+    },
+    {
+      id: 2,
+      title: "Digital Marketing Fundamentals",
+      instructor: "Marketing Pro Institute",
+      price: 0,
+      rating: 4.6,
+      students: 8930,
+      duration: "25 hours",
+      level: "Intermediate",
+      category: "marketing",
+      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop",
+      isPaid: false,
+      isPopular: false
+    },
+    {
+      id: 3,
+      title: "Project Management Professional (PMP)",
+      instructor: "Business Excellence Academy",
+      price: 199,
+      rating: 4.9,
+      students: 5670,
+      duration: "60 hours",
+      level: "Advanced",
+      category: "business",
+      image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop",
+      isPaid: true,
+      isPopular: true
+    },
+    {
+      id: 4,
+      title: "UI/UX Design Masterclass",
+      instructor: "Design Studio Pro",
+      price: 0,
+      rating: 4.7,
+      students: 15230,
+      duration: "35 hours",
+      level: "Beginner",
+      category: "design",
+      image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=250&fit=crop",
+      isPaid: false,
+      isPopular: false
+    },
+    {
+      id: 5,
+      title: "Python for Data Science",
+      instructor: "Data Science Institute",
+      price: 249,
+      rating: 4.8,
+      students: 9340,
+      duration: "45 hours",
+      level: "Intermediate",
+      category: "programming",
+      image: "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400&h=250&fit=crop",
+      isPaid: true,
+      isPopular: true
+    },
+    {
+      id: 6,
+      title: "Mobile App Development with React Native",
+      instructor: "Mobile Dev Academy",
+      price: 0,
+      rating: 4.5,
+      students: 7820,
+      duration: "50 hours",
+      level: "Advanced",
+      category: "programming",
+      image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400&h=250&fit=crop",
+      isPaid: false,
+      isPopular: false
+    }
+  ];
+
+  const categories = [
+    { id: 'all', name: 'All Categories', icon: BookOpen },
+    { id: 'programming', name: 'Programming', icon: BookOpen },
+    { id: 'marketing', name: 'Marketing', icon: Users },
+    { id: 'business', name: 'Business', icon: Award },
+    { id: 'design', name: 'Design', icon: Star }
+  ];
+
+  const filteredCourses = courses.filter(course => {
+    const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         course.instructor.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || course.category === selectedCategory;
+    const matchesPrice = priceFilter === 'all' || 
+                        (priceFilter === 'free' && !course.isPaid) ||
+                        (priceFilter === 'paid' && course.isPaid);
+    return matchesSearch && matchesCategory && matchesPrice;
+  });
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      <Header />
+      
+      <div className="container mx-auto px-6 py-8">
+        {/* Page Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">All Courses</h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Explore our comprehensive catalog of professional courses designed to advance your career
+          </p>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="mb-8 space-y-4">
+          {/* Search Bar */}
+          <div className="max-w-2xl mx-auto relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <Input
+              type="text"
+              placeholder="Search courses, instructors, or topics..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-12 pr-4 py-3 text-lg rounded-full border-2 border-gray-200 focus:border-blue-500"
+            />
+          </div>
+
+          {/* Filters */}
+          <div className="flex flex-wrap justify-center gap-4">
+            {/* Category Filter */}
+            <div className="flex flex-wrap gap-2">
+              {categories.map((category) => {
+                const Icon = category.icon;
+                return (
+                  <Button
+                    key={category.id}
+                    variant={selectedCategory === category.id ? "default" : "outline"}
+                    onClick={() => setSelectedCategory(category.id)}
+                    className="flex items-center gap-2"
+                  >
+                    <Icon className="h-4 w-4" />
+                    {category.name}
+                  </Button>
+                );
+              })}
+            </div>
+
+            {/* Price Filter */}
+            <div className="flex gap-2">
+              <Button
+                variant={priceFilter === 'all' ? "default" : "outline"}
+                onClick={() => setPriceFilter('all')}
+                size="sm"
+              >
+                All Prices
+              </Button>
+              <Button
+                variant={priceFilter === 'free' ? "default" : "outline"}
+                onClick={() => setPriceFilter('free')}
+                size="sm"
+              >
+                Free
+              </Button>
+              <Button
+                variant={priceFilter === 'paid' ? "default" : "outline"}
+                onClick={() => setPriceFilter('paid')}
+                size="sm"
+              >
+                Paid
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Results Count */}
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-semibold text-gray-900">
+            {selectedCategory === 'all' ? 'All Courses' : `${categories.find(c => c.id === selectedCategory)?.name} Courses`}
+          </h2>
+          <Badge variant="secondary" className="text-sm">
+            {filteredCourses.length} courses found
+          </Badge>
+        </div>
+
+        {/* Course Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredCourses.map((course) => (
+            <CourseCard key={course.id} course={course} />
+          ))}
+        </div>
+
+        {/* No Results */}
+        {filteredCourses.length === 0 && (
+          <div className="text-center py-12">
+            <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">No courses found</h3>
+            <p className="text-gray-500">Try adjusting your search or filter criteria</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Courses;
