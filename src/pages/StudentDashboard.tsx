@@ -1,4 +1,4 @@
-
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -6,9 +6,16 @@ import { Badge } from '@/components/ui/badge';
 import { BookOpen, Clock, Award, TrendingUp, Play, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
+import StatCard from '@/components/StatCard';
+import StatsModal from '@/components/StatsModal';
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
+  const [statsModal, setStatsModal] = useState<{ isOpen: boolean; type: string; title: string }>({
+    isOpen: false,
+    type: '',
+    title: ''
+  });
 
   const enrolledCourses = [
     {
@@ -58,6 +65,36 @@ const StudentDashboard = () => {
     }
   ];
 
+  const mockEnrolledCourses = [
+    { id: 1, title: "Full Stack Web Development", description: "Complete bootcamp", status: "In Progress", date: "2024-05-01" },
+    { id: 2, title: "Digital Marketing Fundamentals", description: "Marketing strategies", status: "Completed", date: "2024-04-15" },
+    { id: 3, title: "Python for Data Science", description: "Data analysis with Python", status: "In Progress", date: "2024-05-10" }
+  ];
+
+  const mockCompletedCourses = [
+    { id: 2, title: "Digital Marketing Fundamentals", description: "Successfully completed", status: "Completed", date: "2024-04-30" },
+    { id: 4, title: "Introduction to UX Design", description: "Design principles", status: "Completed", date: "2024-03-20" }
+  ];
+
+  const handleStatsClick = (type: string, title: string) => {
+    setStatsModal({ isOpen: true, type, title });
+  };
+
+  const getStatsData = () => {
+    switch (statsModal.type) {
+      case 'enrolled':
+        return mockEnrolledCourses;
+      case 'completed':
+        return mockCompletedCourses;
+      default:
+        return [];
+    }
+  };
+
+  const handleContinueLearning = (courseId: number) => {
+    navigate(`/course/${courseId}`);
+  };
+
   const handleExploreCourse = (courseId: number) => {
     navigate(`/course/${courseId}`);
   };
@@ -74,61 +111,40 @@ const StudentDashboard = () => {
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <div className="bg-blue-100 p-2 rounded-lg">
-                  <BookOpen className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">12</p>
-                  <p className="text-sm text-gray-600">Enrolled Courses</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <div className="bg-green-100 p-2 rounded-lg">
-                  <Award className="h-6 w-6 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">8</p>
-                  <p className="text-sm text-gray-600">Completed</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <div className="bg-purple-100 p-2 rounded-lg">
-                  <Clock className="h-6 w-6 text-purple-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">45h</p>
-                  <p className="text-sm text-gray-600">This Month</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <div className="bg-orange-100 p-2 rounded-lg">
-                  <TrendingUp className="h-6 w-6 text-orange-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">7</p>
-                  <p className="text-sm text-gray-600">Day Streak</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Enrolled Courses"
+            value="12"
+            subtitle=""
+            icon={BookOpen}
+            iconBgColor="bg-blue-100"
+            iconColor="text-blue-600"
+            onClick={() => handleStatsClick('enrolled', 'Enrolled Courses')}
+          />
+          <StatCard
+            title="Completed"
+            value="8"
+            subtitle=""
+            icon={Award}
+            iconBgColor="bg-green-100"
+            iconColor="text-green-600"
+            onClick={() => handleStatsClick('completed', 'Completed Courses')}
+          />
+          <StatCard
+            title="This Month"
+            value="45h"
+            subtitle=""
+            icon={Clock}
+            iconBgColor="bg-purple-100"
+            iconColor="text-purple-600"
+          />
+          <StatCard
+            title="Day Streak"
+            value="7"
+            subtitle=""
+            icon={TrendingUp}
+            iconBgColor="bg-orange-100"
+            iconColor="text-orange-600"
+          />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -165,7 +181,11 @@ const StudentDashboard = () => {
                         <p className="text-sm font-medium text-gray-900">{course.nextLesson}</p>
                         <p className="text-xs text-gray-500">{course.timeLeft}</p>
                       </div>
-                      <Button size="sm" disabled={course.progress === 100}>
+                      <Button 
+                        size="sm" 
+                        disabled={course.progress === 100}
+                        onClick={() => handleContinueLearning(course.id)}
+                      >
                         <Play className="h-4 w-4 mr-2" />
                         {course.progress === 100 ? "Completed" : "Continue"}
                       </Button>
@@ -232,6 +252,14 @@ const StudentDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Stats Modal */}
+      <StatsModal
+        isOpen={statsModal.isOpen}
+        onClose={() => setStatsModal({ isOpen: false, type: '', title: '' })}
+        title={statsModal.title}
+        items={getStatsData()}
+      />
     </div>
   );
 };

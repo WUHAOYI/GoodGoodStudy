@@ -8,9 +8,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Save, Upload, Plus, Trash } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
+import FileUpload from '@/components/FileUpload';
 
 const CourseManagement = () => {
   const { id } = useParams();
@@ -33,6 +34,8 @@ const CourseManagement = () => {
     { id: 1, title: "Introduction to Web Development", duration: "2 hours" },
     { id: 2, title: "HTML & CSS Fundamentals", duration: "6 hours" }
   ]);
+
+  const [courseFiles, setCourseFiles] = useState<any[]>([]);
 
   const handleSave = () => {
     toast({
@@ -195,6 +198,21 @@ const CourseManagement = () => {
                     </div>
                   ))}
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Course Materials */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Course Materials</CardTitle>
+                <CardDescription>Upload videos, documents, and other resources</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FileUpload
+                  onFilesChange={setCourseFiles}
+                  acceptedTypes={['image/*', 'video/*', '.pdf', '.doc', '.docx', '.ppt', '.pptx']}
+                  maxFiles={20}
+                />
               </CardContent>
             </Card>
           </div>

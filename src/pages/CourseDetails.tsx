@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import Header from '@/components/Header';
 import VideoPreview from '@/components/VideoPreview';
+import CourseReviews from '@/components/CourseReviews';
 
 const CourseDetails = () => {
   const { id } = useParams();
@@ -211,9 +212,16 @@ const CourseDetails = () => {
         setShowShareMenu(false);
       }
     } else {
-      // Always show the share menu instead of trying navigator.share
       setShowShareMenu(!showShareMenu);
     }
+  };
+
+  const handlePlayLesson = (sectionIndex: number, lessonIndex?: number) => {
+    toast({
+      title: "Starting lesson",
+      description: "Lesson playback would start here",
+    });
+    // In a real app, this would navigate to the lesson player
   };
 
   const handleBack = () => {
@@ -403,7 +411,11 @@ const CourseDetails = () => {
                                   {section.lessons} lessons • {section.duration}
                                 </p>
                               </div>
-                              <Button variant="ghost" size="sm">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handlePlayLesson(index)}
+                              >
                                 <Play className="h-4 w-4" />
                               </Button>
                             </div>
@@ -427,8 +439,7 @@ const CourseDetails = () => {
                   </TabsContent>
                   
                   <TabsContent value="reviews" className="space-y-4">
-                    <h3 className="text-xl font-semibold">Student Reviews</h3>
-                    <p className="text-gray-600">Reviews coming soon...</p>
+                    <CourseReviews courseId={parseInt(id || '1')} />
                   </TabsContent>
                 </Tabs>
               </CardContent>

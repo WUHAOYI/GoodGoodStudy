@@ -44,7 +44,7 @@ const Header = () => {
               <BookOpen className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">EduPlatform</h1>
+              <h1 className="text-xl font-bold text-gray-900">GoodGoodStudy</h1>
             </div>
           </Link>
 
