@@ -12,17 +12,51 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Bell, User, ShoppingCart, BookOpen, Menu } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<'student' | 'teacher' | 'admin'>('student');
+  const navigate = useNavigate();
+
+  const handleDashboardNavigation = () => {
+    switch (userRole) {
+      case 'student':
+        navigate('/student-dashboard');
+        break;
+      case 'teacher':
+        navigate('/teacher-dashboard');
+        break;
+      case 'admin':
+        navigate('/admin-dashboard');
+        break;
+      default:
+        navigate('/student-dashboard');
+    }
+  };
+
+  const handleRoleChange = (role: 'student' | 'teacher' | 'admin') => {
+    setUserRole(role);
+    // Auto-navigate to the appropriate dashboard when role changes
+    switch (role) {
+      case 'student':
+        navigate('/student-dashboard');
+        break;
+      case 'teacher':
+        navigate('/teacher-dashboard');
+        break;
+      case 'admin':
+        navigate('/admin-dashboard');
+        break;
+    }
+  };
 
   return (
     <header className="bg-white/95 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
             <div className="bg-blue-600 p-2 rounded-lg">
               <BookOpen className="h-6 w-6 text-white" />
             </div>
@@ -86,26 +120,53 @@ const Header = () => {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>My Learning</DropdownMenuItem>
-                    <DropdownMenuItem>My Cart</DropdownMenuItem>
-                    <DropdownMenuItem>Wishlist</DropdownMenuItem>
-                    <DropdownMenuItem>Account Settings</DropdownMenuItem>
-                    {userRole === 'teacher' && (
+                    
+                    {/* Role Switcher for Demo */}
+                    <DropdownMenuLabel className="text-xs text-gray-500">
+                      Switch Role (Demo)
+                    </DropdownMenuLabel>
+                    <DropdownMenuItem onClick={() => handleRoleChange('student')}>
+                      View as Student
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleRoleChange('teacher')}>
+                      View as Teacher
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleRoleChange('admin')}>
+                      View as Admin
+                    </DropdownMenuItem>
+                    
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleDashboardNavigation}>
+                      My Dashboard
+                    </DropdownMenuItem>
+                    
+                    {userRole === 'student' && (
                       <>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>Teaching Dashboard</DropdownMenuItem>
-                        <DropdownMenuItem>Create Course</DropdownMenuItem>
+                        <DropdownMenuItem>My Learning</DropdownMenuItem>
+                        <DropdownMenuItem>My Cart</DropdownMenuItem>
+                        <DropdownMenuItem>Wishlist</DropdownMenuItem>
                       </>
                     )}
+                    
+                    {userRole === 'teacher' && (
+                      <>
+                        <DropdownMenuItem>Teaching Dashboard</DropdownMenuItem>
+                        <DropdownMenuItem>Create Course</DropdownMenuItem>
+                        <DropdownMenuItem>My Courses</DropdownMenuItem>
+                      </>
+                    )}
+                    
                     {userRole === 'admin' && (
                       <>
-                        <DropdownMenuSeparator />
                         <DropdownMenuItem>Admin Dashboard</DropdownMenuItem>
                         <DropdownMenuItem>Course Reviews</DropdownMenuItem>
                         <DropdownMenuItem>User Management</DropdownMenuItem>
+                        <DropdownMenuItem>Institution Management</DropdownMenuItem>
                       </>
                     )}
+                    
                     <DropdownMenuSeparator />
+                    <DropdownMenuItem>Account Settings</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setIsLoggedIn(false)}>
                       Sign Out
                     </DropdownMenuItem>
