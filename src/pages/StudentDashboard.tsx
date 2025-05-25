@@ -13,7 +13,8 @@ import {
   Target,
   Trophy,
   Star,
-  CheckCircle
+  CheckCircle,
+  Users
 } from 'lucide-react';
 import Header from '@/components/Header';
 import { useNavigate } from 'react-router-dom';
@@ -25,7 +26,7 @@ import { useCourses } from '@/contexts/CourseContext';
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const { achievements } = useCourses();
-  const [modalState, setModalState<{
+  const [modalState, setModalState] = useState<{
     isOpen: boolean;
     title: string;
     items: any[];
