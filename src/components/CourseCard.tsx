@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Star, Clock, Users, DollarSign, Play, Heart } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import VideoPreview from './VideoPreview';
 
 interface Course {
@@ -31,9 +32,17 @@ const CourseCard = ({ course }: CourseCardProps) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [showVideoPreview, setShowVideoPreview] = useState(false);
+  const navigate = useNavigate();
 
-  // Sample video URL for demo purposes
-  const previewVideoUrl = course.previewVideoUrl || "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4";
+  // Sample video URLs for demo purposes
+  const sampleVideos = [
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
+  ];
+  
+  const previewVideoUrl = course.previewVideoUrl || sampleVideos[course.id % sampleVideos.length];
 
   const formatPrice = (price: number) => {
     return price === 0 ? 'Free' : `$${price}`;
@@ -51,12 +60,26 @@ const CourseCard = ({ course }: CourseCardProps) => {
     setShowVideoPreview(true);
   };
 
+  const handleCardClick = () => {
+    navigate(`/course/${course.id}`);
+  };
+
+  const handleBuyClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (course.isPaid) {
+      navigate('/payment', { state: { course } });
+    } else {
+      navigate('/student-dashboard', { state: { enrolledCourse: course } });
+    }
+  };
+
   return (
     <>
       <Card 
         className="group h-full bg-white hover:shadow-xl transition-all duration-300 cursor-pointer border-0 overflow-hidden"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        onClick={handleCardClick}
       >
         <div className="relative overflow-hidden">
           <img
@@ -158,6 +181,7 @@ const CourseCard = ({ course }: CourseCardProps) => {
                   ? 'bg-blue-600 hover:bg-blue-700' 
                   : 'bg-green-600 hover:bg-green-700'
               }`}
+              onClick={handleBuyClick}
             >
               {course.isPaid ? (
                 <>

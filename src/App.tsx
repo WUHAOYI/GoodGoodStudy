@@ -9,6 +9,9 @@ import StudentDashboard from "./pages/StudentDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import Courses from "./pages/Courses";
+import CourseDetails from "./pages/CourseDetails";
+import Payment from "./pages/Payment";
+import PaymentSuccess from "./pages/PaymentSuccess";
 import Categories from "./pages/Categories";
 import ForBusiness from "./pages/ForBusiness";
 import TeachOnPlatform from "./pages/TeachOnPlatform";
@@ -30,6 +33,9 @@ const App = () => (
           <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/courses" element={<Courses />} />
+          <Route path="/course/:id" element={<CourseDetails />} />
+          <Route path="/payment" element={<Payment />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/for-business" element={<ForBusiness />} />
           <Route path="/teach" element={<TeachOnPlatform />} />

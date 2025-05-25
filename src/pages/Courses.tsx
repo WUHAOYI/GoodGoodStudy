@@ -12,7 +12,7 @@ const Courses = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [priceFilter, setPriceFilter] = useState('all');
 
-  // Mock course data
+  // Extended mock course data with more courses
   const courses = [
     {
       id: 1,
@@ -97,6 +97,92 @@ const Courses = () => {
       category: "programming",
       image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400&h=250&fit=crop",
       isPaid: false,
+      isPopular: false
+    },
+    {
+      id: 7,
+      title: "Advanced JavaScript & ES6+",
+      instructor: "Code Masters",
+      price: 179,
+      originalPrice: 299,
+      rating: 4.7,
+      students: 11200,
+      duration: "30 hours",
+      level: "Advanced",
+      category: "programming",
+      image: "https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?w=400&h=250&fit=crop",
+      isPaid: true,
+      isPopular: true
+    },
+    {
+      id: 8,
+      title: "Social Media Marketing Strategy",
+      instructor: "Digital Growth Hub",
+      price: 0,
+      rating: 4.4,
+      students: 6340,
+      duration: "18 hours",
+      level: "Beginner",
+      category: "marketing",
+      image: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=250&fit=crop",
+      isPaid: false,
+      isPopular: false
+    },
+    {
+      id: 9,
+      title: "Entrepreneurship & Startup Fundamentals",
+      instructor: "Business Innovators",
+      price: 159,
+      rating: 4.6,
+      students: 4890,
+      duration: "22 hours",
+      level: "Beginner",
+      category: "business",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=250&fit=crop",
+      isPaid: true,
+      isPopular: false
+    },
+    {
+      id: 10,
+      title: "Graphic Design with Adobe Creative Suite",
+      instructor: "Creative Professionals",
+      price: 0,
+      rating: 4.5,
+      students: 8750,
+      duration: "28 hours",
+      level: "Intermediate",
+      category: "design",
+      image: "https://images.unsplash.com/photo-1558655146-d09347e92766?w=400&h=250&fit=crop",
+      isPaid: false,
+      isPopular: false
+    },
+    {
+      id: 11,
+      title: "Machine Learning with Python",
+      instructor: "AI Research Lab",
+      price: 399,
+      originalPrice: 599,
+      rating: 4.9,
+      students: 7230,
+      duration: "65 hours",
+      level: "Advanced",
+      category: "programming",
+      image: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=400&h=250&fit=crop",
+      isPaid: true,
+      isPopular: true
+    },
+    {
+      id: 12,
+      title: "Content Marketing & SEO",
+      instructor: "Growth Marketing Team",
+      price: 129,
+      rating: 4.3,
+      students: 5120,
+      duration: "20 hours",
+      level: "Intermediate",
+      category: "marketing",
+      image: "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=400&h=250&fit=crop",
+      isPaid: true,
       isPopular: false
     }
   ];
