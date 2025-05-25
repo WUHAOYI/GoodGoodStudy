@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,7 +19,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart as RechartsLineChart, Line, PieChart as RechartsPieChart, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart as RechartsLineChart, Line, PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
 
 const Analytics = () => {
   const navigate = useNavigate();
@@ -275,7 +274,7 @@ const Analytics = () => {
               <ResponsiveContainer width="100%" height={300}>
                 <RechartsPieChart data={coursePopularityData}>
                   <Tooltip />
-                  <RechartsPieChart.Pie 
+                  <Pie 
                     data={coursePopularityData} 
                     cx="50%" 
                     cy="50%" 
@@ -285,7 +284,7 @@ const Analytics = () => {
                     {coursePopularityData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
-                  </RechartsPieChart.Pie>
+                  </Pie>
                 </RechartsPieChart>
               </ResponsiveContainer>
               <div className="mt-4 space-y-2">
