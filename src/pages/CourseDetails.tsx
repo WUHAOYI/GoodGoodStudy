@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,7 @@ const CourseDetails = () => {
   const [isLessonPlayerOpen, setIsLessonPlayerOpen] = useState(false);
   const [previewLesson, setPreviewLesson] = useState(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isMainVideoOpen, setIsMainVideoOpen] = useState(false);
 
   // Mock course data - in a real app, this would be fetched based on the ID
   const course = {
@@ -43,6 +45,7 @@ const CourseDetails = () => {
     level: "Beginner to Advanced",
     image: "/placeholder.svg",
     description: "Master full-stack web development with this comprehensive bootcamp. Learn HTML, CSS, JavaScript, React, Node.js, and more.",
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     requirements: [
       "Basic computer skills",
       "No prior programming experience required",
@@ -89,6 +92,15 @@ const CourseDetails = () => {
       setSelectedLesson(lesson);
       setIsLessonPlayerOpen(true);
     }
+  };
+
+  const handlePlayMainVideo = () => {
+    setPreviewLesson({
+      title: course.title + " - Course Preview",
+      videoUrl: course.videoUrl,
+      duration: "2:30"
+    });
+    setIsPreviewOpen(true);
   };
 
   const handleEnroll = () => {
@@ -186,9 +198,17 @@ const CourseDetails = () => {
               </div>
             </div>
 
-            {/* Course Image */}
-            <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
-              <PlayCircle className="h-16 w-16 text-gray-400" />
+            {/* Course Video */}
+            <div className="relative aspect-video bg-gray-200 rounded-lg overflow-hidden cursor-pointer group" onClick={handlePlayMainVideo}>
+              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                <div className="bg-black/50 rounded-full p-4 group-hover:bg-black/70 transition-colors">
+                  <PlayCircle className="h-16 w-16 text-white" />
+                </div>
+              </div>
+              <div className="absolute bottom-4 left-4 text-white">
+                <h3 className="font-semibold">Course Preview</h3>
+                <p className="text-sm opacity-90">Get a preview of what you'll learn</p>
+              </div>
             </div>
 
             {/* What You'll Learn */}
@@ -289,8 +309,12 @@ const CourseDetails = () => {
             {/* Course Card */}
             <Card className="sticky top-6">
               <CardContent className="p-6">
-                <div className="aspect-video bg-gray-200 rounded-lg mb-4 flex items-center justify-center">
-                  <PlayCircle className="h-12 w-12 text-gray-400" />
+                <div className="relative aspect-video bg-gray-200 rounded-lg mb-4 overflow-hidden cursor-pointer group" onClick={handlePlayMainVideo}>
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                    <div className="bg-black/50 rounded-full p-3 group-hover:bg-black/70 transition-colors">
+                      <PlayCircle className="h-8 w-8 text-white" />
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="flex items-center gap-2 mb-4">

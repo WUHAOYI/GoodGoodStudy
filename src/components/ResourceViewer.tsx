@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { X, Download, ExternalLink } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface ResourceViewerProps {
   isOpen: boolean;
@@ -22,8 +23,48 @@ interface ResourceViewerProps {
 
 const ResourceViewer = ({ isOpen, onClose, resource }: ResourceViewerProps) => {
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   if (!resource) return null;
+
+  const handleDownload = () => {
+    try {
+      // Create a download link
+      const link = document.createElement('a');
+      link.href = resource.url;
+      link.download = resource.name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast({
+        title: "Download Started",
+        description: `${resource.name} is being downloaded.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Download Failed",
+        description: "Unable to download the resource.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleOpenExternal = () => {
+    try {
+      window.open(resource.url, '_blank');
+      toast({
+        title: "Opening External",
+        description: `${resource.name} opened in a new tab.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Open Failed",
+        description: "Unable to open the resource externally.",
+        variant: "destructive"
+      });
+    }
+  };
 
   const renderContent = () => {
     // Mock content based on resource type
@@ -122,11 +163,11 @@ const ResourceViewer = ({ isOpen, onClose, resource }: ResourceViewerProps) => {
           <DialogTitle className="flex items-center justify-between">
             <span>Resource Viewer - {resource.name}</span>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline">
+              <Button size="sm" variant="outline" onClick={handleDownload}>
                 <Download className="h-4 w-4 mr-2" />
                 Download
               </Button>
-              <Button size="sm" variant="outline">
+              <Button size="sm" variant="outline" onClick={handleOpenExternal}>
                 <ExternalLink className="h-4 w-4 mr-2" />
                 Open External
               </Button>
