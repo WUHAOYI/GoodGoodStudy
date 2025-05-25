@@ -1,63 +1,105 @@
-
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { BookOpen, Clock, Award, TrendingUp, Play, Calendar, Target, Trophy, Zap, CheckCircle } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { useNavigate } from 'react-router-dom';
-import { useCourses } from '@/contexts/CourseContext';
-import { useState } from 'react';
+import { 
+  BookOpen, 
+  Clock, 
+  Award, 
+  TrendingUp, 
+  PlayCircle, 
+  Calendar,
+  Target,
+  Trophy,
+  Star,
+  CheckCircle
+} from 'lucide-react';
 import Header from '@/components/Header';
+import { useNavigate } from 'react-router-dom';
 import StatCard from '@/components/StatCard';
 import StatsModal from '@/components/StatsModal';
+import CertificateModal from '@/components/CertificateModal';
+import { useCourses } from '@/contexts/CourseContext';
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
-  const { courses, achievements } = useCourses();
-  const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
-  const [modalData, setModalData] = useState<any>({ title: '', items: [] });
+  const { achievements } = useCourses();
+  const [modalState, setModalState<{
+    isOpen: boolean;
+    title: string;
+    items: any[];
+  }>({
+    isOpen: false,
+    title: '',
+    items: []
+  });
+  const [certificateModalOpen, setCertificateModalOpen] = useState(false);
 
-  // Mock student data
-  const enrolledCourseIds = [1, 2];
-  const completedCourseIds = [3];
-  const enrolledCourses = courses.filter(course => enrolledCourseIds.includes(course.id));
-  const completedCourses = courses.filter(course => completedCourseIds.includes(course.id));
-
-  const getAchievementIcon = (iconName: string) => {
-    switch (iconName) {
-      case 'trophy': return Trophy;
-      case 'zap': return Zap;
-      case 'book-open': return BookOpen;
-      case 'check-circle': return CheckCircle;
-      case 'target': return Target;
-      default: return Award;
+  // Mock data for courses
+  const courses = [
+    {
+      id: 1,
+      title: "Full Stack Web Development Bootcamp",
+      progress: 75,
+      duration: "40 hours",
+      lastActivity: "2 days ago"
+    },
+    {
+      id: 2,
+      title: "Advanced React Patterns",
+      progress: 50,
+      duration: "20 hours",
+      lastActivity: "Yesterday"
+    },
+    {
+      id: 3,
+      title: "JavaScript Fundamentals",
+      progress: 100,
+      duration: "15 hours",
+      lastActivity: "Completed"
     }
-  };
+  ];
 
-  const handleViewStats = (type: string) => {
+  // Mock data for learning paths
+  const learningPaths = [
+    {
+      id: 1,
+      title: "Web Development Career Path",
+      progress: 60,
+      coursesLeft: 5
+    },
+    {
+      id: 2,
+      title: "Data Science Career Path",
+      progress: 30,
+      coursesLeft: 8
+    }
+  ];
+
+  const handleStatClick = (type: string) => {
     let items: any[] = [];
     let title = '';
 
     switch (type) {
-      case 'enrolled':
+      case 'courses':
         title = 'Enrolled Courses';
-        items = enrolledCourses.map(course => ({
+        items = courses.map(course => ({
           id: course.id,
           title: course.title,
-          description: `${course.level} • ${course.duration}`,
+          description: `Progress: ${course.progress}% • Last Activity: ${course.lastActivity}`,
           status: 'In Progress',
-          date: course.lastUpdated
+          date: '2024-05-20'
         }));
         break;
-      case 'completed':
-        title = 'Completed Courses';
-        items = completedCourses.map(course => ({
-          id: course.id,
-          title: course.title,
-          description: `${course.level} • ${course.duration}`,
-          status: 'Completed',
-          date: course.lastUpdated
+      case 'paths':
+        title = 'Learning Paths';
+        items = learningPaths.map(path => ({
+          id: path.id,
+          title: path.title,
+          description: `Progress: ${path.progress}% • Courses Left: ${path.coursesLeft}`,
+          status: 'In Progress',
+          date: '2024-05-20'
         }));
         break;
       case 'achievements':
@@ -66,267 +108,196 @@ const StudentDashboard = () => {
           id: achievement.id,
           title: achievement.title,
           description: achievement.description,
-          status: achievement.type,
+          status: 'Earned',
           date: achievement.earnedDate
         }));
         break;
+      case 'community':
+        title = 'Community Activity';
+        items = [
+          { id: 1, title: 'New Discussion', description: 'Started by John Doe', status: 'Active', date: '2024-05-20' },
+          { id: 2, title: 'New Resource', description: 'Uploaded by Jane Smith', status: 'Available', date: '2024-05-19' },
+          { id: 3, title: 'New Event', description: 'Organized by Mike Johnson', status: 'Upcoming', date: '2024-05-22' }
+        ];
+        break;
     }
 
-    setModalData({ title, items });
-    setIsStatsModalOpen(true);
+    setModalState({
+      isOpen: true,
+      title,
+      items
+    });
   };
 
-  // Learning progress data
-  const progressData = [
-    { week: 'Week 1', hours: 8, completed: 2 },
-    { week: 'Week 2', hours: 12, completed: 3 },
-    { week: 'Week 3', hours: 10, completed: 4 },
-    { week: 'Week 4', hours: 15, completed: 6 },
-    { week: 'Week 5', hours: 18, completed: 8 },
-    { week: 'Week 6', hours: 14, completed: 5 }
-  ];
+  const handleAchievementClick = (achievement: any) => {
+    alert(`Achievement Clicked: ${achievement.title}`);
+  };
 
-  const skillsData = [
-    { name: 'Programming', value: 45, color: '#3b82f6' },
-    { name: 'Design', value: 30, color: '#10b981' },
-    { name: 'Marketing', value: 15, color: '#f59e0b' },
-    { name: 'Business', value: 10, color: '#ef4444' }
-  ];
+  const handleCertificateClick = () => {
+    setCertificateModalOpen(true);
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       <Header />
       
       <div className="container mx-auto px-6 py-8">
+        {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Student Dashboard</h1>
-          <p className="text-gray-600">Track your learning progress and achievements</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, Student!</h1>
+          <p className="text-gray-600">Your personalized learning dashboard</p>
         </div>
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <StatCard
             title="Enrolled Courses"
-            value={enrolledCourses.length.toString()}
-            subtitle="2 in progress"
+            value={courses.length.toString()}
+            subtitle="+2 this month"
             icon={BookOpen}
             iconBgColor="bg-blue-100"
             iconColor="text-blue-600"
-            onClick={() => handleViewStats('enrolled')}
+            onClick={() => handleStatClick('courses')}
           />
-
+          
           <StatCard
-            title="Completed"
-            value={completedCourses.length.toString()}
-            subtitle="3 certificates earned"
-            icon={Award}
+            title="Learning Paths"
+            value={learningPaths.length.toString()}
+            subtitle="+1 this month"
+            icon={TrendingUp}
             iconBgColor="bg-green-100"
             iconColor="text-green-600"
-            onClick={() => handleViewStats('completed')}
+            onClick={() => handleStatClick('paths')}
           />
-
-          <StatCard
-            title="Study Hours"
-            value="127"
-            subtitle="This month: 42h"
-            icon={Clock}
-            iconBgColor="bg-purple-100"
-            iconColor="text-purple-600"
-          />
-
+          
           <StatCard
             title="Achievements"
             value={achievements.length.toString()}
-            subtitle="2 new this week"
+            subtitle="+3 this month"
             icon={Trophy}
             iconBgColor="bg-orange-100"
             iconColor="text-orange-600"
-            onClick={() => handleViewStats('achievements')}
+            onClick={() => handleStatClick('achievements')}
+          />
+          
+          <StatCard
+            title="Community Activity"
+            value="12"
+            subtitle="+4 this week"
+            icon={Users}
+            iconBgColor="bg-purple-100"
+            iconColor="text-purple-600"
+            onClick={() => handleStatClick('community')}
           />
         </div>
 
-        {/* Learning Analytics */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Learning Progress</CardTitle>
-              <CardDescription>Weekly study hours and lessons completed</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={progressData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="week" />
-                  <YAxis />
-                  <Line type="monotone" dataKey="hours" stroke="#3b82f6" strokeWidth={2} name="Hours" />
-                  <Line type="monotone" dataKey="completed" stroke="#10b981" strokeWidth={2} name="Completed" />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Skills Distribution</CardTitle>
-              <CardDescription>Your learning focus areas</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie
-                    data={skillsData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={40}
-                    outerRadius={80}
-                    dataKey="value"
-                  >
-                    {skillsData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="mt-4 space-y-2">
-                {skillsData.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <div 
-                        className="w-3 h-3 rounded-full" 
-                        style={{ backgroundColor: item.color }}
-                      />
-                      <span>{item.name}</span>
-                    </div>
-                    <span className="font-medium">{item.value}%</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <Button className="h-16 flex flex-col gap-1" onClick={() => navigate('/courses')}>
+            <BookOpen className="h-5 w-5" />
+            <span className="text-sm">Browse Courses</span>
+          </Button>
+          <Button variant="outline" className="h-16 flex flex-col gap-1">
+            <PlayCircle className="h-5 w-5" />
+            <span className="text-sm">Continue Learning</span>
+          </Button>
+          <Button 
+            variant="outline" 
+            className="h-16 flex flex-col gap-1"
+            onClick={handleCertificateClick}
+          >
+            <Award className="h-5 w-5" />
+            <span className="text-sm">Certificates</span>
+          </Button>
+          <Button variant="outline" className="h-16 flex flex-col gap-1">
+            <Target className="h-5 w-5" />
+            <span className="text-sm">Learning Goals</span>
+          </Button>
         </div>
 
+        {/* Courses and Learning Paths */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Current Courses */}
+          {/* Enrolled Courses */}
           <Card>
             <CardHeader>
-              <CardTitle>Current Courses ({enrolledCourses.length})</CardTitle>
-              <CardDescription>Continue your learning journey</CardDescription>
+              <CardTitle>Enrolled Courses</CardTitle>
+              <CardDescription>Your active courses</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {enrolledCourses.map((course) => (
-                  <div key={course.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 className="font-semibold text-gray-900">{course.title}</h3>
-                        <p className="text-sm text-gray-600">{course.level} • {course.duration}</p>
-                      </div>
-                      <Badge className="bg-blue-100 text-blue-800">
-                        In Progress
-                      </Badge>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <div className="text-sm text-gray-500">
-                        Progress: 65%
-                      </div>
-                      <Button 
-                        size="sm"
-                        onClick={() => navigate(`/course/${course.id}`)}
-                      >
-                        <Play className="h-4 w-4 mr-1" />
-                        Continue
-                      </Button>
-                    </div>
+            <CardContent className="space-y-4">
+              {courses.map((course) => (
+                <div key={course.id} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-900">{course.title}</h3>
+                    <Badge variant="outline">{course.lastActivity}</Badge>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Recent Achievements */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Achievements ({achievements.length})</CardTitle>
-              <CardDescription>Your latest accomplishments</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {achievements.slice(0, 4).map((achievement) => {
-                  const IconComponent = getAchievementIcon(achievement.icon);
-                  return (
-                    <Tooltip key={achievement.id}>
-                      <TooltipTrigger asChild>
-                        <div className="flex items-start gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                          <div className="bg-yellow-100 p-2 rounded-lg">
-                            <IconComponent className="h-5 w-5 text-yellow-600" />
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="font-medium text-gray-900">{achievement.title}</h4>
-                            <p className="text-xs text-gray-500 mt-1">Earned on {achievement.earnedDate}</p>
-                          </div>
-                          <Badge variant="outline" className="text-xs">
-                            {achievement.type}
-                          </Badge>
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="max-w-xs">{achievement.description}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Completed Courses */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Completed Courses ({completedCourses.length})</CardTitle>
-            <CardDescription>Courses you've successfully finished</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {completedCourses.map((course) => (
-                <div key={course.id} className="border rounded-lg p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{course.title}</h3>
-                      <p className="text-sm text-gray-600">{course.level} • {course.duration}</p>
-                    </div>
-                    <Badge className="bg-green-100 text-green-800">
-                      Completed
-                    </Badge>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Clock className="h-4 w-4" />
+                    <span>{course.duration}</span>
                   </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm text-gray-500">
-                      Completed: 100% • Rating: {course.rating}/5
-                    </div>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => navigate(`/course/${course.id}`)}
-                    >
-                      <Award className="h-4 w-4 mr-1" />
-                      Certificate
-                    </Button>
-                  </div>
+                  <Progress value={course.progress} />
                 </div>
               ))}
-            </div>
+            </CardContent>
+          </Card>
+
+          {/* Learning Paths */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Learning Paths</CardTitle>
+              <CardDescription>Structured learning programs</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {learningPaths.map((path) => (
+                <div key={path.id} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-900">{path.title}</h3>
+                    <Badge variant="secondary">{path.coursesLeft} courses left</Badge>
+                  </div>
+                  <Progress value={path.progress} />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Achievements */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Achievements</CardTitle>
+            <CardDescription>Your latest accomplishments</CardDescription>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {achievements.slice(0, 6).map((achievement) => (
+              <div 
+                key={achievement.id} 
+                className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => handleAchievementClick(achievement)}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  {achievement.icon === 'trophy' && <Trophy className="h-5 w-5 text-yellow-500" />}
+                  {achievement.icon === 'zap' && <Star className="h-5 w-5 text-blue-500" />}
+                  {achievement.icon === 'book-open' && <BookOpen className="h-5 w-5 text-green-500" />}
+                  {achievement.icon === 'check-circle' && <CheckCircle className="h-5 w-5 text-purple-500" />}
+                  <h4 className="font-semibold text-gray-900">{achievement.title}</h4>
+                </div>
+                <p className="text-sm text-gray-600">{achievement.description}</p>
+                <p className="text-xs text-gray-500 mt-2">Earned on {achievement.earnedDate}</p>
+              </div>
+            ))}
           </CardContent>
         </Card>
       </div>
 
-      {/* Stats Modal */}
       <StatsModal
-        isOpen={isStatsModalOpen}
-        onClose={() => setIsStatsModalOpen(false)}
-        title={modalData.title}
-        items={modalData.items}
+        isOpen={modalState.isOpen}
+        onClose={() => setModalState(prev => ({ ...prev, isOpen: false }))}
+        title={modalState.title}
+        items={modalState.items}
+      />
+
+      <CertificateModal
+        isOpen={certificateModalOpen}
+        onClose={() => setCertificateModalOpen(false)}
       />
     </div>
   );

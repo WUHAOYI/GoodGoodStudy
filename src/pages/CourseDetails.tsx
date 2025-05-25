@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -229,7 +230,8 @@ const CourseDetails = () => {
       isOpen: true,
       lesson: {
         title: section.title,
-        duration: section.duration
+        duration: section.duration,
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" // Demo video
       }
     });
   };

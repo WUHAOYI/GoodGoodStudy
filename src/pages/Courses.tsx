@@ -5,16 +5,18 @@ import { Badge } from '@/components/ui/badge';
 import { Search, BookOpen, Users, Award, Star, Filter } from 'lucide-react';
 import Header from '@/components/Header';
 import CourseCard from '@/components/CourseCard';
+import { useCourses } from '@/contexts/CourseContext';
 
 const Courses = () => {
+  const { courses: contextCourses } = useCourses();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [priceFilter, setPriceFilter] = useState('all');
 
-  // Extended mock course data with more courses
-  const courses = [
+  // Extended mock course data combined with published courses from context
+  const staticCourses = [
     {
-      id: 1,
+      id: 1001,
       title: "Full Stack Web Development Bootcamp",
       instructor: "Tech Academy",
       price: 299,
@@ -297,6 +299,26 @@ const Courses = () => {
       isPopular: false
     }
   ];
+
+  // Combine static courses with published courses from context
+  const publishedContextCourses = contextCourses
+    .filter(course => course.status === 'Published')
+    .map(course => ({
+      id: course.id,
+      title: course.title,
+      instructor: "Course Creator",
+      price: course.price,
+      rating: course.rating || 4.5,
+      students: course.students,
+      duration: course.duration,
+      level: course.level,
+      category: course.category.toLowerCase(),
+      image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=250&fit=crop",
+      isPaid: course.price > 0,
+      isPopular: course.students > 1000
+    }));
+
+  const courses = [...staticCourses, ...publishedContextCourses];
 
   const categories = [
     { id: 'all', name: 'All Categories', icon: BookOpen },
