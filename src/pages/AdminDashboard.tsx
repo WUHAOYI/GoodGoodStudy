@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +9,8 @@ import { useCourses } from '@/contexts/CourseContext';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import { useState } from 'react';
+import StatCard from '@/components/StatCard';
+import StatsModal from '@/components/StatsModal';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -23,6 +26,15 @@ const AdminDashboard = () => {
   } = useCourses();
   const { toast } = useToast();
   const [reviewReason, setReviewReason] = useState<{[key: number]: string}>({});
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    title: string;
+    items: any[];
+  }>({
+    isOpen: false,
+    title: '',
+    items: []
+  });
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -89,6 +101,56 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleStatClick = (type: string) => {
+    let items: any[] = [];
+    let title = '';
+
+    switch (type) {
+      case 'courses':
+        title = 'All Courses';
+        items = courses.map(course => ({
+          id: course.id,
+          title: course.title,
+          description: `${course.students} students • Status: ${course.status}`,
+          status: course.status,
+          date: course.lastUpdated
+        }));
+        break;
+      case 'institutions':
+        title = 'Institutions';
+        items = [
+          { id: 1, title: 'Tech Academy', description: '25 courses • 5,000 students', status: 'Active', date: '2024-01-15' },
+          { id: 2, title: 'Business School Pro', description: '15 courses • 3,200 students', status: 'Active', date: '2024-02-01' },
+          { id: 3, title: 'Design Institute', description: '18 courses • 2,800 students', status: 'Active', date: '2024-01-20' }
+        ];
+        break;
+      case 'reviews':
+        title = 'Pending Reviews';
+        items = [...pendingReviews, ...deletionRequests].map(item => ({
+          id: item.id,
+          title: 'courseTitle' in item ? item.courseTitle : item.title,
+          description: 'requestedBy' in item ? `Deletion request by ${item.requestedBy}` : `Review by ${item.instructor}`,
+          status: 'Pending',
+          date: 'requestedAt' in item ? item.requestedAt : item.submittedDate
+        }));
+        break;
+      case 'students':
+        title = 'Active Students';
+        items = [
+          { id: 1, title: 'John Doe', description: '3 courses enrolled • Last active: Today', status: 'Active', date: '2024-05-20' },
+          { id: 2, title: 'Jane Smith', description: '5 courses enrolled • Last active: Yesterday', status: 'Active', date: '2024-05-19' },
+          { id: 3, title: 'Mike Johnson', description: '2 courses enrolled • Last active: 2 days ago', status: 'Active', date: '2024-05-18' }
+        ];
+        break;
+    }
+
+    setModalState({
+      isOpen: true,
+      title,
+      items
+    });
+  };
+
   // Analytics data
   const platformGrowth = [
     { month: 'Jan', courses: 120, students: 15000, revenue: 180000 },
@@ -117,67 +179,45 @@ const AdminDashboard = () => {
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <div className="bg-blue-100 p-2 rounded-lg">
-                  <BookOpen className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">{courses.length}</p>
-                  <p className="text-sm text-gray-600">Total Courses</p>
-                  <p className="text-xs text-green-600">+{courses.filter(c => c.status === 'Published').length} published</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <div className="bg-green-100 p-2 rounded-lg">
-                  <Users className="h-6 w-6 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">89</p>
-                  <p className="text-sm text-gray-600">Institutions</p>
-                  <p className="text-xs text-green-600">+3 this month</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <div className="bg-orange-100 p-2 rounded-lg">
-                  <AlertCircle className="h-6 w-6 text-orange-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">{pendingReviews.length + deletionRequests.length}</p>
-                  <p className="text-sm text-gray-600">Pending Reviews</p>
-                  <p className="text-xs text-red-600">{pendingReviews.filter(r => r.priority === 'High').length} high priority</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <div className="bg-purple-100 p-2 rounded-lg">
-                  <Shield className="h-6 w-6 text-purple-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {courses.reduce((total, course) => total + course.students, 0).toLocaleString()}
-                  </p>
-                  <p className="text-sm text-gray-600">Active Students</p>
-                  <p className="text-xs text-green-600">+1,234 this month</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Total Courses"
+            value={courses.length.toString()}
+            subtitle={`+${courses.filter(c => c.status === 'Published').length} published`}
+            icon={BookOpen}
+            iconBgColor="bg-blue-100"
+            iconColor="text-blue-600"
+            onClick={() => handleStatClick('courses')}
+          />
+          
+          <StatCard
+            title="Teachers & Institutions"
+            value="89"
+            subtitle="+3 this month"
+            icon={Users}
+            iconBgColor="bg-green-100"
+            iconColor="text-green-600"
+            onClick={() => handleStatClick('institutions')}
+          />
+          
+          <StatCard
+            title="Pending Reviews"
+            value={(pendingReviews.length + deletionRequests.length).toString()}
+            subtitle={`${pendingReviews.filter(r => r.priority === 'High').length} high priority`}
+            icon={AlertCircle}
+            iconBgColor="bg-orange-100"
+            iconColor="text-orange-600"
+            onClick={() => handleStatClick('reviews')}
+          />
+          
+          <StatCard
+            title="Active Students"
+            value={courses.reduce((total, course) => total + course.students, 0).toLocaleString()}
+            subtitle="+1,234 this month"
+            icon={Shield}
+            iconBgColor="bg-purple-100"
+            iconColor="text-purple-600"
+            onClick={() => handleStatClick('students')}
+          />
         </div>
 
         {/* Analytics Section */}
@@ -403,12 +443,12 @@ const AdminDashboard = () => {
         {/* All Courses Management */}
         <Card>
           <CardHeader>
-            <CardTitle>All Courses ({courses.length})</CardTitle>
-            <CardDescription>Manage all courses on the platform</CardDescription>
+            <CardTitle>All Courses ({courses.filter(c => c.status === 'Published').length})</CardTitle>
+            <CardDescription>Published courses on the platform</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {courses.map((course) => (
+              {courses.filter(c => c.status === 'Published').map((course) => (
                 <div key={course.id} className="border rounded-lg p-4">
                   <div className="flex justify-between items-start mb-3">
                     <div>
@@ -420,12 +460,7 @@ const AdminDashboard = () => {
                       )}
                     </div>
                     <div className="flex gap-2">
-                      <Badge className={
-                        course.status === 'Published' ? 'bg-green-100 text-green-800' :
-                        course.status === 'Under Review' ? 'bg-yellow-100 text-yellow-800' :
-                        course.status === 'Pending Deletion' ? 'bg-red-100 text-red-800' :
-                        'bg-gray-100 text-gray-800'
-                      }>
+                      <Badge className="bg-green-100 text-green-800">
                         {course.status}
                       </Badge>
                       <Button 
@@ -445,6 +480,13 @@ const AdminDashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      <StatsModal
+        isOpen={modalState.isOpen}
+        onClose={() => setModalState(prev => ({ ...prev, isOpen: false }))}
+        title={modalState.title}
+        items={modalState.items}
+      />
     </div>
   );
 };

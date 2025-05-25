@@ -75,7 +75,7 @@ const CourseManagement = () => {
       });
       navigate('/teacher-dashboard');
     } else {
-      // Save first, then publish
+      // Save first, then publish for new courses
       const newCourse = {
         ...course,
         students: 0,
@@ -83,9 +83,15 @@ const CourseManagement = () => {
         rating: 0,
         lastUpdated: new Date().toISOString().split('T')[0]
       };
-      const courseId = addCourse(newCourse);
+      addCourse(newCourse);
+      
+      // Get the newly created course ID from the courses array after a small delay
       setTimeout(() => {
-        publishCourse(courseId);
+        const allCourses = courses;
+        const latestCourse = allCourses[allCourses.length - 1];
+        if (latestCourse) {
+          publishCourse(latestCourse.id + 1); // Approximate the new course ID
+        }
         toast({
           title: "Course submitted for review!",
           description: `Course "${course.title}" has been submitted for admin review.`,

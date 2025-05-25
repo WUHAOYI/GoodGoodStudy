@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -28,6 +27,7 @@ import {
 import Header from '@/components/Header';
 import VideoPreview from '@/components/VideoPreview';
 import CourseReviews from '@/components/CourseReviews';
+import LessonPlayer from '@/components/LessonPlayer';
 
 const CourseDetails = () => {
   const { id } = useParams();
@@ -37,6 +37,13 @@ const CourseDetails = () => {
   const [showVideoPreview, setShowVideoPreview] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const [lessonPlayer, setLessonPlayer] = useState<{
+    isOpen: boolean;
+    lesson: any;
+  }>({
+    isOpen: false,
+    lesson: null
+  });
 
   // Complete course data with all courses from the Courses page
   const courses = [
@@ -217,11 +224,14 @@ const CourseDetails = () => {
   };
 
   const handlePlayLesson = (sectionIndex: number, lessonIndex?: number) => {
-    toast({
-      title: "Starting lesson",
-      description: "Lesson playback would start here",
+    const section = course.curriculum[sectionIndex];
+    setLessonPlayer({
+      isOpen: true,
+      lesson: {
+        title: section.title,
+        duration: section.duration
+      }
     });
-    // In a real app, this would navigate to the lesson player
   };
 
   const handleBack = () => {
@@ -521,6 +531,14 @@ const CourseDetails = () => {
           onClose={() => setShowVideoPreview(false)}
         />
       )}
+
+      {/* Lesson Player Modal */}
+      <LessonPlayer
+        isOpen={lessonPlayer.isOpen}
+        onClose={() => setLessonPlayer({ isOpen: false, lesson: null })}
+        lesson={lessonPlayer.lesson}
+        courseTitle={course.title}
+      />
     </div>
   );
 };
