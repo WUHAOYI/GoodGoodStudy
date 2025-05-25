@@ -20,6 +20,7 @@ import Header from '@/components/Header';
 import { useToast } from '@/hooks/use-toast';
 import LessonPlayer from '@/components/LessonPlayer';
 import VideoPreview from '@/components/VideoPreview';
+import CourseReviews from '@/components/CourseReviews';
 
 const CourseDetails = () => {
   const { id } = useParams();
@@ -29,7 +30,6 @@ const CourseDetails = () => {
   const [isLessonPlayerOpen, setIsLessonPlayerOpen] = useState(false);
   const [previewLesson, setPreviewLesson] = useState(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [isMainVideoOpen, setIsMainVideoOpen] = useState(false);
 
   // Mock course data - in a real app, this would be fetched based on the ID
   const course = {
@@ -302,6 +302,9 @@ const CourseDetails = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Course Reviews Section */}
+            <CourseReviews courseId={course.id} />
           </div>
 
           {/* Sidebar */}
@@ -400,7 +403,7 @@ const CourseDetails = () => {
         </div>
       </div>
 
-      {/* Lesson Player Modal */}
+      {/* Lesson Player Modal - Only for non-preview lessons */}
       <LessonPlayer
         isOpen={isLessonPlayerOpen}
         onClose={() => setIsLessonPlayerOpen(false)}
@@ -408,15 +411,14 @@ const CourseDetails = () => {
         courseTitle={course.title}
       />
 
-      {/* Video Preview Modal */}
-      {previewLesson && (
-        <VideoPreview
-          videoUrl={previewLesson.videoUrl}
-          thumbnail="/placeholder.svg"
-          title={previewLesson.title}
-          onClose={() => setIsPreviewOpen(false)}
-        />
-      )}
+      {/* Video Preview Modal - Only for preview lessons */}
+      <VideoPreview
+        videoUrl={previewLesson?.videoUrl || ""}
+        thumbnail="/placeholder.svg"
+        title={previewLesson?.title || ""}
+        onClose={() => setIsPreviewOpen(false)}
+        isOpen={isPreviewOpen}
+      />
     </div>
   );
 };

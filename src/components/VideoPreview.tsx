@@ -9,9 +9,10 @@ interface VideoPreviewProps {
   thumbnail: string;
   title: string;
   onClose: () => void;
+  isOpen: boolean;
 }
 
-const VideoPreview = ({ videoUrl, thumbnail, title, onClose }: VideoPreviewProps) => {
+const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPreviewProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [showControls, setShowControls] = useState(true);
@@ -50,6 +51,23 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose }: VideoPreviewProps
     };
   }, []);
 
+  // Handle escape key to close
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isOpen]);
+
   const togglePlay = () => {
     if (videoRef.current) {
       if (isPlaying) {
@@ -83,6 +101,15 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose }: VideoPreviewProps
     }
   };
 
+  const handleClose = () => {
+    // Pause video before closing
+    if (videoRef.current && !videoRef.current.paused) {
+      videoRef.current.pause();
+    }
+    setIsPlaying(false);
+    onClose();
+  };
+
   const handleMouseMove = () => {
     setShowControls(true);
     if (controlsTimeoutRef.current) {
@@ -110,6 +137,8 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose }: VideoPreviewProps
     videoRef.current.currentTime = newTime;
   };
 
+  if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
       <Card className="relative max-w-5xl w-full bg-black border-0">
@@ -117,7 +146,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose }: VideoPreviewProps
           {/* Close Button */}
           <Button
             variant="ghost"
-            onClick={onClose}
+            onClick={handleClose}
             className="absolute top-4 right-4 z-20 bg-black/50 text-white hover:bg-black/70"
           >
             <X className="h-5 w-5" />
