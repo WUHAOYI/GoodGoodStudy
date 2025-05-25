@@ -178,7 +178,12 @@ const Categories = () => {
             <p className="text-xl mb-6 opacity-90">
               Request a course or suggest a new category
             </p>
-            <Button size="lg" variant="secondary" className="px-8 py-3">
+            <Button 
+              size="lg" 
+              variant="secondary" 
+              className="px-8 py-3"
+              onClick={() => navigate('/course-request')}
+            >
               Request a Course
             </Button>
           </div>

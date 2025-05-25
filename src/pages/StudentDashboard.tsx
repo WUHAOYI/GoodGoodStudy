@@ -198,7 +198,11 @@ const StudentDashboard = () => {
             <BookOpen className="h-5 w-5" />
             <span className="text-sm">Browse Courses</span>
           </Button>
-          <Button variant="outline" className="h-16 flex flex-col gap-1">
+          <Button 
+            variant="outline" 
+            className="h-16 flex flex-col gap-1"
+            onClick={() => navigate('/continue-learning')}
+          >
             <PlayCircle className="h-5 w-5" />
             <span className="text-sm">Continue Learning</span>
           </Button>
@@ -210,7 +214,11 @@ const StudentDashboard = () => {
             <Award className="h-5 w-5" />
             <span className="text-sm">Certificates</span>
           </Button>
-          <Button variant="outline" className="h-16 flex flex-col gap-1">
+          <Button 
+            variant="outline" 
+            className="h-16 flex flex-col gap-1"
+            onClick={() => navigate('/learning-goals')}
+          >
             <Target className="h-5 w-5" />
             <span className="text-sm">Learning Goals</span>
           </Button>

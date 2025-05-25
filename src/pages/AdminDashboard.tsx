@@ -1,8 +1,7 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Users, Shield, AlertCircle, CheckCircle, Clock, Eye, BarChart3, Trash2, X } from 'lucide-react';
+import { BookOpen, Users, Shield, AlertCircle, CheckCircle, Clock, Eye, BarChart3, Trash2, X, FileText } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useNavigate } from 'react-router-dom';
 import { useCourses } from '@/contexts/CourseContext';
@@ -175,6 +174,26 @@ const AdminDashboard = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
           <p className="text-gray-600">Monitor platform activity and manage content reviews</p>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <Button className="h-16 flex flex-col gap-1" onClick={() => navigate('/teacher-management')}>
+            <Users className="h-5 w-5" />
+            <span className="text-sm">Manage Teachers</span>
+          </Button>
+          <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => navigate('/resource-management')}>
+            <FileText className="h-5 w-5" />
+            <span className="text-sm">Manage Resources</span>
+          </Button>
+          <Button variant="outline" className="h-16 flex flex-col gap-1">
+            <BarChart3 className="h-5 w-5" />
+            <span className="text-sm">Analytics</span>
+          </Button>
+          <Button variant="outline" className="h-16 flex flex-col gap-1">
+            <Shield className="h-5 w-5" />
+            <span className="text-sm">Security</span>
+          </Button>
         </div>
 
         {/* Stats Overview */}

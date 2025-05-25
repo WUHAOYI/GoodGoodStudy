@@ -22,6 +22,11 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import CourseManagement from "./pages/CourseManagement";
 import ContentReview from "./pages/ContentReview";
+import ContinueLearning from "./pages/ContinueLearning";
+import LearningGoals from "./pages/LearningGoals";
+import CourseRequest from "./pages/CourseRequest";
+import TeacherManagement from "./pages/TeacherManagement";
+import ResourceManagement from "./pages/ResourceManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +50,9 @@ const App = () => (
               <Route path="/register" element={<Register />} />
               <Route path="/payment" element={<Payment />} />
               <Route path="/payment-success" element={<PaymentSuccess />} />
+              <Route path="/continue-learning" element={<ContinueLearning />} />
+              <Route path="/learning-goals" element={<LearningGoals />} />
+              <Route path="/course-request" element={<CourseRequest />} />
               
               {/* Protected Routes */}
               <Route path="/student-dashboard" element={
@@ -70,6 +78,16 @@ const App = () => (
               <Route path="/content-review/:id" element={
                 <ProtectedRoute allowedRoles={['admin']}>
                   <ContentReview />
+                </ProtectedRoute>
+              } />
+              <Route path="/teacher-management" element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <TeacherManagement />
+                </ProtectedRoute>
+              } />
+              <Route path="/resource-management" element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <ResourceManagement />
                 </ProtectedRoute>
               } />
               
