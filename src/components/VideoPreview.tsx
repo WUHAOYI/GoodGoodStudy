@@ -18,7 +18,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
   const [showControls, setShowControls] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout>();
@@ -36,7 +36,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
       }
     };
 
-    const handleCanPlayThrough = () => {
+    const handleCanPlay = () => {
       const videoDuration = video.duration;
       if (!isNaN(videoDuration) && isFinite(videoDuration)) {
         setDuration(videoDuration);
@@ -46,8 +46,11 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
     };
 
     const handleTimeUpdate = () => {
-      if (isLoaded) {
-        setCurrentTime(video.currentTime);
+      if (isLoaded && video.currentTime !== undefined) {
+        const current = video.currentTime;
+        if (isFinite(current)) {
+          setCurrentTime(current);
+        }
       }
     };
 
@@ -59,13 +62,14 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
       setIsLoaded(false);
     };
 
-    const handleError = () => {
+    const handleError = (error: any) => {
+      console.error('Video preview error:', error);
       setIsLoading(false);
       setIsLoaded(false);
     };
 
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
-    video.addEventListener('canplaythrough', handleCanPlayThrough);
+    video.addEventListener('canplay', handleCanPlay);
     video.addEventListener('timeupdate', handleTimeUpdate);
     video.addEventListener('play', handlePlay);
     video.addEventListener('pause', handlePause);
@@ -74,14 +78,14 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
 
     return () => {
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      video.removeEventListener('canplaythrough', handleCanPlayThrough);
+      video.removeEventListener('canplay', handleCanPlay);
       video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('play', handlePlay);
       video.removeEventListener('pause', handlePause);
       video.removeEventListener('loadstart', handleLoadStart);
       video.removeEventListener('error', handleError);
     };
-  }, [isLoaded]);
+  }, [isLoaded, videoUrl]);
 
   // Handle escape key to close
   useEffect(() => {
@@ -100,23 +104,36 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
     };
   }, [isOpen]);
 
-  // Reset video state when modal opens/closes
+  // Reset video state when modal opens/closes or video URL changes
   useEffect(() => {
     if (!isOpen) {
       setCurrentTime(0);
       setIsPlaying(false);
-      setIsLoading(true);
+      setIsLoading(false);
       setIsLoaded(false);
       setDuration(0);
+    } else if (videoRef.current && videoUrl) {
+      // Force reload when video URL changes
+      setIsLoading(true);
+      setIsLoaded(false);
+      setCurrentTime(0);
+      setDuration(0);
+      videoRef.current.load();
     }
-  }, [isOpen]);
+  }, [isOpen, videoUrl]);
 
   const togglePlay = () => {
     if (videoRef.current && isLoaded) {
       if (isPlaying) {
         videoRef.current.pause();
       } else {
-        videoRef.current.play();
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.error('Error playing video:', error);
+            setIsPlaying(false);
+          });
+        }
       }
     }
   };
@@ -139,13 +156,12 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
   };
 
   const handleVideoClick = () => {
-    if (isLoaded) {
+    if (isLoaded && !isLoading) {
       togglePlay();
     }
   };
 
   const handleClose = () => {
-    // Pause video before closing
     if (videoRef.current && !videoRef.current.paused) {
       videoRef.current.pause();
     }
@@ -153,6 +169,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
     setCurrentTime(0);
     setIsLoaded(false);
     setDuration(0);
+    setIsLoading(false);
     onClose();
   };
 
@@ -169,7 +186,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
   };
 
   const formatTime = (time: number) => {
-    if (!time || isNaN(time)) return '0:00';
+    if (!time || isNaN(time) || !isFinite(time)) return '0:00';
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
@@ -186,7 +203,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
 
   if (!isOpen) return null;
 
-  const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const progressPercentage = duration > 0 && isFinite(currentTime) ? (currentTime / duration) * 100 : 0;
 
   return (
     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
@@ -213,6 +230,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
             poster={thumbnail}
             onClick={handleVideoClick}
             preload="metadata"
+            crossOrigin="anonymous"
           >
             <source src={videoUrl} type="video/mp4" />
             Your browser does not support the video tag.
@@ -236,7 +254,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
               size="lg"
               onClick={togglePlay}
               className="bg-black/50 text-white hover:bg-black/70 w-16 h-16 rounded-full"
-              disabled={!isLoaded}
+              disabled={!isLoaded || isLoading}
             >
               {isPlaying ? (
                 <Pause className="h-8 w-8" />
@@ -259,7 +277,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
             >
               <div 
                 className="h-full bg-red-500 rounded-full"
-                style={{ width: `${progressPercentage}%` }}
+                style={{ width: `${Math.max(0, Math.min(100, progressPercentage))}%` }}
               />
             </div>
 
@@ -270,7 +288,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
                   size="sm"
                   onClick={togglePlay}
                   className="text-white hover:bg-white/20"
-                  disabled={!isLoaded}
+                  disabled={!isLoaded || isLoading}
                 >
                   {isPlaying ? (
                     <Pause className="h-4 w-4" />

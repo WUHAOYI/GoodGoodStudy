@@ -20,12 +20,12 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
   const [currentTime, setCurrentTime] = useState(0);
   const [totalTime, setTotalTime] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
-  const [volume, setVolume] = useState(1);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const formatTime = (seconds: number) => {
-    if (!seconds || isNaN(seconds)) return '0:00';
+    if (!seconds || isNaN(seconds) || !isFinite(seconds)) return '0:00';
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
@@ -36,7 +36,13 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
       if (isPlaying) {
         videoRef.current.pause();
       } else {
-        videoRef.current.play();
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.error('Error playing video:', error);
+            setIsPlaying(false);
+          });
+        }
       }
     }
   };
@@ -61,7 +67,10 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
 
   const handleTimeUpdate = () => {
     if (videoRef.current && isLoaded) {
-      setCurrentTime(videoRef.current.currentTime);
+      const current = videoRef.current.currentTime;
+      if (isFinite(current)) {
+        setCurrentTime(current);
+      }
     }
   };
 
@@ -71,18 +80,31 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
       if (!isNaN(duration) && isFinite(duration)) {
         setTotalTime(duration);
         setIsLoaded(true);
+        setIsLoading(false);
       }
     }
   };
 
-  const handleCanPlayThrough = () => {
+  const handleCanPlay = () => {
     if (videoRef.current) {
       const duration = videoRef.current.duration;
       if (!isNaN(duration) && isFinite(duration)) {
         setTotalTime(duration);
         setIsLoaded(true);
+        setIsLoading(false);
       }
     }
+  };
+
+  const handleLoadStart = () => {
+    setIsLoading(true);
+    setIsLoaded(false);
+  };
+
+  const handleError = (error: any) => {
+    console.error('Video error:', error);
+    setIsLoading(false);
+    setIsLoaded(false);
   };
 
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -105,13 +127,13 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
   };
 
   const handleClose = () => {
-    // Pause video before closing
     if (videoRef.current && !videoRef.current.paused) {
       videoRef.current.pause();
     }
     setIsPlaying(false);
     setCurrentTime(0);
     setIsLoaded(false);
+    setIsLoading(false);
     onClose();
   };
 
@@ -126,36 +148,47 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
     video.addEventListener('pause', handlePause);
     video.addEventListener('timeupdate', handleTimeUpdate);
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
-    video.addEventListener('canplaythrough', handleCanPlayThrough);
+    video.addEventListener('canplay', handleCanPlay);
+    video.addEventListener('loadstart', handleLoadStart);
+    video.addEventListener('error', handleError);
 
     return () => {
       video.removeEventListener('play', handlePlay);
       video.removeEventListener('pause', handlePause);
       video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      video.removeEventListener('canplaythrough', handleCanPlayThrough);
+      video.removeEventListener('canplay', handleCanPlay);
+      video.removeEventListener('loadstart', handleLoadStart);
+      video.removeEventListener('error', handleError);
     };
-  }, []);
+  }, [lesson?.videoUrl]);
 
-  // Reset state when dialog opens/closes
+  // Reset state when dialog opens/closes or lesson changes
   useEffect(() => {
-    if (!isOpen) {
+    if (!isOpen || !lesson) {
       setCurrentTime(0);
       setIsPlaying(false);
       setTotalTime(0);
       setIsLoaded(false);
+      setIsLoading(false);
+    } else if (lesson && videoRef.current) {
+      // Force reload when lesson changes
+      setIsLoading(true);
+      setIsLoaded(false);
+      setCurrentTime(0);
+      setTotalTime(0);
+      videoRef.current.load();
     }
-  }, [isOpen]);
+  }, [isOpen, lesson?.videoUrl]);
 
-  // Don't render if lesson is null
   if (!lesson) {
     return null;
   }
 
-  // Default video URL for demo purposes
+  // Use the lesson's video URL directly, with fallback
   const videoUrl = lesson.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
 
-  const progressPercentage = totalTime > 0 ? (currentTime / totalTime) * 100 : 0;
+  const progressPercentage = totalTime > 0 && isFinite(currentTime) ? (currentTime / totalTime) * 100 : 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -167,29 +200,38 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
         <div className="space-y-4">
           {/* Video Player */}
           <div className="relative aspect-video bg-gray-900 rounded-lg overflow-hidden">
+            {isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+              </div>
+            )}
+
             <video
               ref={videoRef}
               className="w-full h-full"
               onClick={togglePlay}
               poster="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=450&fit=crop"
               preload="metadata"
+              crossOrigin="anonymous"
             >
               <source src={videoUrl} type="video/mp4" />
               Your browser does not support the video tag.
             </video>
             
             {/* Play/Pause Overlay */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={togglePlay}
-                className="bg-black/50 text-white hover:bg-black/70 w-16 h-16 rounded-full"
-                disabled={!isLoaded}
-              >
-                {isPlaying ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8 ml-1" />}
-              </Button>
-            </div>
+            {!isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  onClick={togglePlay}
+                  className="bg-black/50 text-white hover:bg-black/70 w-16 h-16 rounded-full"
+                  disabled={!isLoaded}
+                >
+                  {isPlaying ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8 ml-1" />}
+                </Button>
+              </div>
+            )}
           </div>
           
           {/* Controls */}
@@ -201,7 +243,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
             >
               <div 
                 className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${progressPercentage}%` }}
+                style={{ width: `${Math.max(0, Math.min(100, progressPercentage))}%` }}
               />
             </div>
             
@@ -219,7 +261,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
                 <Button
                   onClick={togglePlay}
                   className="bg-blue-600 hover:bg-blue-700"
-                  disabled={!isLoaded}
+                  disabled={!isLoaded || isLoading}
                 >
                   {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                 </Button>
