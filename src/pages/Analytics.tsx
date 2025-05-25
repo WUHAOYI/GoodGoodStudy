@@ -275,7 +275,7 @@ const Analytics = () => {
               <ResponsiveContainer width="100%" height={300}>
                 <RechartsPieChart>
                   <Tooltip />
-                  <RechartsPieChart data={coursePopularityData} cx="50%" cy="50%" outerRadius={80} fill="#8884d8" dataKey="value">
+                  <RechartsPieChart data={coursePopularityData} cx="50%" cy="50%" outerRadius={80} dataKey="value">
                     {coursePopularityData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
