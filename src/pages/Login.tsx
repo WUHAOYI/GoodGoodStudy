@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { BookOpen, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -16,20 +17,45 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate login process
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      // Determine role based on email domain for demo purposes
+      let role: 'student' | 'teacher' | 'admin' = 'student';
+      if (email.includes('teacher') || email.includes('instructor')) {
+        role = 'teacher';
+      } else if (email.includes('admin')) {
+        role = 'admin';
+      }
+
+      await login(email, password, role);
+      
       toast({
         title: "Login Successful",
         description: "Welcome back to EduPlatform!",
       });
-      navigate('/student-dashboard');
-    }, 1500);
+
+      // Redirect based on role
+      const dashboardRoutes = {
+        student: '/student-dashboard',
+        teacher: '/teacher-dashboard',
+        admin: '/admin-dashboard'
+      };
+      
+      navigate(dashboardRoutes[role]);
+    } catch (error) {
+      toast({
+        title: "Login Failed",
+        description: "Please check your credentials and try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -70,6 +96,9 @@ const Login = () => {
                     className="pl-10"
                     required
                   />
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  Demo: Use "student@example.com", "teacher@example.com", or "admin@example.com"
                 </div>
               </div>
 

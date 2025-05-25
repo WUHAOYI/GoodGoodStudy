@@ -1,207 +1,184 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { BookOpen, Menu, X, User, LogOut } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Bell, User, ShoppingCart, BookOpen, Menu } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userRole, setUserRole] = useState<'student' | 'teacher' | 'admin'>('student');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  const handleDashboardNavigation = () => {
-    switch (userRole) {
-      case 'student':
-        navigate('/student-dashboard');
-        break;
-      case 'teacher':
-        navigate('/teacher-dashboard');
-        break;
-      case 'admin':
-        navigate('/admin-dashboard');
-        break;
-      default:
-        navigate('/student-dashboard');
-    }
+  const handleLogout = () => {
+    logout();
+    navigate('/');
   };
 
-  const handleRoleChange = (role: 'student' | 'teacher' | 'admin') => {
-    setUserRole(role);
-    // Auto-navigate to the appropriate dashboard when role changes
-    switch (role) {
-      case 'student':
-        navigate('/student-dashboard');
-        break;
-      case 'teacher':
-        navigate('/teacher-dashboard');
-        break;
-      case 'admin':
-        navigate('/admin-dashboard');
-        break;
-    }
+  const getDashboardRoute = () => {
+    if (!user) return '/';
+    
+    const dashboardRoutes = {
+      student: '/student-dashboard',
+      teacher: '/teacher-dashboard',
+      admin: '/admin-dashboard'
+    };
+    
+    return dashboardRoutes[user.role];
   };
 
   return (
-    <header className="bg-white/95 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-white/90 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
+          <Link to="/" className="flex items-center gap-3">
             <div className="bg-blue-600 p-2 rounded-lg">
               <BookOpen className="h-6 w-6 text-white" />
             </div>
             <div>
               <h1 className="text-xl font-bold text-gray-900">EduPlatform</h1>
-              <p className="text-xs text-gray-500">Professional Learning</p>
             </div>
-          </div>
+          </Link>
 
-          {/* Navigation */}
+          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            <button 
-              onClick={() => navigate('/courses')}
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-            >
+            <Link to="/courses" className="text-gray-700 hover:text-blue-600 transition-colors">
               Courses
-            </button>
-            <button 
-              onClick={() => navigate('/categories')}
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-            >
+            </Link>
+            <Link to="/categories" className="text-gray-700 hover:text-blue-600 transition-colors">
               Categories
-            </button>
-            <button 
-              onClick={() => navigate('/for-business')}
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-            >
+            </Link>
+            <Link to="/for-business" className="text-gray-700 hover:text-blue-600 transition-colors">
               For Business
-            </button>
-            <button 
-              onClick={() => navigate('/teach')}
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-            >
-              Teach on Platform
-            </button>
+            </Link>
+            <Link to="/teach" className="text-gray-700 hover:text-blue-600 transition-colors">
+              Teach
+            </Link>
           </nav>
 
-          {/* Right Side */}
-          <div className="flex items-center gap-4">
-            {isLoggedIn ? (
-              <>
-                {/* Notifications */}
-                <Button variant="ghost" size="sm" className="relative">
-                  <Bell className="h-5 w-5" />
-                  <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
-                    3
-                  </Badge>
-                </Button>
-
-                {/* Cart */}
-                <Button variant="ghost" size="sm" className="relative">
-                  <ShoppingCart className="h-5 w-5" />
-                  <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
-                    2
-                  </Badge>
-                </Button>
-
-                {/* User Menu */}
+          {/* Auth Section */}
+          <div className="hidden md:flex items-center gap-4">
+            {isAuthenticated ? (
+              <div className="flex items-center gap-4">
+                <Link to={getDashboardRoute()}>
+                  <Button variant="ghost">Dashboard</Button>
+                </Link>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="flex items-center gap-2">
-                      <div className="bg-blue-100 p-2 rounded-full">
-                        <User className="h-4 w-4 text-blue-600" />
-                      </div>
-                      <span className="hidden md:block">John Doe</span>
+                    <Button variant="ghost" size="sm">
+                      <User className="h-4 w-4 mr-2" />
+                      {user?.name}
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuLabel>
-                      <div>
-                        <p className="font-medium">John Doe</p>
-                        <p className="text-sm text-gray-500 capitalize">{userRole}</p>
-                      </div>
-                    </DropdownMenuLabel>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => navigate(getDashboardRoute())}>
+                      <User className="mr-2 h-4 w-4" />
+                      Dashboard
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    
-                    {/* Role Switcher for Demo */}
-                    <DropdownMenuLabel className="text-xs text-gray-500">
-                      Switch Role (Demo)
-                    </DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => handleRoleChange('student')}>
-                      View as Student
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleRoleChange('teacher')}>
-                      View as Teacher
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleRoleChange('admin')}>
-                      View as Admin
-                    </DropdownMenuItem>
-                    
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleDashboardNavigation}>
-                      My Dashboard
-                    </DropdownMenuItem>
-                    
-                    {userRole === 'student' && (
-                      <>
-                        <DropdownMenuItem>My Learning</DropdownMenuItem>
-                        <DropdownMenuItem>My Cart</DropdownMenuItem>
-                        <DropdownMenuItem>Wishlist</DropdownMenuItem>
-                      </>
-                    )}
-                    
-                    {userRole === 'teacher' && (
-                      <>
-                        <DropdownMenuItem>Teaching Dashboard</DropdownMenuItem>
-                        <DropdownMenuItem>Create Course</DropdownMenuItem>
-                        <DropdownMenuItem>My Courses</DropdownMenuItem>
-                      </>
-                    )}
-                    
-                    {userRole === 'admin' && (
-                      <>
-                        <DropdownMenuItem>Admin Dashboard</DropdownMenuItem>
-                        <DropdownMenuItem>Course Reviews</DropdownMenuItem>
-                        <DropdownMenuItem>User Management</DropdownMenuItem>
-                        <DropdownMenuItem>Institution Management</DropdownMenuItem>
-                      </>
-                    )}
-                    
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>Account Settings</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setIsLoggedIn(false)}>
-                      Sign Out
+                    <DropdownMenuItem onClick={handleLogout}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-              </>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" onClick={() => navigate('/login')}>
-                  Log In
-                </Button>
-                <Button onClick={() => navigate('/register')}>
-                  Sign Up
-                </Button>
               </div>
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button variant="ghost">Sign In</Button>
+                </Link>
+                <Link to="/register">
+                  <Button>Get Started</Button>
+                </Link>
+              </>
             )}
-
-            {/* Mobile Menu */}
-            <Button variant="ghost" size="sm" className="md:hidden">
-              <Menu className="h-5 w-5" />
-            </Button>
           </div>
+
+          {/* Mobile Menu Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="md:hidden"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
         </div>
+
+        {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <div className="md:hidden border-t border-gray-200 py-4">
+            <nav className="flex flex-col gap-4">
+              <Link 
+                to="/courses" 
+                className="text-gray-700 hover:text-blue-600 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Courses
+              </Link>
+              <Link 
+                to="/categories" 
+                className="text-gray-700 hover:text-blue-600 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Categories
+              </Link>
+              <Link 
+                to="/for-business" 
+                className="text-gray-700 hover:text-blue-600 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                For Business
+              </Link>
+              <Link 
+                to="/teach" 
+                className="text-gray-700 hover:text-blue-600 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Teach
+              </Link>
+              
+              <div className="border-t border-gray-200 pt-4 mt-4">
+                {isAuthenticated ? (
+                  <div className="flex flex-col gap-2">
+                    <Link to={getDashboardRoute()}>
+                      <Button variant="ghost" className="w-full justify-start" onClick={() => setIsMenuOpen(false)}>
+                        <User className="h-4 w-4 mr-2" />
+                        Dashboard
+                      </Button>
+                    </Link>
+                    <Button variant="ghost" className="w-full justify-start" onClick={handleLogout}>
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    <Link to="/login">
+                      <Button variant="ghost" className="w-full" onClick={() => setIsMenuOpen(false)}>
+                        Sign In
+                      </Button>
+                    </Link>
+                    <Link to="/register">
+                      <Button className="w-full" onClick={() => setIsMenuOpen(false)}>
+                        Get Started
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </nav>
+          </div>
+        )}
       </div>
     </header>
   );

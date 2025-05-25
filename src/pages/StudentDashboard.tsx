@@ -4,9 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, Clock, Award, TrendingUp, Play, Calendar } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 
 const StudentDashboard = () => {
+  const navigate = useNavigate();
+
   const enrolledCourses = [
     {
       id: 1,
@@ -35,6 +38,29 @@ const StudentDashboard = () => {
     { name: "Week Streak", icon: Calendar, color: "text-blue-600" },
     { name: "Quick Learner", icon: TrendingUp, color: "text-green-600" }
   ];
+
+  const recommendedCourses = [
+    {
+      id: 3,
+      title: "Advanced React Patterns",
+      description: "Based on your Full Stack course",
+      instructor: "React Masters",
+      rating: 4.7,
+      students: 8500
+    },
+    {
+      id: 5,
+      title: "Python for Data Science",
+      description: "Expand your programming skills",
+      instructor: "Data Science Institute",
+      rating: 4.8,
+      students: 9340
+    }
+  ];
+
+  const handleExploreCourse = (courseId: number) => {
+    navigate(`/course/${courseId}`);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -179,13 +205,27 @@ const StudentDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="border rounded-lg p-3">
-                    <h4 className="font-medium text-gray-900 mb-1">Advanced React Patterns</h4>
-                    <p className="text-sm text-gray-600 mb-2">Based on your Full Stack course</p>
-                    <Button size="sm" variant="outline" className="w-full">
-                      Explore Course
-                    </Button>
-                  </div>
+                  {recommendedCourses.map((course) => (
+                    <div key={course.id} className="border rounded-lg p-3">
+                      <h4 className="font-medium text-gray-900 mb-1">{course.title}</h4>
+                      <p className="text-sm text-gray-600 mb-2">{course.description}</p>
+                      <div className="flex items-center gap-2 text-xs text-gray-500 mb-3">
+                        <span>by {course.instructor}</span>
+                        <span>•</span>
+                        <span>⭐ {course.rating}</span>
+                        <span>•</span>
+                        <span>{course.students.toLocaleString()} students</span>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="w-full"
+                        onClick={() => handleExploreCourse(course.id)}
+                      >
+                        Explore Course
+                      </Button>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>

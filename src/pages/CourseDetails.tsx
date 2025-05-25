@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -36,7 +37,7 @@ const CourseDetails = () => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
 
-  // Extended mock course data
+  // Complete course data with all courses from the Courses page
   const courses = [
     {
       id: 1,
@@ -113,13 +114,55 @@ const CourseDetails = () => {
       isPaid: false,
       language: "English",
       lastUpdated: "2024-02-01"
+    },
+    {
+      id: 3,
+      title: "Project Management Professional (PMP)",
+      instructor: "Business Excellence Academy",
+      instructorBio: "Certified project management professionals with real-world experience",
+      price: 199,
+      rating: 4.9,
+      students: 5670,
+      duration: "60 hours",
+      level: "Advanced",
+      category: "business",
+      image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=450&fit=crop",
+      previewVideoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+      description: "Comprehensive PMP certification preparation course covering all aspects of project management.",
+      whatYouWillLearn: [
+        "Project management lifecycle",
+        "Risk management and mitigation",
+        "Team leadership and communication",
+        "Budget and schedule management",
+        "Quality assurance processes"
+      ],
+      curriculum: [
+        { title: "Project Management Fundamentals", duration: "10 hours", lessons: 15 },
+        { title: "Planning and Execution", duration: "15 hours", lessons: 20 },
+        { title: "Risk and Quality Management", duration: "15 hours", lessons: 18 },
+        { title: "Leadership and Communication", duration: "10 hours", lessons: 12 },
+        { title: "PMP Exam Preparation", duration: "10 hours", lessons: 16 }
+      ],
+      requirements: [
+        "Bachelor's degree or equivalent",
+        "Some project management experience",
+        "Commitment to complete the course"
+      ],
+      isPaid: true,
+      language: "English",
+      lastUpdated: "2024-01-20"
     }
   ];
 
   useEffect(() => {
     const foundCourse = courses.find(c => c.id === parseInt(id || '1'));
-    setCourse(foundCourse);
-  }, [id]);
+    if (foundCourse) {
+      setCourse(foundCourse);
+    } else {
+      // If course not found, redirect to courses page
+      navigate('/courses');
+    }
+  }, [id, navigate]);
 
   const handlePurchase = () => {
     if (course?.isPaid) {
@@ -168,15 +211,8 @@ const CourseDetails = () => {
         setShowShareMenu(false);
       }
     } else {
-      if (navigator.share) {
-        navigator.share({
-          title: course?.title,
-          text: shareText,
-          url: courseUrl,
-        }).catch(console.error);
-      } else {
-        setShowShareMenu(!showShareMenu);
-      }
+      // Always show the share menu instead of trying navigator.share
+      setShowShareMenu(!showShareMenu);
     }
   };
 
@@ -185,7 +221,19 @@ const CourseDetails = () => {
   };
 
   if (!course) {
-    return <div>Course not found</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+        <Header />
+        <div className="container mx-auto px-6 py-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Course not found</h1>
+            <Button onClick={() => navigate('/courses')}>
+              Browse All Courses
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
