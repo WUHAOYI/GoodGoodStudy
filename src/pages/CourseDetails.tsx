@@ -1,5 +1,5 @@
-
 import { useParams, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,15 +12,22 @@ import {
   ArrowLeft,
   Share2,
   Heart,
-  CheckCircle
+  CheckCircle,
+  Play
 } from 'lucide-react';
 import Header from '@/components/Header';
 import { useToast } from '@/hooks/use-toast';
+import LessonPlayer from '@/components/LessonPlayer';
+import VideoPreview from '@/components/VideoPreview';
 
 const CourseDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [selectedLesson, setSelectedLesson] = useState(null);
+  const [isLessonPlayerOpen, setIsLessonPlayerOpen] = useState(false);
+  const [previewLesson, setPreviewLesson] = useState(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   // Mock course data - in a real app, this would be fetched based on the ID
   const course = {
@@ -42,15 +49,46 @@ const CourseDetails = () => {
       "A computer with internet connection"
     ],
     curriculum: [
-      { title: "Introduction to Web Development", lessons: 8, duration: "2 hours" },
-      { title: "HTML & CSS Fundamentals", lessons: 15, duration: "4 hours" },
-      { title: "JavaScript Essentials", lessons: 20, duration: "6 hours" },
-      { title: "React Framework", lessons: 25, duration: "8 hours" },
-      { title: "Backend Development", lessons: 18, duration: "6 hours" },
-      { title: "Database Integration", lessons: 12, duration: "4 hours" },
-      { title: "Deployment & DevOps", lessons: 10, duration: "3 hours" },
-      { title: "Final Project", lessons: 8, duration: "7 hours" }
+      { 
+        title: "Introduction to Web Development", 
+        lessons: [
+          { id: 1, title: "What is Web Development?", duration: "15:30", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", isPreview: true },
+          { id: 2, title: "Setting Up Your Development Environment", duration: "20:45", videoUrl: "", isPreview: false },
+          { id: 3, title: "Your First Web Page", duration: "18:20", videoUrl: "", isPreview: false }
+        ], 
+        duration: "2 hours" 
+      },
+      { 
+        title: "HTML & CSS Fundamentals", 
+        lessons: [
+          { id: 4, title: "HTML Structure and Semantics", duration: "25:10", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4", isPreview: true },
+          { id: 5, title: "CSS Styling Basics", duration: "30:15", videoUrl: "", isPreview: false }
+        ], 
+        duration: "4 hours" 
+      },
+      { 
+        title: "JavaScript Essentials", 
+        lessons: [
+          { id: 6, title: "Variables and Data Types", duration: "22:30", videoUrl: "", isPreview: false }
+        ], 
+        duration: "6 hours" 
+      },
+      { title: "React Framework", lessons: [], duration: "8 hours" },
+      { title: "Backend Development", lessons: [], duration: "6 hours" },
+      { title: "Database Integration", lessons: [], duration: "4 hours" },
+      { title: "Deployment & DevOps", lessons: [], duration: "3 hours" },
+      { title: "Final Project", lessons: [], duration: "7 hours" }
     ]
+  };
+
+  const handlePlayLesson = (lesson) => {
+    if (lesson.isPreview) {
+      setPreviewLesson(lesson);
+      setIsPreviewOpen(true);
+    } else {
+      setSelectedLesson(lesson);
+      setIsLessonPlayerOpen(true);
+    }
   };
 
   const handleEnroll = () => {
@@ -204,11 +242,41 @@ const CourseDetails = () => {
                 <div className="space-y-3">
                   {course.curriculum.map((section, index) => (
                     <div key={index} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center mb-3">
                         <h4 className="font-medium text-gray-900">{section.title}</h4>
                         <span className="text-sm text-gray-600">{section.duration}</span>
                       </div>
-                      <p className="text-sm text-gray-600 mt-1">{section.lessons} lessons</p>
+                      {section.lessons && section.lessons.length > 0 && (
+                        <div className="space-y-2 ml-4">
+                          {section.lessons.map((lesson) => (
+                            <div key={lesson.id} className="flex items-center justify-between py-2 border-l-2 border-gray-100 pl-4">
+                              <div className="flex items-center gap-3">
+                                <Play className="h-4 w-4 text-gray-400" />
+                                <div>
+                                  <p className="text-sm font-medium text-gray-900">{lesson.title}</p>
+                                  <p className="text-xs text-gray-500">{lesson.duration}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {lesson.isPreview && (
+                                  <Badge variant="outline" className="text-xs">Preview</Badge>
+                                )}
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => handlePlayLesson(lesson)}
+                                  className="h-8 px-2"
+                                >
+                                  <Play className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {(!section.lessons || section.lessons.length === 0) && (
+                        <p className="text-sm text-gray-600 ml-4">Lessons coming soon...</p>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -307,6 +375,24 @@ const CourseDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* Lesson Player Modal */}
+      <LessonPlayer
+        isOpen={isLessonPlayerOpen}
+        onClose={() => setIsLessonPlayerOpen(false)}
+        lesson={selectedLesson}
+        courseTitle={course.title}
+      />
+
+      {/* Video Preview Modal */}
+      {previewLesson && (
+        <VideoPreview
+          videoUrl={previewLesson.videoUrl}
+          thumbnail="/placeholder.svg"
+          title={previewLesson.title}
+          onClose={() => setIsPreviewOpen(false)}
+        />
+      )}
     </div>
   );
 };

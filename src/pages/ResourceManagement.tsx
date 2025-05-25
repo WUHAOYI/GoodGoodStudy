@@ -19,6 +19,7 @@ import Header from '@/components/Header';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import ResourceUploadModal from '@/components/ResourceUploadModal';
+import ResourceViewer from '@/components/ResourceViewer';
 
 const ResourceManagement = () => {
   const navigate = useNavigate();
@@ -26,6 +27,8 @@ const ResourceManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('all');
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [viewerModalOpen, setViewerModalOpen] = useState(false);
+  const [selectedResource, setSelectedResource] = useState(null);
 
   // Mock data for resources
   const [resources, setResources] = useState([
@@ -91,12 +94,8 @@ const ResourceManagement = () => {
   };
 
   const handleViewResource = (resource: any) => {
-    toast({
-      title: "Opening Resource",
-      description: `Opening ${resource.name} in a new window.`,
-    });
-    // In a real app, this would open the resource
-    window.open('#', '_blank');
+    setSelectedResource(resource);
+    setViewerModalOpen(true);
   };
 
   const handleDownloadResource = (resource: any) => {
@@ -327,6 +326,12 @@ const ResourceManagement = () => {
         isOpen={uploadModalOpen}
         onClose={() => setUploadModalOpen(false)}
         onUpload={handleUploadResource}
+      />
+
+      <ResourceViewer
+        isOpen={viewerModalOpen}
+        onClose={() => setViewerModalOpen(false)}
+        resource={selectedResource}
       />
     </div>
   );

@@ -1,4 +1,3 @@
-
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -88,6 +87,16 @@ Thank you for your purchase!
     }
   };
 
+  const handleStartLearning = () => {
+    // Navigate back to the course details page where users can access the content
+    navigate(`/course/${course?.id}`, { 
+      state: { 
+        enrolled: true, 
+        course: course 
+      } 
+    });
+  };
+
   if (!course) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -169,7 +178,7 @@ Thank you for your purchase!
             <Button 
               size="lg" 
               className="w-full"
-              onClick={() => navigate('/student-dashboard', { state: { enrolledCourse: course } })}
+              onClick={handleStartLearning}
             >
               <Play className="h-5 w-5 mr-2" />
               Start Learning Now
