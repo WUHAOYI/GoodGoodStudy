@@ -49,7 +49,15 @@ const CourseManagement = () => {
         description: `Course "${course.title}" has been updated successfully.`,
       });
     } else {
-      addCourse(course);
+      // Add missing properties for new course creation
+      const newCourse = {
+        ...course,
+        students: 0,
+        revenue: 0,
+        rating: 0,
+        lastUpdated: new Date().toISOString().split('T')[0]
+      };
+      addCourse(newCourse);
       toast({
         title: "Course created!",
         description: `Course "${course.title}" has been created successfully.`,
