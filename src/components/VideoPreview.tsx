@@ -68,6 +68,15 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
     };
   }, [isOpen]);
 
+  // Reset video state when modal opens/closes
+  useEffect(() => {
+    if (!isOpen) {
+      setCurrentTime(0);
+      setIsPlaying(false);
+      setIsLoading(true);
+    }
+  }, [isOpen]);
+
   const togglePlay = () => {
     if (videoRef.current) {
       if (isPlaying) {
@@ -107,6 +116,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
       videoRef.current.pause();
     }
     setIsPlaying(false);
+    setCurrentTime(0);
     onClose();
   };
 
@@ -129,7 +139,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
   };
 
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!videoRef.current) return;
+    if (!videoRef.current || duration === 0) return;
     
     const rect = e.currentTarget.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
@@ -211,7 +221,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
             >
               <div 
                 className="h-full bg-red-500 rounded-full"
-                style={{ width: `${(currentTime / duration) * 100}%` }}
+                style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
               />
             </div>
 

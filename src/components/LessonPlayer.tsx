@@ -1,7 +1,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Maximize, X } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Maximize } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
 interface LessonPlayerProps {
@@ -25,7 +25,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
+    const secs = Math.floor(seconds % 60);
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
@@ -59,13 +59,13 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
 
   const handleTimeUpdate = () => {
     if (videoRef.current) {
-      setCurrentTime(videoRef.current.currentTime);
+      setCurrentTime(Math.floor(videoRef.current.currentTime));
     }
   };
 
   const handleLoadedMetadata = () => {
     if (videoRef.current) {
-      setTotalTime(videoRef.current.duration);
+      setTotalTime(Math.floor(videoRef.current.duration));
     }
   };
 
@@ -94,6 +94,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
       videoRef.current.pause();
     }
     setIsPlaying(false);
+    setCurrentTime(0);
     onClose();
   };
 
@@ -117,6 +118,14 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
     };
   }, []);
 
+  // Reset state when dialog opens/closes
+  useEffect(() => {
+    if (!isOpen) {
+      setCurrentTime(0);
+      setIsPlaying(false);
+    }
+  }, [isOpen]);
+
   // Don't render if lesson is null
   if (!lesson) {
     return null;
@@ -129,17 +138,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-5xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <span>{lesson.title}</span>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={handleClose}
-              className="h-8 w-8 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </DialogTitle>
+          <DialogTitle>{lesson.title}</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4">
@@ -177,7 +176,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
             >
               <div 
                 className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${(currentTime / totalTime) * 100}%` }}
+                style={{ width: `${totalTime > 0 ? (currentTime / totalTime) * 100 : 0}%` }}
               />
             </div>
             
