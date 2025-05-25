@@ -1,43 +1,21 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Users, Clock, TrendingUp, Plus, Edit, Eye, DollarSign, BarChart3 } from 'lucide-react';
+import { BookOpen, Users, Clock, TrendingUp, Plus, Edit, Eye, DollarSign, BarChart3, Trash2 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { useNavigate } from 'react-router-dom';
+import { useCourses } from '@/contexts/CourseContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 
 const TeacherDashboard = () => {
   const navigate = useNavigate();
+  const { courses, requestDeletion } = useCourses();
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-  const myCourses = [
-    {
-      id: 1,
-      title: "Full Stack Web Development Bootcamp",
-      students: 1245,
-      revenue: 29900,
-      status: "Published",
-      rating: 4.8,
-      lastUpdated: "2024-05-20"
-    },
-    {
-      id: 2,
-      title: "Advanced React Patterns",
-      students: 890,
-      revenue: 17800,
-      status: "Under Review",
-      rating: 4.7,
-      lastUpdated: "2024-05-18"
-    },
-    {
-      id: 3,
-      title: "JavaScript Fundamentals",
-      students: 2340,
-      revenue: 0,
-      status: "Published",
-      rating: 4.6,
-      lastUpdated: "2024-05-15"
-    }
-  ];
+  const myCourses = courses.filter(course => course.status !== 'Pending Deletion');
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -79,6 +57,16 @@ const TeacherDashboard = () => {
     navigate('/course-management/new');
   };
 
+  const handleDeleteCourse = (courseId: number, courseTitle: string) => {
+    if (user) {
+      requestDeletion(courseId, user.name, 'Teacher requested deletion');
+      toast({
+        title: "Deletion Request Submitted",
+        description: `Your request to delete "${courseTitle}" has been submitted for admin approval.`,
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -107,7 +95,7 @@ const TeacherDashboard = () => {
                   <BookOpen className="h-6 w-6 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">12</p>
+                  <p className="text-2xl font-bold text-gray-900">{myCourses.length}</p>
                   <p className="text-sm text-gray-600">Total Courses</p>
                   <p className="text-xs text-green-600">+2 this month</p>
                 </div>
@@ -122,7 +110,9 @@ const TeacherDashboard = () => {
                   <Users className="h-6 w-6 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">4,567</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {myCourses.reduce((total, course) => total + course.students, 0).toLocaleString()}
+                  </p>
                   <p className="text-sm text-gray-600">Total Students</p>
                   <p className="text-xs text-green-600">+234 this month</p>
                 </div>
@@ -137,7 +127,9 @@ const TeacherDashboard = () => {
                   <DollarSign className="h-6 w-6 text-purple-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">$47,700</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    ${myCourses.reduce((total, course) => total + course.revenue, 0).toLocaleString()}
+                  </p>
                   <p className="text-sm text-gray-600">Total Revenue</p>
                   <p className="text-xs text-green-600">+12% this month</p>
                 </div>
@@ -152,7 +144,9 @@ const TeacherDashboard = () => {
                   <TrendingUp className="h-6 w-6 text-orange-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">4.7</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {myCourses.length > 0 ? (myCourses.reduce((total, course) => total + course.rating, 0) / myCourses.length).toFixed(1) : '0.0'}
+                  </p>
                   <p className="text-sm text-gray-600">Avg. Rating</p>
                   <p className="text-xs text-green-600">+0.2 this month</p>
                 </div>
@@ -257,6 +251,15 @@ const TeacherDashboard = () => {
                       >
                         <Edit className="h-4 w-4 mr-1" />
                         Edit
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleDeleteCourse(course.id, course.title)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Delete
                       </Button>
                     </div>
                   </div>

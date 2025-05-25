@@ -36,7 +36,7 @@ const Login = () => {
       
       toast({
         title: "Login Successful",
-        description: "Welcome back to EduPlatform!",
+        description: "Welcome back to GoodGoodStudy!",
       });
 
       // Redirect based on role
@@ -68,7 +68,7 @@ const Login = () => {
               <BookOpen className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">EduPlatform</h1>
+              <h1 className="text-2xl font-bold text-gray-900">GoodGoodStudy</h1>
               <p className="text-sm text-gray-500">Professional Learning</p>
             </div>
           </Link>

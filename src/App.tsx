@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { CourseProvider } from "@/contexts/CourseContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import StudentDashboard from "./pages/StudentDashboard";
@@ -31,50 +32,52 @@ const App = () => (
       <Toaster />
       <Sonner />
       <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/courses" element={<Courses />} />
-            <Route path="/course/:id" element={<CourseDetails />} />
-            <Route path="/categories" element={<Categories />} />
-            <Route path="/for-business" element={<ForBusiness />} />
-            <Route path="/teach" element={<TeachOnPlatform />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/payment" element={<Payment />} />
-            <Route path="/payment-success" element={<PaymentSuccess />} />
-            
-            {/* Protected Routes */}
-            <Route path="/student-dashboard" element={
-              <ProtectedRoute allowedRoles={['student']}>
-                <StudentDashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/teacher-dashboard" element={
-              <ProtectedRoute allowedRoles={['teacher']}>
-                <TeacherDashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin-dashboard" element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <AdminDashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/course-management/:id" element={
-              <ProtectedRoute allowedRoles={['teacher', 'admin']}>
-                <CourseManagement />
-              </ProtectedRoute>
-            } />
-            <Route path="/content-review/:id" element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <ContentReview />
-              </ProtectedRoute>
-            } />
-            
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <CourseProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/courses" element={<Courses />} />
+              <Route path="/course/:id" element={<CourseDetails />} />
+              <Route path="/categories" element={<Categories />} />
+              <Route path="/for-business" element={<ForBusiness />} />
+              <Route path="/teach" element={<TeachOnPlatform />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/payment" element={<Payment />} />
+              <Route path="/payment-success" element={<PaymentSuccess />} />
+              
+              {/* Protected Routes */}
+              <Route path="/student-dashboard" element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <StudentDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/teacher-dashboard" element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <TeacherDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin-dashboard" element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/course-management/:id" element={
+                <ProtectedRoute allowedRoles={['teacher', 'admin']}>
+                  <CourseManagement />
+                </ProtectedRoute>
+              } />
+              <Route path="/content-review/:id" element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <ContentReview />
+                </ProtectedRoute>
+              } />
+              
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </CourseProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

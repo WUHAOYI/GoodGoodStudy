@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Save, Plus, Trash, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useCourses } from '@/contexts/CourseContext';
 import Header from '@/components/Header';
 import FileUpload from '@/components/FileUpload';
 
@@ -17,17 +17,21 @@ const CourseManagement = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { courses, addCourse, updateCourse } = useCourses();
   const isEditing = id !== 'new';
 
+  // Find existing course if editing
+  const existingCourse = isEditing ? courses.find(c => c.id === parseInt(id || '0')) : null;
+
   const [course, setCourse] = useState({
-    title: isEditing ? "Full Stack Web Development Bootcamp" : "",
-    description: isEditing ? "Master full-stack web development with our comprehensive bootcamp." : "",
-    price: isEditing ? 299 : 0,
-    level: isEditing ? "Beginner" : "",
-    category: isEditing ? "programming" : "",
-    duration: isEditing ? "40 hours" : "",
-    language: isEditing ? "English" : "English",
-    status: isEditing ? "Published" : "Draft"
+    title: existingCourse?.title || "",
+    description: existingCourse?.description || "",
+    price: existingCourse?.price || 0,
+    level: existingCourse?.level || "",
+    category: existingCourse?.category || "",
+    duration: existingCourse?.duration || "",
+    language: existingCourse?.language || "English",
+    status: existingCourse?.status || "Draft"
   });
 
   const [lessons, setLessons] = useState([
@@ -38,10 +42,19 @@ const CourseManagement = () => {
   const [courseFiles, setCourseFiles] = useState<any[]>([]);
 
   const handleSave = () => {
-    toast({
-      title: "Course saved!",
-      description: `Course "${course.title}" has been ${isEditing ? 'updated' : 'created'} successfully.`,
-    });
+    if (isEditing && existingCourse) {
+      updateCourse(existingCourse.id, course);
+      toast({
+        title: "Course updated!",
+        description: `Course "${course.title}" has been updated successfully.`,
+      });
+    } else {
+      addCourse(course);
+      toast({
+        title: "Course created!",
+        description: `Course "${course.title}" has been created successfully.`,
+      });
+    }
     navigate('/teacher-dashboard');
   };
 
