@@ -22,6 +22,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
   const [isMuted, setIsMuted] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const formatTime = (seconds: number) => {
@@ -31,18 +32,17 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const togglePlay = () => {
-    if (videoRef.current && isLoaded) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        const playPromise = videoRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(error => {
-            console.error('Error playing video:', error);
-            setIsPlaying(false);
-          });
+  const togglePlay = async () => {
+    if (videoRef.current && isLoaded && !hasError) {
+      try {
+        if (isPlaying) {
+          videoRef.current.pause();
+        } else {
+          await videoRef.current.play();
         }
+      } catch (error) {
+        console.error('Error playing video:', error);
+        setHasError(true);
       }
     }
   };
@@ -74,13 +74,15 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
     }
   };
 
-  const handleLoadedMetadata = () => {
+  const handleLoadedData = () => {
     if (videoRef.current) {
       const duration = videoRef.current.duration;
       if (!isNaN(duration) && isFinite(duration)) {
         setTotalTime(duration);
         setIsLoaded(true);
         setIsLoading(false);
+        setHasError(false);
+        console.log('Video loaded successfully, duration:', duration);
       }
     }
   };
@@ -92,6 +94,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
         setTotalTime(duration);
         setIsLoaded(true);
         setIsLoading(false);
+        setHasError(false);
       }
     }
   };
@@ -99,16 +102,18 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
   const handleLoadStart = () => {
     setIsLoading(true);
     setIsLoaded(false);
+    setHasError(false);
   };
 
-  const handleError = (error: any) => {
-    console.error('Video error:', error);
+  const handleError = () => {
+    console.error('Video error occurred');
     setIsLoading(false);
     setIsLoaded(false);
+    setHasError(true);
   };
 
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!videoRef.current || !isLoaded || totalTime === 0) return;
+    if (!videoRef.current || !isLoaded || totalTime === 0 || hasError) return;
     
     const rect = e.currentTarget.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
@@ -134,6 +139,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
     setCurrentTime(0);
     setIsLoaded(false);
     setIsLoading(false);
+    setHasError(false);
     onClose();
   };
 
@@ -147,7 +153,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
     video.addEventListener('play', handlePlay);
     video.addEventListener('pause', handlePause);
     video.addEventListener('timeupdate', handleTimeUpdate);
-    video.addEventListener('loadedmetadata', handleLoadedMetadata);
+    video.addEventListener('loadeddata', handleLoadedData);
     video.addEventListener('canplay', handleCanPlay);
     video.addEventListener('loadstart', handleLoadStart);
     video.addEventListener('error', handleError);
@@ -156,14 +162,13 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
       video.removeEventListener('play', handlePlay);
       video.removeEventListener('pause', handlePause);
       video.removeEventListener('timeupdate', handleTimeUpdate);
-      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      video.removeEventListener('loadeddata', handleLoadedData);
       video.removeEventListener('canplay', handleCanPlay);
       video.removeEventListener('loadstart', handleLoadStart);
       video.removeEventListener('error', handleError);
     };
   }, [lesson?.videoUrl]);
 
-  // Reset state when dialog opens/closes or lesson changes
   useEffect(() => {
     if (!isOpen || !lesson) {
       setCurrentTime(0);
@@ -171,13 +176,19 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
       setTotalTime(0);
       setIsLoaded(false);
       setIsLoading(false);
+      setHasError(false);
     } else if (lesson && videoRef.current) {
-      // Force reload when lesson changes
+      console.log('Loading lesson video:', lesson.videoUrl);
       setIsLoading(true);
       setIsLoaded(false);
       setCurrentTime(0);
       setTotalTime(0);
-      videoRef.current.load();
+      setHasError(false);
+      
+      if (lesson.videoUrl) {
+        videoRef.current.src = lesson.videoUrl;
+        videoRef.current.load();
+      }
     }
   }, [isOpen, lesson?.videoUrl]);
 
@@ -185,9 +196,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
     return null;
   }
 
-  // Use the lesson's video URL directly, with fallback
   const videoUrl = lesson.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-
   const progressPercentage = totalTime > 0 && isFinite(currentTime) ? (currentTime / totalTime) * 100 : 0;
 
   return (
@@ -198,11 +207,19 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
         </DialogHeader>
         
         <div className="space-y-4">
-          {/* Video Player */}
           <div className="relative aspect-video bg-gray-900 rounded-lg overflow-hidden">
-            {isLoading && (
+            {isLoading && !hasError && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+              </div>
+            )}
+
+            {hasError && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
+                <div className="text-white text-center">
+                  <p className="text-lg mb-2">Unable to load video</p>
+                  <p className="text-sm opacity-75">Please try again later</p>
+                </div>
               </div>
             )}
 
@@ -218,8 +235,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
               Your browser does not support the video tag.
             </video>
             
-            {/* Play/Pause Overlay */}
-            {!isLoading && (
+            {!isLoading && !hasError && (
               <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                 <Button
                   variant="ghost"
@@ -234,9 +250,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
             )}
           </div>
           
-          {/* Controls */}
           <div className="bg-gray-50 p-4 rounded-lg">
-            {/* Progress Bar */}
             <div 
               className="w-full bg-gray-200 rounded-full h-2 mb-4 cursor-pointer"
               onClick={handleSeek}
@@ -253,7 +267,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
                   variant="ghost"
                   size="sm"
                   onClick={() => handleSkip('back')}
-                  disabled={!isLoaded}
+                  disabled={!isLoaded || hasError}
                 >
                   <SkipBack className="h-4 w-4" />
                 </Button>
@@ -261,7 +275,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
                 <Button
                   onClick={togglePlay}
                   className="bg-blue-600 hover:bg-blue-700"
-                  disabled={!isLoaded || isLoading}
+                  disabled={!isLoaded || isLoading || hasError}
                 >
                   {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                 </Button>
@@ -270,16 +284,26 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
                   variant="ghost"
                   size="sm"
                   onClick={() => handleSkip('forward')}
-                  disabled={!isLoaded}
+                  disabled={!isLoaded || hasError}
                 >
                   <SkipForward className="h-4 w-4" />
                 </Button>
                 
-                <Button variant="ghost" size="sm" onClick={toggleMute}>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={toggleMute}
+                  disabled={!isLoaded || hasError}
+                >
                   {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
                 </Button>
                 
-                <Button variant="ghost" size="sm" onClick={toggleFullscreen}>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={toggleFullscreen}
+                  disabled={!isLoaded || hasError}
+                >
                   <Maximize className="h-4 w-4" />
                 </Button>
               </div>
@@ -290,7 +314,6 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
             </div>
           </div>
           
-          {/* Lesson Info */}
           <div className="bg-white border rounded-lg p-4">
             <h3 className="font-semibold mb-2">About this lesson</h3>
             <p className="text-gray-600 text-sm">

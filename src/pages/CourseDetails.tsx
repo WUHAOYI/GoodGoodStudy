@@ -86,7 +86,11 @@ const CourseDetails = () => {
   const handlePlayLesson = (lesson) => {
     console.log('Playing lesson:', lesson);
     if (lesson.isPreview) {
-      setPreviewLesson(lesson);
+      setPreviewLesson({
+        title: lesson.title,
+        videoUrl: lesson.videoUrl,
+        duration: lesson.duration
+      });
       setIsPreviewOpen(true);
     } else {
       setSelectedLesson(lesson);
@@ -170,9 +174,7 @@ const CourseDetails = () => {
         </Button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Course Header */}
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">{course.title}</h1>
               <p className="text-lg text-gray-600 mb-4">{course.description}</p>
@@ -199,7 +201,6 @@ const CourseDetails = () => {
               </div>
             </div>
 
-            {/* Course Video */}
             <div className="relative aspect-video bg-gray-200 rounded-lg overflow-hidden cursor-pointer group" onClick={handlePlayMainVideo}>
               <img
                 src={course.image}
@@ -217,7 +218,6 @@ const CourseDetails = () => {
               </div>
             </div>
 
-            {/* What You'll Learn */}
             <Card>
               <CardHeader>
                 <CardTitle>What you'll learn</CardTitle>
@@ -241,7 +241,6 @@ const CourseDetails = () => {
               </CardContent>
             </Card>
 
-            {/* Requirements */}
             <Card>
               <CardHeader>
                 <CardTitle>Requirements</CardTitle>
@@ -258,7 +257,6 @@ const CourseDetails = () => {
               </CardContent>
             </Card>
 
-            {/* Course Curriculum */}
             <Card>
               <CardHeader>
                 <CardTitle>Course Curriculum</CardTitle>
@@ -309,13 +307,10 @@ const CourseDetails = () => {
               </CardContent>
             </Card>
 
-            {/* Course Reviews Section */}
             <CourseReviews courseId={course.id} />
           </div>
 
-          {/* Sidebar */}
           <div className="space-y-6">
-            {/* Course Card */}
             <Card className="sticky top-6">
               <CardContent className="p-6">
                 <div className="relative aspect-video bg-gray-200 rounded-lg mb-4 overflow-hidden cursor-pointer group" onClick={handlePlayMainVideo}>
@@ -389,7 +384,6 @@ const CourseDetails = () => {
               </CardContent>
             </Card>
 
-            {/* Instructor */}
             <Card>
               <CardHeader>
                 <CardTitle>Instructor</CardTitle>
@@ -414,7 +408,6 @@ const CourseDetails = () => {
         </div>
       </div>
 
-      {/* Lesson Player Modal - Only for non-preview lessons */}
       <LessonPlayer
         isOpen={isLessonPlayerOpen}
         onClose={() => setIsLessonPlayerOpen(false)}
@@ -422,7 +415,6 @@ const CourseDetails = () => {
         courseTitle={course.title}
       />
 
-      {/* Video Preview Modal - Only for preview lessons */}
       <VideoPreview
         videoUrl={previewLesson?.videoUrl || ""}
         thumbnail={course.image}

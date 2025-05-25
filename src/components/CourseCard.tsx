@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -89,7 +88,6 @@ const CourseCard = ({ course }: CourseCardProps) => {
             className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
           />
           
-          {/* Overlay on hover */}
           <div className={`absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
             <Button 
               size="sm" 
@@ -101,7 +99,6 @@ const CourseCard = ({ course }: CourseCardProps) => {
             </Button>
           </div>
 
-          {/* Badges */}
           <div className="absolute top-3 left-3 flex gap-2">
             {course.isPopular && (
               <Badge className="bg-orange-500 hover:bg-orange-600">
@@ -115,7 +112,6 @@ const CourseCard = ({ course }: CourseCardProps) => {
             )}
           </div>
 
-          {/* Wishlist */}
           <Button
             variant="ghost"
             size="sm"
@@ -200,7 +196,6 @@ const CourseCard = ({ course }: CourseCardProps) => {
         </CardContent>
       </Card>
 
-      {/* Video Preview Modal */}
       <VideoPreview
         videoUrl={previewVideoUrl}
         thumbnail={course.image}

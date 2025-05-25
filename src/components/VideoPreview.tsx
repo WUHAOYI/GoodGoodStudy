@@ -19,7 +19,6 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout>();
@@ -28,93 +27,61 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
     const video = videoRef.current;
     if (!video) return;
 
-    const handleLoadedMetadata = () => {
-      console.log('Video metadata loaded:', video.duration);
-      if (video.duration && !isNaN(video.duration) && isFinite(video.duration)) {
+    const handleLoadedData = () => {
+      console.log('Video data loaded successfully');
+      setIsLoading(false);
+      setHasError(false);
+      if (video.duration && isFinite(video.duration)) {
         setDuration(video.duration);
-        setIsLoaded(true);
-        setIsLoading(false);
-        setHasError(false);
       }
     };
 
     const handleCanPlay = () => {
       console.log('Video can play');
-      if (video.duration && !isNaN(video.duration) && isFinite(video.duration)) {
-        setDuration(video.duration);
-        setIsLoaded(true);
-        setIsLoading(false);
-        setHasError(false);
-      }
-    };
-
-    const handleTimeUpdate = () => {
-      if (video.currentTime !== undefined) {
-        const current = video.currentTime;
-        if (isFinite(current)) {
-          setCurrentTime(current);
-        }
-      }
-    };
-
-    const handlePlay = () => {
-      console.log('Video started playing');
-      setIsPlaying(true);
-    };
-    
-    const handlePause = () => {
-      console.log('Video paused');
-      setIsPlaying(false);
-    };
-
-    const handleLoadStart = () => {
-      console.log('Video load started');
-      setIsLoading(true);
-      setIsLoaded(false);
+      setIsLoading(false);
       setHasError(false);
     };
 
-    const handleWaiting = () => {
-      console.log('Video waiting for data');
+    const handleTimeUpdate = () => {
+      if (video.currentTime !== undefined && isFinite(video.currentTime)) {
+        setCurrentTime(video.currentTime);
+      }
+    };
+
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+    
+    const handleLoadStart = () => {
+      console.log('Video load started');
       setIsLoading(true);
+      setHasError(false);
     };
 
-    const handleCanPlayThrough = () => {
-      console.log('Video can play through');
+    const handleError = () => {
+      console.error('Video error occurred');
       setIsLoading(false);
-    };
-
-    const handleError = (e: Event) => {
-      console.error('Video error:', e);
-      setIsLoading(false);
-      setIsLoaded(false);
       setHasError(true);
     };
 
-    video.addEventListener('loadedmetadata', handleLoadedMetadata);
+    video.addEventListener('loadeddata', handleLoadedData);
     video.addEventListener('canplay', handleCanPlay);
-    video.addEventListener('canplaythrough', handleCanPlayThrough);
     video.addEventListener('timeupdate', handleTimeUpdate);
     video.addEventListener('play', handlePlay);
     video.addEventListener('pause', handlePause);
     video.addEventListener('loadstart', handleLoadStart);
-    video.addEventListener('waiting', handleWaiting);
     video.addEventListener('error', handleError);
 
     return () => {
-      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      video.removeEventListener('loadeddata', handleLoadedData);
       video.removeEventListener('canplay', handleCanPlay);
-      video.removeEventListener('canplaythrough', handleCanPlayThrough);
       video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('play', handlePlay);
       video.removeEventListener('pause', handlePause);
       video.removeEventListener('loadstart', handleLoadStart);
-      video.removeEventListener('waiting', handleWaiting);
       video.removeEventListener('error', handleError);
     };
   }, []);
 
-  // Handle escape key to close
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -131,41 +98,36 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
     };
   }, [isOpen]);
 
-  // Reset video state when modal opens/closes or video URL changes
   useEffect(() => {
     if (!isOpen) {
       setCurrentTime(0);
       setIsPlaying(false);
       setIsLoading(true);
-      setIsLoaded(false);
       setDuration(0);
       setHasError(false);
     } else if (videoRef.current && videoUrl) {
       console.log('Loading video URL:', videoUrl);
       setIsLoading(true);
-      setIsLoaded(false);
+      setHasError(false);
       setCurrentTime(0);
       setDuration(0);
-      setHasError(false);
       
-      // Set the video source and load
       videoRef.current.src = videoUrl;
       videoRef.current.load();
     }
   }, [isOpen, videoUrl]);
 
-  const togglePlay = () => {
-    if (videoRef.current && isLoaded && !hasError) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        const playPromise = videoRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(error => {
-            console.error('Error playing video:', error);
-            setHasError(true);
-          });
+  const togglePlay = async () => {
+    if (videoRef.current && !hasError) {
+      try {
+        if (isPlaying) {
+          videoRef.current.pause();
+        } else {
+          await videoRef.current.play();
         }
+      } catch (error) {
+        console.error('Error toggling play:', error);
+        setHasError(true);
       }
     }
   };
@@ -188,7 +150,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
   };
 
   const handleVideoClick = () => {
-    if (isLoaded && !isLoading && !hasError) {
+    if (!isLoading && !hasError) {
       togglePlay();
     }
   };
@@ -199,7 +161,6 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
     }
     setIsPlaying(false);
     setCurrentTime(0);
-    setIsLoaded(false);
     setDuration(0);
     setIsLoading(true);
     setHasError(false);
@@ -226,7 +187,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
   };
 
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!videoRef.current || !isLoaded || duration === 0) return;
+    if (!videoRef.current || duration === 0 || hasError) return;
     
     const rect = e.currentTarget.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
@@ -242,7 +203,6 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
       <Card className="relative max-w-5xl w-full bg-black border-0">
         <div className="relative" onMouseMove={handleMouseMove}>
-          {/* Close Button */}
           <Button
             variant="ghost"
             onClick={handleClose}
@@ -251,30 +211,27 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
             <X className="h-5 w-5" />
           </Button>
 
-          {/* Video Title */}
           <div className="absolute top-4 left-4 z-20 bg-black/50 text-white px-3 py-1 rounded">
             <h3 className="font-medium">{title} - Preview</h3>
           </div>
 
-          {/* Video Element */}
           <video
             ref={videoRef}
             className="w-full aspect-video bg-black cursor-pointer"
             poster={thumbnail}
             onClick={handleVideoClick}
             preload="metadata"
+            crossOrigin="anonymous"
           >
             Your browser does not support the video tag.
           </video>
 
-          {/* Loading Indicator */}
           {isLoading && !hasError && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/50">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
             </div>
           )}
 
-          {/* Error State */}
           {hasError && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/50">
               <div className="text-white text-center">
@@ -284,7 +241,6 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
             </div>
           )}
 
-          {/* Play/Pause Button Center */}
           <div
             className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
               showControls && !isLoading && !hasError ? 'opacity-100' : 'opacity-0'
@@ -295,7 +251,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
               size="lg"
               onClick={togglePlay}
               className="bg-black/50 text-white hover:bg-black/70 w-16 h-16 rounded-full"
-              disabled={!isLoaded || isLoading || hasError}
+              disabled={isLoading || hasError}
             >
               {isPlaying ? (
                 <Pause className="h-8 w-8" />
@@ -305,13 +261,11 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
             </Button>
           </div>
 
-          {/* Bottom Controls */}
           <div
             className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 transition-opacity duration-300 ${
               showControls && !hasError ? 'opacity-100' : 'opacity-0'
             }`}
           >
-            {/* Progress Bar */}
             <div 
               className="w-full h-1 bg-white/30 rounded-full mb-4 cursor-pointer"
               onClick={handleSeek}
@@ -329,7 +283,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
                   size="sm"
                   onClick={togglePlay}
                   className="text-white hover:bg-white/20"
-                  disabled={!isLoaded || isLoading || hasError}
+                  disabled={isLoading || hasError}
                 >
                   {isPlaying ? (
                     <Pause className="h-4 w-4" />
@@ -343,7 +297,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
                   size="sm"
                   onClick={toggleMute}
                   className="text-white hover:bg-white/20"
-                  disabled={!isLoaded || hasError}
+                  disabled={hasError}
                 >
                   {isMuted ? (
                     <VolumeX className="h-4 w-4" />
@@ -363,7 +317,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
                   size="sm"
                   onClick={toggleFullscreen}
                   className="text-white hover:bg-white/20"
-                  disabled={!isLoaded || hasError}
+                  disabled={hasError}
                 >
                   <Maximize className="h-4 w-4" />
                 </Button>
@@ -372,7 +326,6 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
           </div>
         </div>
 
-        {/* Preview Notice */}
         <div className="p-4 bg-gray-900 text-white text-center">
           <p className="text-sm opacity-80">
             This is a preview of the course content. 
