@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Award, Download, Share2, Calendar } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Certificate {
   id: number;
@@ -19,6 +20,8 @@ interface CertificateModalProps {
 }
 
 const CertificateModal = ({ isOpen, onClose }: CertificateModalProps) => {
+  const { toast } = useToast();
+
   // Mock certificates data
   const certificates: Certificate[] = [
     {
@@ -48,20 +51,73 @@ const CertificateModal = ({ isOpen, onClose }: CertificateModalProps) => {
   ];
 
   const handleDownload = (certificate: Certificate) => {
-    // In a real app, this would generate and download a PDF certificate
-    alert(`Downloading certificate for: ${certificate.courseTitle}`);
+    // Generate certificate content
+    const certificateContent = `
+CERTIFICATE OF COMPLETION
+=========================
+
+This certifies that Student Name has successfully completed:
+
+${certificate.courseTitle}
+
+Instructor: ${certificate.instructor}
+Duration: ${certificate.duration}
+Grade: ${certificate.grade || 'Pass'}
+Completion Date: ${new Date(certificate.completedDate).toLocaleDateString()}
+
+Congratulations on your achievement!
+    `;
+
+    // Create and download certificate
+    const blob = new Blob([certificateContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `certificate_${certificate.courseTitle.replace(/\s+/g, '_')}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    toast({
+      title: "Certificate Downloaded",
+      description: `Certificate for ${certificate.courseTitle} has been downloaded.`,
+    });
   };
 
-  const handleShare = (certificate: Certificate) => {
-    // In a real app, this would share the certificate
-    if (navigator.share) {
-      navigator.share({
-        title: `Certificate - ${certificate.courseTitle}`,
-        text: `I just completed ${certificate.courseTitle}!`,
-        url: window.location.href
-      });
-    } else {
-      alert(`Sharing certificate for: ${certificate.courseTitle}`);
+  const handleShare = async (certificate: Certificate) => {
+    try {
+      const shareText = `I just completed ${certificate.courseTitle} and earned my certificate! 🎓`;
+      
+      if (navigator.share) {
+        await navigator.share({
+          title: `Certificate - ${certificate.courseTitle}`,
+          text: shareText,
+          url: window.location.origin
+        });
+      } else {
+        // Fallback: copy to clipboard
+        await navigator.clipboard.writeText(shareText);
+        toast({
+          title: "Certificate Shared",
+          description: "Certificate details copied to clipboard",
+        });
+      }
+    } catch (error) {
+      try {
+        const shareText = `I just completed ${certificate.courseTitle} and earned my certificate! 🎓`;
+        await navigator.clipboard.writeText(shareText);
+        toast({
+          title: "Certificate Shared",
+          description: "Certificate details copied to clipboard",
+        });
+      } catch (clipboardError) {
+        toast({
+          title: "Share Failed",
+          description: "Unable to share certificate",
+          variant: "destructive"
+        });
+      }
     }
   };
 

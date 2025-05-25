@@ -273,13 +273,19 @@ const Analytics = () => {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <RechartsPieChart>
+                <RechartsPieChart data={coursePopularityData}>
                   <Tooltip />
-                  <RechartsPieChart data={coursePopularityData} cx="50%" cy="50%" outerRadius={80} dataKey="value">
+                  <RechartsPieChart.Pie 
+                    data={coursePopularityData} 
+                    cx="50%" 
+                    cy="50%" 
+                    outerRadius={80} 
+                    dataKey="value"
+                  >
                     {coursePopularityData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
-                  </RechartsPieChart>
+                  </RechartsPieChart.Pie>
                 </RechartsPieChart>
               </ResponsiveContainer>
               <div className="mt-4 space-y-2">
