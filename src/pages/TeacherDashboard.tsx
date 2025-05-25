@@ -1,19 +1,24 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Users, Clock, TrendingUp, Plus, Edit, Eye, DollarSign, BarChart3, Trash2 } from 'lucide-react';
+import { BookOpen, Users, Clock, TrendingUp, Plus, Edit, Eye, DollarSign, BarChart3, Trash2, Upload } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { useNavigate } from 'react-router-dom';
 import { useCourses } from '@/contexts/CourseContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
+import StatCard from '@/components/StatCard';
+import StatsModal from '@/components/StatsModal';
+import { useState } from 'react';
 
 const TeacherDashboard = () => {
   const navigate = useNavigate();
-  const { courses, requestDeletion } = useCourses();
+  const { courses, requestDeletion, publishCourse } = useCourses();
   const { user } = useAuth();
   const { toast } = useToast();
+  const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
+  const [modalData, setModalData] = useState<any>({ title: '', items: [] });
 
   const myCourses = courses.filter(course => course.status !== 'Pending Deletion');
 
@@ -67,6 +72,65 @@ const TeacherDashboard = () => {
     }
   };
 
+  const handleViewStats = (type: string) => {
+    let items: any[] = [];
+    let title = '';
+
+    switch (type) {
+      case 'courses':
+        title = 'My Courses';
+        items = myCourses.map(course => ({
+          id: course.id,
+          title: course.title,
+          description: `${course.students} students • $${course.revenue} revenue`,
+          status: course.status,
+          date: course.lastUpdated
+        }));
+        break;
+      case 'students':
+        title = 'Student Enrollments';
+        items = myCourses.map(course => ({
+          id: course.id,
+          title: course.title,
+          description: `${course.students} students enrolled`,
+          status: 'Active',
+          date: course.lastUpdated
+        }));
+        break;
+      case 'revenue':
+        title = 'Revenue Breakdown';
+        items = myCourses.filter(c => c.revenue > 0).map(course => ({
+          id: course.id,
+          title: course.title,
+          description: `$${course.revenue} total revenue from ${course.students} students`,
+          status: course.status,
+          date: course.lastUpdated
+        }));
+        break;
+      case 'rating':
+        title = 'Course Ratings';
+        items = myCourses.map(course => ({
+          id: course.id,
+          title: course.title,
+          description: `Rating: ${course.rating}/5.0 from ${course.students} students`,
+          status: course.status,
+          date: course.lastUpdated
+        }));
+        break;
+    }
+
+    setModalData({ title, items });
+    setIsStatsModalOpen(true);
+  };
+
+  const handlePublishCourse = (courseId: number, courseTitle: string) => {
+    publishCourse(courseId);
+    toast({
+      title: "Course Published",
+      description: `"${courseTitle}" has been submitted for admin review.`,
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -86,73 +150,47 @@ const TeacherDashboard = () => {
           </Button>
         </div>
 
-        {/* Stats Overview */}
+        {/* Stats Overview with clickable cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <div className="bg-blue-100 p-2 rounded-lg">
-                  <BookOpen className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">{myCourses.length}</p>
-                  <p className="text-sm text-gray-600">Total Courses</p>
-                  <p className="text-xs text-green-600">+2 this month</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Total Courses"
+            value={myCourses.length.toString()}
+            subtitle="+2 this month"
+            icon={BookOpen}
+            iconBgColor="bg-blue-100"
+            iconColor="text-blue-600"
+            onClick={() => handleViewStats('courses')}
+          />
 
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <div className="bg-green-100 p-2 rounded-lg">
-                  <Users className="h-6 w-6 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {myCourses.reduce((total, course) => total + course.students, 0).toLocaleString()}
-                  </p>
-                  <p className="text-sm text-gray-600">Total Students</p>
-                  <p className="text-xs text-green-600">+234 this month</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Total Students"
+            value={myCourses.reduce((total, course) => total + course.students, 0).toLocaleString()}
+            subtitle="+234 this month"
+            icon={Users}
+            iconBgColor="bg-green-100"
+            iconColor="text-green-600"
+            onClick={() => handleViewStats('students')}
+          />
 
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <div className="bg-purple-100 p-2 rounded-lg">
-                  <DollarSign className="h-6 w-6 text-purple-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">
-                    ${myCourses.reduce((total, course) => total + course.revenue, 0).toLocaleString()}
-                  </p>
-                  <p className="text-sm text-gray-600">Total Revenue</p>
-                  <p className="text-xs text-green-600">+12% this month</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Total Revenue"
+            value={`$${myCourses.reduce((total, course) => total + course.revenue, 0).toLocaleString()}`}
+            subtitle="+12% this month"
+            icon={DollarSign}
+            iconBgColor="bg-purple-100"
+            iconColor="text-purple-600"
+            onClick={() => handleViewStats('revenue')}
+          />
 
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <div className="bg-orange-100 p-2 rounded-lg">
-                  <TrendingUp className="h-6 w-6 text-orange-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {myCourses.length > 0 ? (myCourses.reduce((total, course) => total + course.rating, 0) / myCourses.length).toFixed(1) : '0.0'}
-                  </p>
-                  <p className="text-sm text-gray-600">Avg. Rating</p>
-                  <p className="text-xs text-green-600">+0.2 this month</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Avg. Rating"
+            value={myCourses.length > 0 ? (myCourses.reduce((total, course) => total + course.rating, 0) / myCourses.length).toFixed(1) : '0.0'}
+            subtitle="+0.2 this month"
+            icon={TrendingUp}
+            iconBgColor="bg-orange-100"
+            iconColor="text-orange-600"
+            onClick={() => handleViewStats('rating')}
+          />
         </div>
 
         {/* Analytics Charts */}
@@ -215,9 +253,22 @@ const TeacherDashboard = () => {
                       <h3 className="font-semibold text-gray-900 mb-1">{course.title}</h3>
                       <p className="text-sm text-gray-600">Last updated: {course.lastUpdated}</p>
                     </div>
-                    <Badge className={getStatusColor(course.status)}>
-                      {course.status}
-                    </Badge>
+                    <div className="flex gap-2">
+                      <Badge className={getStatusColor(course.status)}>
+                        {course.status}
+                      </Badge>
+                      {course.status === 'Draft' && (
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handlePublishCourse(course.id, course.title)}
+                          className="text-green-600 hover:text-green-700"
+                        >
+                          <Upload className="h-4 w-4 mr-1" />
+                          Publish
+                        </Button>
+                      )}
+                    </div>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
@@ -269,6 +320,14 @@ const TeacherDashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Stats Modal */}
+      <StatsModal
+        isOpen={isStatsModalOpen}
+        onClose={() => setIsStatsModalOpen(false)}
+        title={modalData.title}
+        items={modalData.items}
+      />
     </div>
   );
 };

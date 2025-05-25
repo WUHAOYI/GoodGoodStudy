@@ -17,6 +17,9 @@ interface Course {
   lastUpdated: string;
   deletionRequested?: boolean;
   deletionRequestedBy?: string;
+  reviewReason?: string;
+  publishedAt?: string;
+  submittedForReview?: boolean;
 }
 
 interface DeletionRequest {
@@ -30,6 +33,7 @@ interface DeletionRequest {
 
 interface ReviewItem {
   id: number;
+  courseId: number;
   title: string;
   instructor: string;
   submittedDate: string;
@@ -43,6 +47,16 @@ interface RecentAction {
   user: string;
   time: string;
   type: string;
+  courseId?: number;
+}
+
+interface Achievement {
+  id: number;
+  title: string;
+  description: string;
+  icon: string;
+  earnedDate: string;
+  type: string;
 }
 
 interface CourseContextType {
@@ -50,14 +64,19 @@ interface CourseContextType {
   deletionRequests: DeletionRequest[];
   pendingReviews: ReviewItem[];
   recentActions: RecentAction[];
+  achievements: Achievement[];
   addCourse: (course: Omit<Course, 'id'>) => void;
   updateCourse: (id: number, updates: Partial<Course>) => void;
+  publishCourse: (courseId: number) => void;
   requestDeletion: (courseId: number, requestedBy: string, reason?: string) => void;
   approveDeletion: (requestId: number) => void;
   rejectDeletion: (requestId: number) => void;
   directDelete: (courseId: number) => void;
   addRecentAction: (action: RecentAction) => void;
-  updateReviewStatus: (courseId: number, status: string) => void;
+  updateReviewStatus: (courseId: number, status: string, reason?: string) => void;
+  enrollStudentInCourse: (courseId: number) => void;
+  completeStudentCourse: (courseId: number) => void;
+  addAchievement: (achievement: Omit<Achievement, 'id'>) => void;
 }
 
 const CourseContext = createContext<CourseContextType | undefined>(undefined);
@@ -85,7 +104,8 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       students: 1245,
       revenue: 29900,
       rating: 4.8,
-      lastUpdated: "2024-05-20"
+      lastUpdated: "2024-05-20",
+      publishedAt: "2024-05-15"
     },
     {
       id: 2,
@@ -100,7 +120,8 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       students: 890,
       revenue: 17800,
       rating: 4.7,
-      lastUpdated: "2024-05-18"
+      lastUpdated: "2024-05-18",
+      submittedForReview: true
     },
     {
       id: 3,
@@ -115,7 +136,8 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       students: 2340,
       revenue: 0,
       rating: 4.6,
-      lastUpdated: "2024-05-15"
+      lastUpdated: "2024-05-15",
+      publishedAt: "2024-05-10"
     }
   ]);
 
@@ -123,20 +145,13 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   
   const [pendingReviews, setPendingReviews] = useState<ReviewItem[]>([
     {
-      id: 1,
-      title: "Advanced Python Programming",
+      id: 2,
+      courseId: 2,
+      title: "Advanced React Patterns",
       instructor: "Code Master Academy",
-      submittedDate: "2024-05-22",
+      submittedDate: "2024-05-18",
       type: "Course",
       priority: "High"
-    },
-    {
-      id: 2,
-      title: "Digital Marketing Strategy",
-      instructor: "Marketing Experts",
-      submittedDate: "2024-05-21",
-      type: "Course",
-      priority: "Medium"
     }
   ]);
 
@@ -144,18 +159,51 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     {
       id: 1,
       action: "Approved course: Full Stack Development",
-      user: "Tech Academy",
+      user: "Admin",
       time: "2 hours ago",
-      type: "approved"
+      type: "approved",
+      courseId: 1
     },
     {
       id: 2,
-      action: "Rejected course: Basic HTML",
-      user: "Web Basics",
+      action: "Submitted course for review: Advanced React Patterns",
+      user: "Code Master Academy",
       time: "4 hours ago",
-      type: "rejected"
+      type: "submitted",
+      courseId: 2
     }
   ]);
+
+  const [achievements, setAchievements] = useState<Achievement[]>([
+    {
+      id: 1,
+      title: "First Course Completed",
+      description: "Congratulations on completing your first course! This is just the beginning of your learning journey.",
+      icon: "trophy",
+      earnedDate: "2024-05-20",
+      type: "completion"
+    },
+    {
+      id: 2,
+      title: "Quick Learner",
+      description: "You completed a course in record time! Your dedication to learning is impressive.",
+      icon: "zap",
+      earnedDate: "2024-05-18",
+      type: "speed"
+    },
+    {
+      id: 3,
+      title: "Knowledge Seeker",
+      description: "You've enrolled in 5 courses! Your thirst for knowledge knows no bounds.",
+      icon: "book-open",
+      earnedDate: "2024-05-15",
+      type: "enrollment"
+    }
+  ]);
+
+  // Mock enrolled and completed courses for student
+  const [enrolledCourses] = useState([1, 2]);
+  const [completedCourses] = useState([3]);
 
   const addCourse = (newCourse: Omit<Course, 'id'>) => {
     const course: Course = {
@@ -173,7 +221,8 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       action: `Created new course: ${course.title}`,
       user: "Current User",
       time: "Just now",
-      type: "created"
+      type: "created",
+      courseId: course.id
     });
   };
 
@@ -183,6 +232,38 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         ? { ...course, ...updates, lastUpdated: new Date().toISOString().split('T')[0] }
         : course
     ));
+  };
+
+  const publishCourse = (courseId: number) => {
+    const course = courses.find(c => c.id === courseId);
+    if (!course) return;
+
+    updateCourse(courseId, { 
+      status: 'Under Review', 
+      submittedForReview: true,
+      publishedAt: new Date().toISOString().split('T')[0]
+    });
+
+    // Add to pending reviews
+    const reviewItem: ReviewItem = {
+      id: Date.now(),
+      courseId,
+      title: course.title,
+      instructor: "Current User",
+      submittedDate: new Date().toISOString().split('T')[0],
+      type: "Course",
+      priority: "Medium"
+    };
+    setPendingReviews(prev => [...prev, reviewItem]);
+    
+    addRecentAction({
+      id: Date.now(),
+      action: `Submitted course for review: ${course.title}`,
+      user: "Current User",
+      time: "Just now",
+      type: "submitted",
+      courseId
+    });
   };
 
   const requestDeletion = (courseId: number, requestedBy: string, reason?: string) => {
@@ -206,7 +287,8 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       action: `Requested deletion for course: ${course.title}`,
       user: requestedBy,
       time: "Just now",
-      type: "deletion_request"
+      type: "deletion_request",
+      courseId
     });
   };
 
@@ -222,7 +304,8 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       action: `Approved deletion for course: ${request.courseTitle}`,
       user: "Admin",
       time: "Just now",
-      type: "approved"
+      type: "approved",
+      courseId: request.courseId
     });
   };
 
@@ -242,7 +325,8 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       action: `Rejected deletion for course: ${request.courseTitle}`,
       user: "Admin",
       time: "Just now",
-      type: "rejected"
+      type: "rejected",
+      courseId: request.courseId
     });
   };
 
@@ -257,7 +341,8 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       action: `Directly deleted course: ${course.title}`,
       user: "Admin",
       time: "Just now",
-      type: "deleted"
+      type: "deleted",
+      courseId
     });
   };
 
@@ -265,25 +350,55 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setRecentActions(prev => [action, ...prev.slice(0, 9)]); // Keep only last 10 actions
   };
 
-  const updateReviewStatus = (courseId: number, status: string) => {
+  const updateReviewStatus = (courseId: number, status: string, reason?: string) => {
     const course = courses.find(c => c.id === courseId);
     if (!course) return;
 
     // Remove from pending reviews
     setPendingReviews(prev => prev.filter(review => 
-      review.title !== course.title
+      review.courseId !== courseId
     ));
 
     // Update course status
-    updateCourse(courseId, { status: status as Course['status'] });
+    updateCourse(courseId, { 
+      status: status as Course['status'],
+      reviewReason: reason,
+      submittedForReview: false
+    });
     
     addRecentAction({
       id: Date.now(),
-      action: `${status} course: ${course.title}`,
+      action: `${status} course: ${course.title}${reason ? ` - ${reason}` : ''}`,
       user: "Admin",
       time: "Just now",
-      type: status.toLowerCase()
+      type: status.toLowerCase().replace(' ', '_'),
+      courseId
     });
+  };
+
+  const enrollStudentInCourse = (courseId: number) => {
+    updateCourse(courseId, {
+      students: courses.find(c => c.id === courseId)?.students + 1 || 1
+    });
+  };
+
+  const completeStudentCourse = (courseId: number) => {
+    // Add completion achievement
+    addAchievement({
+      title: "Course Completed",
+      description: "You've successfully completed another course! Keep up the great work.",
+      icon: "check-circle",
+      earnedDate: new Date().toISOString().split('T')[0],
+      type: "completion"
+    });
+  };
+
+  const addAchievement = (achievement: Omit<Achievement, 'id'>) => {
+    const newAchievement: Achievement = {
+      ...achievement,
+      id: Math.max(...achievements.map(a => a.id), 0) + 1
+    };
+    setAchievements(prev => [newAchievement, ...prev]);
   };
 
   return (
@@ -292,14 +407,19 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       deletionRequests,
       pendingReviews,
       recentActions,
+      achievements,
       addCourse,
       updateCourse,
+      publishCourse,
       requestDeletion,
       approveDeletion,
       rejectDeletion,
       directDelete,
       addRecentAction,
-      updateReviewStatus
+      updateReviewStatus,
+      enrollStudentInCourse,
+      completeStudentCourse,
+      addAchievement
     }}>
       {children}
     </CourseContext.Provider>

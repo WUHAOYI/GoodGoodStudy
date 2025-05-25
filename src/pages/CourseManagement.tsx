@@ -17,7 +17,7 @@ const CourseManagement = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { courses, addCourse, updateCourse } = useCourses();
+  const { courses, addCourse, updateCourse, publishCourse } = useCourses();
   const isEditing = id !== 'new';
 
   // Find existing course if editing
@@ -66,6 +66,35 @@ const CourseManagement = () => {
     navigate('/teacher-dashboard');
   };
 
+  const handlePublish = () => {
+    if (isEditing && existingCourse) {
+      publishCourse(existingCourse.id);
+      toast({
+        title: "Course submitted for review!",
+        description: `Course "${course.title}" has been submitted for admin review.`,
+      });
+      navigate('/teacher-dashboard');
+    } else {
+      // Save first, then publish
+      const newCourse = {
+        ...course,
+        students: 0,
+        revenue: 0,
+        rating: 0,
+        lastUpdated: new Date().toISOString().split('T')[0]
+      };
+      const courseId = addCourse(newCourse);
+      setTimeout(() => {
+        publishCourse(courseId);
+        toast({
+          title: "Course submitted for review!",
+          description: `Course "${course.title}" has been submitted for admin review.`,
+        });
+        navigate('/teacher-dashboard');
+      }, 100);
+    }
+  };
+
   const handleAddLesson = () => {
     const newLesson = {
       id: lessons.length + 1,
@@ -101,9 +130,13 @@ const CourseManagement = () => {
           </div>
           <div className="flex gap-2">
             <Button variant="outline">Preview</Button>
-            <Button onClick={handleSave}>
+            <Button variant="outline" onClick={handleSave}>
               <Save className="h-4 w-4 mr-2" />
-              Save Course
+              Save Draft
+            </Button>
+            <Button onClick={handlePublish} className="bg-green-600 hover:bg-green-700">
+              <Upload className="h-4 w-4 mr-2" />
+              Publish & Submit for Review
             </Button>
           </div>
         </div>

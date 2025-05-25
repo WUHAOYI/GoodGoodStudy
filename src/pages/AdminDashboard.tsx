@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCourses } from '@/contexts/CourseContext';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
+import { useState } from 'react';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const AdminDashboard = () => {
     updateReviewStatus 
   } = useCourses();
   const { toast } = useToast();
+  const [reviewReason, setReviewReason] = useState<{[key: number]: string}>({});
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -43,16 +45,18 @@ const AdminDashboard = () => {
     navigate(`/content-review/${itemId}`);
   };
 
-  const handleApproveReview = (courseId: number) => {
-    updateReviewStatus(courseId, 'Published');
+  const handleApproveReview = (courseId: number, reviewId: number) => {
+    const reason = reviewReason[reviewId] || '';
+    updateReviewStatus(courseId, 'Published', reason);
     toast({
       title: "Course Approved",
       description: "The course has been approved and published.",
     });
   };
 
-  const handleRejectReview = (courseId: number) => {
-    updateReviewStatus(courseId, 'Draft');
+  const handleRejectReview = (courseId: number, reviewId: number) => {
+    const reason = reviewReason[reviewId] || '';
+    updateReviewStatus(courseId, 'Draft', reason);
     toast({
       title: "Course Rejected",
       description: "The course has been rejected and returned to draft status.",
@@ -122,7 +126,7 @@ const AdminDashboard = () => {
                 <div>
                   <p className="text-2xl font-bold text-gray-900">{courses.length}</p>
                   <p className="text-sm text-gray-600">Total Courses</p>
-                  <p className="text-xs text-green-600">+6 this week</p>
+                  <p className="text-xs text-green-600">+{courses.filter(c => c.status === 'Published').length} published</p>
                 </div>
               </div>
             </CardContent>
@@ -165,7 +169,9 @@ const AdminDashboard = () => {
                   <Shield className="h-6 w-6 text-purple-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">24,567</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {courses.reduce((total, course) => total + course.students, 0).toLocaleString()}
+                  </p>
                   <p className="text-sm text-gray-600">Active Students</p>
                   <p className="text-xs text-green-600">+1,234 this month</p>
                 </div>
@@ -243,7 +249,7 @@ const AdminDashboard = () => {
           {/* Pending Reviews */}
           <Card>
             <CardHeader>
-              <CardTitle>Pending Reviews</CardTitle>
+              <CardTitle>Pending Reviews ({pendingReviews.length})</CardTitle>
               <CardDescription>Content waiting for approval</CardDescription>
             </CardHeader>
             <CardContent>
@@ -258,6 +264,17 @@ const AdminDashboard = () => {
                       <Badge className={getPriorityColor(item.priority)}>
                         {item.priority}
                       </Badge>
+                    </div>
+                    
+                    <div className="mb-3">
+                      <label className="text-sm font-medium text-gray-700">Review Reason (optional)</label>
+                      <input
+                        type="text"
+                        placeholder="Enter review reason..."
+                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                        value={reviewReason[item.id] || ''}
+                        onChange={(e) => setReviewReason(prev => ({...prev, [item.id]: e.target.value}))}
+                      />
                     </div>
                     
                     <div className="flex justify-between items-center">
@@ -276,7 +293,7 @@ const AdminDashboard = () => {
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => handleApproveReview(item.id)}
+                          onClick={() => handleApproveReview(item.courseId, item.id)}
                           className="text-green-600"
                         >
                           <CheckCircle className="h-4 w-4 mr-1" />
@@ -285,7 +302,7 @@ const AdminDashboard = () => {
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => handleRejectReview(item.id)}
+                          onClick={() => handleRejectReview(item.courseId, item.id)}
                           className="text-red-600"
                         >
                           <X className="h-4 w-4 mr-1" />
@@ -295,6 +312,9 @@ const AdminDashboard = () => {
                     </div>
                   </div>
                 ))}
+                {pendingReviews.length === 0 && (
+                  <p className="text-gray-500 text-center py-4">No pending reviews</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -302,12 +322,12 @@ const AdminDashboard = () => {
           {/* Recent Actions */}
           <Card>
             <CardHeader>
-              <CardTitle>Recent Actions</CardTitle>
+              <CardTitle>Recent Actions ({recentActions.length})</CardTitle>
               <CardDescription>Latest platform activities</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentActions.slice(0, 5).map((action) => (
+                {recentActions.slice(0, 8).map((action) => (
                   <div key={action.id} className="flex items-start gap-3 p-3 border rounded-lg">
                     {getActionIcon(action.type)}
                     <div className="flex-1">
@@ -319,6 +339,9 @@ const AdminDashboard = () => {
                     </div>
                   </div>
                 ))}
+                {recentActions.length === 0 && (
+                  <p className="text-gray-500 text-center py-4">No recent actions</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -380,7 +403,7 @@ const AdminDashboard = () => {
         {/* All Courses Management */}
         <Card>
           <CardHeader>
-            <CardTitle>All Courses</CardTitle>
+            <CardTitle>All Courses ({courses.length})</CardTitle>
             <CardDescription>Manage all courses on the platform</CardDescription>
           </CardHeader>
           <CardContent>
@@ -391,6 +414,10 @@ const AdminDashboard = () => {
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-1">{course.title}</h3>
                       <p className="text-sm text-gray-600">Last updated: {course.lastUpdated}</p>
+                      <p className="text-sm text-gray-500">{course.students} students • ${course.revenue} revenue</p>
+                      {course.reviewReason && (
+                        <p className="text-sm text-blue-600 mt-1">Review reason: {course.reviewReason}</p>
+                      )}
                     </div>
                     <div className="flex gap-2">
                       <Badge className={
