@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Play, 
   Clock, 
@@ -17,7 +18,8 @@ import {
   Globe,
   Smartphone,
   Heart,
-  Share2
+  Share2,
+  ArrowLeft
 } from 'lucide-react';
 import Header from '@/components/Header';
 import VideoPreview from '@/components/VideoPreview';
@@ -25,6 +27,7 @@ import VideoPreview from '@/components/VideoPreview';
 const CourseDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [course, setCourse] = useState<any>(null);
   const [showVideoPreview, setShowVideoPreview] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
@@ -123,6 +126,34 @@ const CourseDetails = () => {
     }
   };
 
+  const handleShare = () => {
+    const courseUrl = window.location.href;
+    if (navigator.share) {
+      navigator.share({
+        title: course.title,
+        text: `Check out this course: ${course.title}`,
+        url: courseUrl,
+      }).catch(console.error);
+    } else {
+      navigator.clipboard.writeText(courseUrl).then(() => {
+        toast({
+          title: "Link copied!",
+          description: "Course link has been copied to clipboard",
+        });
+      }).catch(() => {
+        toast({
+          title: "Share failed",
+          description: "Unable to copy link to clipboard",
+          variant: "destructive",
+        });
+      });
+    }
+  };
+
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   if (!course) {
     return <div>Course not found</div>;
   }
@@ -132,6 +163,16 @@ const CourseDetails = () => {
       <Header />
       
       <div className="container mx-auto px-6 py-8">
+        {/* Back Button */}
+        <Button 
+          variant="ghost" 
+          onClick={handleBack}
+          className="mb-4"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </Button>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
@@ -167,7 +208,7 @@ const CourseDetails = () => {
                     >
                       <Heart className={`h-4 w-4 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`} />
                     </Button>
-                    <Button variant="ghost" size="sm">
+                    <Button variant="ghost" size="sm" onClick={handleShare}>
                       <Share2 className="h-4 w-4" />
                     </Button>
                   </div>

@@ -1,11 +1,14 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Users, Shield, AlertCircle, CheckCircle, Clock, Eye } from 'lucide-react';
+import { BookOpen, Users, Shield, AlertCircle, CheckCircle, Clock, Eye, BarChart3 } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
+
   const pendingReviews = [
     {
       id: 1,
@@ -74,6 +77,26 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleReviewContent = (itemId: number) => {
+    navigate(`/content-review/${itemId}`);
+  };
+
+  // Analytics data
+  const platformGrowth = [
+    { month: 'Jan', courses: 120, students: 15000, revenue: 180000 },
+    { month: 'Feb', courses: 135, students: 18000, revenue: 220000 },
+    { month: 'Mar', courses: 142, students: 21000, revenue: 280000 },
+    { month: 'Apr', courses: 150, students: 23500, revenue: 320000 },
+    { month: 'May', courses: 156, students: 24567, revenue: 350000 },
+  ];
+
+  const categoryDistribution = [
+    { name: 'Programming', value: 45, color: '#3b82f6' },
+    { name: 'Design', value: 25, color: '#10b981' },
+    { name: 'Marketing', value: 20, color: '#f59e0b' },
+    { name: 'Business', value: 10, color: '#ef4444' }
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -95,6 +118,7 @@ const AdminDashboard = () => {
                 <div>
                   <p className="text-2xl font-bold text-gray-900">156</p>
                   <p className="text-sm text-gray-600">Total Courses</p>
+                  <p className="text-xs text-green-600">+6 this week</p>
                 </div>
               </div>
             </CardContent>
@@ -109,6 +133,7 @@ const AdminDashboard = () => {
                 <div>
                   <p className="text-2xl font-bold text-gray-900">89</p>
                   <p className="text-sm text-gray-600">Institutions</p>
+                  <p className="text-xs text-green-600">+3 this month</p>
                 </div>
               </div>
             </CardContent>
@@ -123,6 +148,7 @@ const AdminDashboard = () => {
                 <div>
                   <p className="text-2xl font-bold text-gray-900">12</p>
                   <p className="text-sm text-gray-600">Pending Reviews</p>
+                  <p className="text-xs text-red-600">3 high priority</p>
                 </div>
               </div>
             </CardContent>
@@ -137,7 +163,73 @@ const AdminDashboard = () => {
                 <div>
                   <p className="text-2xl font-bold text-gray-900">24,567</p>
                   <p className="text-sm text-gray-600">Active Students</p>
+                  <p className="text-xs text-green-600">+1,234 this month</p>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Analytics Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                Platform Growth
+              </CardTitle>
+              <CardDescription>Track overall platform performance</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={platformGrowth}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="students" stroke="#3b82f6" strokeWidth={2} name="Students" />
+                  <Line type="monotone" dataKey="courses" stroke="#10b981" strokeWidth={2} name="Courses" />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Course Categories</CardTitle>
+              <CardDescription>Distribution by category</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={categoryDistribution}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    dataKey="value"
+                  >
+                    {categoryDistribution.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="mt-4 space-y-2">
+                {categoryDistribution.map((item, index) => (
+                  <div key={index} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className="w-3 h-3 rounded-full" 
+                        style={{ backgroundColor: item.color }}
+                      />
+                      <span>{item.name}</span>
+                    </div>
+                    <span className="font-medium">{item.value}%</span>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -168,12 +260,14 @@ const AdminDashboard = () => {
                       <div className="text-sm text-gray-500">
                         <span className="font-medium">{item.type}</span> • Submitted {item.submittedDate}
                       </div>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline">
-                          <Eye className="h-4 w-4 mr-1" />
-                          Review
-                        </Button>
-                      </div>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleReviewContent(item.id)}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        Review
+                      </Button>
                     </div>
                   </div>
                 ))}

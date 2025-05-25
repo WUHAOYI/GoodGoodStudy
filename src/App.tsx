@@ -17,6 +17,8 @@ import ForBusiness from "./pages/ForBusiness";
 import TeachOnPlatform from "./pages/TeachOnPlatform";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import CourseManagement from "./pages/CourseManagement";
+import ContentReview from "./pages/ContentReview";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +36,8 @@ const App = () => (
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/courses" element={<Courses />} />
           <Route path="/course/:id" element={<CourseDetails />} />
+          <Route path="/course-management/:id" element={<CourseManagement />} />
+          <Route path="/content-review/:id" element={<ContentReview />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/categories" element={<Categories />} />
