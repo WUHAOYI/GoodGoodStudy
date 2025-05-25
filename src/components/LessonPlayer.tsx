@@ -10,7 +10,7 @@ interface LessonPlayerProps {
   lesson: {
     title: string;
     duration: string;
-  };
+  } | null;
   courseTitle: string;
 }
 
@@ -37,6 +37,11 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
       setCurrentTime(Math.max(currentTime - skipAmount, 0));
     }
   };
+
+  // Don't render if lesson is null
+  if (!lesson) {
+    return null;
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
