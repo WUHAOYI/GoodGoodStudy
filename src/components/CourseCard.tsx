@@ -200,14 +200,13 @@ const CourseCard = ({ course }: CourseCardProps) => {
       </Card>
 
       {/* Video Preview Modal */}
-      {showVideoPreview && (
-        <VideoPreview
-          videoUrl={previewVideoUrl}
-          thumbnail={course.image}
-          title={course.title}
-          onClose={() => setShowVideoPreview(false)}
-        />
-      )}
+      <VideoPreview
+        videoUrl={previewVideoUrl}
+        thumbnail={course.image}
+        title={course.title}
+        onClose={() => setShowVideoPreview(false)}
+        isOpen={showVideoPreview}
+      />
     </>
   );
 };
