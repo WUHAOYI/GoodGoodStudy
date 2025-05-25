@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -56,8 +55,8 @@ const CourseDetails = () => {
         title: "Introduction to Web Development", 
         lessons: [
           { id: 1, title: "What is Web Development?", duration: "15:30", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", isPreview: true },
-          { id: 2, title: "Setting Up Your Development Environment", duration: "20:45", videoUrl: "", isPreview: false },
-          { id: 3, title: "Your First Web Page", duration: "18:20", videoUrl: "", isPreview: false }
+          { id: 2, title: "Setting Up Your Development Environment", duration: "20:45", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4", isPreview: false },
+          { id: 3, title: "Your First Web Page", duration: "18:20", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4", isPreview: false }
         ], 
         duration: "2 hours" 
       },
@@ -65,14 +64,14 @@ const CourseDetails = () => {
         title: "HTML & CSS Fundamentals", 
         lessons: [
           { id: 4, title: "HTML Structure and Semantics", duration: "25:10", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4", isPreview: true },
-          { id: 5, title: "CSS Styling Basics", duration: "30:15", videoUrl: "", isPreview: false }
+          { id: 5, title: "CSS Styling Basics", duration: "30:15", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4", isPreview: false }
         ], 
         duration: "4 hours" 
       },
       { 
         title: "JavaScript Essentials", 
         lessons: [
-          { id: 6, title: "Variables and Data Types", duration: "22:30", videoUrl: "", isPreview: false }
+          { id: 6, title: "Variables and Data Types", duration: "22:30", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4", isPreview: false }
         ], 
         duration: "6 hours" 
       },
@@ -85,6 +84,7 @@ const CourseDetails = () => {
   };
 
   const handlePlayLesson = (lesson) => {
+    console.log('Playing lesson:', lesson);
     if (lesson.isPreview) {
       setPreviewLesson(lesson);
       setIsPreviewOpen(true);
@@ -95,6 +95,7 @@ const CourseDetails = () => {
   };
 
   const handlePlayMainVideo = () => {
+    console.log('Playing main course video:', course.videoUrl);
     setPreviewLesson({
       title: course.title + " - Course Preview",
       videoUrl: course.videoUrl,
@@ -200,6 +201,11 @@ const CourseDetails = () => {
 
             {/* Course Video */}
             <div className="relative aspect-video bg-gray-200 rounded-lg overflow-hidden cursor-pointer group" onClick={handlePlayMainVideo}>
+              <img
+                src={course.image}
+                alt={course.title}
+                className="w-full h-full object-cover"
+              />
               <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors flex items-center justify-center">
                 <div className="bg-black/50 rounded-full p-4 group-hover:bg-black/70 transition-colors">
                   <PlayCircle className="h-16 w-16 text-white" />
@@ -313,6 +319,11 @@ const CourseDetails = () => {
             <Card className="sticky top-6">
               <CardContent className="p-6">
                 <div className="relative aspect-video bg-gray-200 rounded-lg mb-4 overflow-hidden cursor-pointer group" onClick={handlePlayMainVideo}>
+                  <img
+                    src={course.image}
+                    alt={course.title}
+                    className="w-full h-full object-cover"
+                  />
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors flex items-center justify-center">
                     <div className="bg-black/50 rounded-full p-3 group-hover:bg-black/70 transition-colors">
                       <PlayCircle className="h-8 w-8 text-white" />
@@ -414,7 +425,7 @@ const CourseDetails = () => {
       {/* Video Preview Modal - Only for preview lessons */}
       <VideoPreview
         videoUrl={previewLesson?.videoUrl || ""}
-        thumbnail="/placeholder.svg"
+        thumbnail={course.image}
         title={previewLesson?.title || ""}
         onClose={() => setIsPreviewOpen(false)}
         isOpen={isPreviewOpen}

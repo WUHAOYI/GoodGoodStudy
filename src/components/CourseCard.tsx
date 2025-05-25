@@ -34,7 +34,7 @@ const CourseCard = ({ course }: CourseCardProps) => {
   const [showVideoPreview, setShowVideoPreview] = useState(false);
   const navigate = useNavigate();
 
-  // Sample video URLs for demo purposes
+  // Sample video URLs for demo purposes - ensuring each course gets a working video
   const sampleVideos = [
     "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
@@ -57,6 +57,7 @@ const CourseCard = ({ course }: CourseCardProps) => {
 
   const handlePreviewClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    console.log('Opening video preview for:', course.title, 'with URL:', previewVideoUrl);
     setShowVideoPreview(true);
   };
 
