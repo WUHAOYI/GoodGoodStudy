@@ -18,19 +18,21 @@ interface LessonPlayerProps {
 const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [totalTime, setTotalTime] = useState(3600);
+  const [totalTime, setTotalTime] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(1);
+  const [isLoaded, setIsLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const formatTime = (seconds: number) => {
+    if (!seconds || isNaN(seconds)) return '0:00';
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   const togglePlay = () => {
-    if (videoRef.current) {
+    if (videoRef.current && isLoaded) {
       if (isPlaying) {
         videoRef.current.pause();
       } else {
@@ -47,7 +49,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
   };
 
   const handleSkip = (direction: 'forward' | 'back') => {
-    if (videoRef.current) {
+    if (videoRef.current && isLoaded) {
       const skipAmount = 10;
       if (direction === 'forward') {
         videoRef.current.currentTime = Math.min(videoRef.current.currentTime + skipAmount, totalTime);
@@ -58,19 +60,33 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
   };
 
   const handleTimeUpdate = () => {
-    if (videoRef.current) {
-      setCurrentTime(Math.floor(videoRef.current.currentTime));
+    if (videoRef.current && isLoaded) {
+      setCurrentTime(videoRef.current.currentTime);
     }
   };
 
   const handleLoadedMetadata = () => {
     if (videoRef.current) {
-      setTotalTime(Math.floor(videoRef.current.duration));
+      const duration = videoRef.current.duration;
+      if (!isNaN(duration) && isFinite(duration)) {
+        setTotalTime(duration);
+        setIsLoaded(true);
+      }
+    }
+  };
+
+  const handleCanPlayThrough = () => {
+    if (videoRef.current) {
+      const duration = videoRef.current.duration;
+      if (!isNaN(duration) && isFinite(duration)) {
+        setTotalTime(duration);
+        setIsLoaded(true);
+      }
     }
   };
 
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!videoRef.current) return;
+    if (!videoRef.current || !isLoaded || totalTime === 0) return;
     
     const rect = e.currentTarget.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
@@ -95,6 +111,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
     }
     setIsPlaying(false);
     setCurrentTime(0);
+    setIsLoaded(false);
     onClose();
   };
 
@@ -109,12 +126,14 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
     video.addEventListener('pause', handlePause);
     video.addEventListener('timeupdate', handleTimeUpdate);
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
+    video.addEventListener('canplaythrough', handleCanPlayThrough);
 
     return () => {
       video.removeEventListener('play', handlePlay);
       video.removeEventListener('pause', handlePause);
       video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      video.removeEventListener('canplaythrough', handleCanPlayThrough);
     };
   }, []);
 
@@ -123,6 +142,8 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
     if (!isOpen) {
       setCurrentTime(0);
       setIsPlaying(false);
+      setTotalTime(0);
+      setIsLoaded(false);
     }
   }, [isOpen]);
 
@@ -133,6 +154,8 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
 
   // Default video URL for demo purposes
   const videoUrl = lesson.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+
+  const progressPercentage = totalTime > 0 ? (currentTime / totalTime) * 100 : 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -149,6 +172,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
               className="w-full h-full"
               onClick={togglePlay}
               poster="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=450&fit=crop"
+              preload="metadata"
             >
               <source src={videoUrl} type="video/mp4" />
               Your browser does not support the video tag.
@@ -161,6 +185,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
                 size="lg"
                 onClick={togglePlay}
                 className="bg-black/50 text-white hover:bg-black/70 w-16 h-16 rounded-full"
+                disabled={!isLoaded}
               >
                 {isPlaying ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8 ml-1" />}
               </Button>
@@ -176,7 +201,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
             >
               <div 
                 className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${totalTime > 0 ? (currentTime / totalTime) * 100 : 0}%` }}
+                style={{ width: `${progressPercentage}%` }}
               />
             </div>
             
@@ -186,6 +211,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
                   variant="ghost"
                   size="sm"
                   onClick={() => handleSkip('back')}
+                  disabled={!isLoaded}
                 >
                   <SkipBack className="h-4 w-4" />
                 </Button>
@@ -193,6 +219,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
                 <Button
                   onClick={togglePlay}
                   className="bg-blue-600 hover:bg-blue-700"
+                  disabled={!isLoaded}
                 >
                   {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                 </Button>
@@ -201,6 +228,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
                   variant="ghost"
                   size="sm"
                   onClick={() => handleSkip('forward')}
+                  disabled={!isLoaded}
                 >
                   <SkipForward className="h-4 w-4" />
                 </Button>

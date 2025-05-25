@@ -19,6 +19,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoaded, setIsLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout>();
 
@@ -26,30 +27,61 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
     const video = videoRef.current;
     if (!video) return;
 
-    const handleLoadedData = () => {
-      setIsLoading(false);
-      setDuration(video.duration);
+    const handleLoadedMetadata = () => {
+      const videoDuration = video.duration;
+      if (!isNaN(videoDuration) && isFinite(videoDuration)) {
+        setDuration(videoDuration);
+        setIsLoaded(true);
+        setIsLoading(false);
+      }
+    };
+
+    const handleCanPlayThrough = () => {
+      const videoDuration = video.duration;
+      if (!isNaN(videoDuration) && isFinite(videoDuration)) {
+        setDuration(videoDuration);
+        setIsLoaded(true);
+        setIsLoading(false);
+      }
     };
 
     const handleTimeUpdate = () => {
-      setCurrentTime(video.currentTime);
+      if (isLoaded) {
+        setCurrentTime(video.currentTime);
+      }
     };
 
     const handlePlay = () => setIsPlaying(true);
     const handlePause = () => setIsPlaying(false);
 
-    video.addEventListener('loadeddata', handleLoadedData);
+    const handleLoadStart = () => {
+      setIsLoading(true);
+      setIsLoaded(false);
+    };
+
+    const handleError = () => {
+      setIsLoading(false);
+      setIsLoaded(false);
+    };
+
+    video.addEventListener('loadedmetadata', handleLoadedMetadata);
+    video.addEventListener('canplaythrough', handleCanPlayThrough);
     video.addEventListener('timeupdate', handleTimeUpdate);
     video.addEventListener('play', handlePlay);
     video.addEventListener('pause', handlePause);
+    video.addEventListener('loadstart', handleLoadStart);
+    video.addEventListener('error', handleError);
 
     return () => {
-      video.removeEventListener('loadeddata', handleLoadedData);
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      video.removeEventListener('canplaythrough', handleCanPlayThrough);
       video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('play', handlePlay);
       video.removeEventListener('pause', handlePause);
+      video.removeEventListener('loadstart', handleLoadStart);
+      video.removeEventListener('error', handleError);
     };
-  }, []);
+  }, [isLoaded]);
 
   // Handle escape key to close
   useEffect(() => {
@@ -74,11 +106,13 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
       setCurrentTime(0);
       setIsPlaying(false);
       setIsLoading(true);
+      setIsLoaded(false);
+      setDuration(0);
     }
   }, [isOpen]);
 
   const togglePlay = () => {
-    if (videoRef.current) {
+    if (videoRef.current && isLoaded) {
       if (isPlaying) {
         videoRef.current.pause();
       } else {
@@ -105,7 +139,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
   };
 
   const handleVideoClick = () => {
-    if (!isLoading) {
+    if (isLoaded) {
       togglePlay();
     }
   };
@@ -117,6 +151,8 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
     }
     setIsPlaying(false);
     setCurrentTime(0);
+    setIsLoaded(false);
+    setDuration(0);
     onClose();
   };
 
@@ -133,13 +169,14 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
   };
 
   const formatTime = (time: number) => {
+    if (!time || isNaN(time)) return '0:00';
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!videoRef.current || duration === 0) return;
+    if (!videoRef.current || !isLoaded || duration === 0) return;
     
     const rect = e.currentTarget.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
@@ -148,6 +185,8 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
   };
 
   if (!isOpen) return null;
+
+  const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
@@ -173,9 +212,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
             className="w-full aspect-video bg-black cursor-pointer"
             poster={thumbnail}
             onClick={handleVideoClick}
-            onLoadStart={() => setIsLoading(true)}
-            onCanPlay={() => setIsLoading(false)}
-            onError={() => setIsLoading(false)}
+            preload="metadata"
           >
             <source src={videoUrl} type="video/mp4" />
             Your browser does not support the video tag.
@@ -199,6 +236,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
               size="lg"
               onClick={togglePlay}
               className="bg-black/50 text-white hover:bg-black/70 w-16 h-16 rounded-full"
+              disabled={!isLoaded}
             >
               {isPlaying ? (
                 <Pause className="h-8 w-8" />
@@ -221,7 +259,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
             >
               <div 
                 className="h-full bg-red-500 rounded-full"
-                style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
+                style={{ width: `${progressPercentage}%` }}
               />
             </div>
 
@@ -232,6 +270,7 @@ const VideoPreview = ({ videoUrl, thumbnail, title, onClose, isOpen }: VideoPrev
                   size="sm"
                   onClick={togglePlay}
                   className="text-white hover:bg-white/20"
+                  disabled={!isLoaded}
                 >
                   {isPlaying ? (
                     <Pause className="h-4 w-4" />
