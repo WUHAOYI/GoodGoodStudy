@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,12 +18,14 @@ import {
 import Header from '@/components/Header';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import ResourceUploadModal from '@/components/ResourceUploadModal';
 
 const ResourceManagement = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('all');
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
 
   // Mock data for resources
   const [resources, setResources] = useState([
@@ -84,6 +85,37 @@ const ResourceManagement = () => {
       url: "#"
     }
   ]);
+
+  const handleUploadResource = (newResource: any) => {
+    setResources([newResource, ...resources]);
+  };
+
+  const handleViewResource = (resource: any) => {
+    toast({
+      title: "Opening Resource",
+      description: `Opening ${resource.name} in a new window.`,
+    });
+    // In a real app, this would open the resource
+    window.open('#', '_blank');
+  };
+
+  const handleDownloadResource = (resource: any) => {
+    toast({
+      title: "Download Started",
+      description: `Downloading ${resource.name}...`,
+    });
+    
+    // Update download count
+    setResources(resources.map(r => 
+      r.id === resource.id ? { ...r, downloads: r.downloads + 1 } : r
+    ));
+    
+    // In a real app, this would trigger the actual download
+    const link = document.createElement('a');
+    link.href = '#';
+    link.download = resource.name;
+    link.click();
+  };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -151,7 +183,7 @@ const ResourceManagement = () => {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Resource Management</h1>
             <p className="text-gray-600">Manage files, images, and videos across all courses</p>
           </div>
-          <Button>
+          <Button onClick={() => setUploadModalOpen(true)}>
             <Upload className="h-4 w-4 mr-2" />
             Upload Resource
           </Button>
@@ -216,11 +248,19 @@ const ResourceManagement = () => {
                     <div className="text-sm text-gray-600 mr-4">
                       {resource.downloads} downloads
                     </div>
-                    <Button size="sm" variant="outline">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => handleViewResource(resource)}
+                    >
                       <Eye className="h-4 w-4 mr-1" />
                       View
                     </Button>
-                    <Button size="sm" variant="outline">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => handleDownloadResource(resource)}
+                    >
                       <Download className="h-4 w-4 mr-1" />
                       Download
                     </Button>
@@ -282,6 +322,12 @@ const ResourceManagement = () => {
           </Card>
         </div>
       </div>
+
+      <ResourceUploadModal
+        isOpen={uploadModalOpen}
+        onClose={() => setUploadModalOpen(false)}
+        onUpload={handleUploadResource}
+      />
     </div>
   );
 };

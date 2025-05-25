@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,12 +19,14 @@ import {
 import Header from '@/components/Header';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import TeacherEditModal from '@/components/TeacherEditModal';
 
 const TeacherManagement = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedTeacher, setSelectedTeacher] = useState<any>(null);
 
   // Mock data for teachers
   const [teachers, setTeachers] = useState([
@@ -69,6 +70,32 @@ const TeacherManagement = () => {
       institution: "Marketing Pro"
     }
   ]);
+
+  const handleEditTeacher = (teacher: any) => {
+    setSelectedTeacher(teacher);
+    setEditModalOpen(true);
+  };
+
+  const handleAddTeacher = () => {
+    setSelectedTeacher(null);
+    setEditModalOpen(true);
+  };
+
+  const handleSaveTeacher = (updatedTeacher: any) => {
+    if (updatedTeacher.id) {
+      setTeachers(teachers.map(t => t.id === updatedTeacher.id ? { ...t, ...updatedTeacher } : t));
+    } else {
+      const newTeacher = {
+        ...updatedTeacher,
+        id: Date.now(),
+        courses: 0,
+        students: 0,
+        rating: 0,
+        joinDate: new Date().toISOString().split('T')[0]
+      };
+      setTeachers([...teachers, newTeacher]);
+    }
+  };
 
   const filteredTeachers = teachers.filter(teacher =>
     teacher.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -118,7 +145,7 @@ const TeacherManagement = () => {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Teacher Management</h1>
             <p className="text-gray-600">Manage teachers and instructors on the platform</p>
           </div>
-          <Button onClick={() => setShowAddForm(true)}>
+          <Button onClick={handleAddTeacher}>
             <Plus className="h-4 w-4 mr-2" />
             Add Teacher
           </Button>
@@ -203,7 +230,12 @@ const TeacherManagement = () => {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button size="sm" variant="outline" className="flex-1">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={() => handleEditTeacher(teacher)}
+                  >
                     <Edit className="h-4 w-4 mr-1" />
                     Edit
                   </Button>
@@ -230,6 +262,13 @@ const TeacherManagement = () => {
           </div>
         )}
       </div>
+
+      <TeacherEditModal
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        teacher={selectedTeacher}
+        onSave={handleSaveTeacher}
+      />
     </div>
   );
 };

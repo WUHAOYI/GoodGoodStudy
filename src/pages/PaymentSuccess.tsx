@@ -1,15 +1,91 @@
-
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Download, Play } from 'lucide-react';
+import { CheckCircle, Download, Play, share } from 'lucide-react';
 import Header from '@/components/Header';
+import { useToast } from '@/hooks/use-toast';
 
 const PaymentSuccess = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { course, orderId, amount } = location.state || {};
+
+  const handleDownloadReceipt = () => {
+    toast({
+      title: "Preparing Receipt",
+      description: "Your receipt is being generated...",
+    });
+
+    // Generate receipt content
+    const receiptContent = `
+PAYMENT RECEIPT
+================
+
+Order ID: ${orderId}
+Date: ${new Date().toLocaleDateString()}
+Time: ${new Date().toLocaleTimeString()}
+
+Course: ${course?.title || 'Unknown Course'}
+Instructor: ${course?.instructor || 'Unknown Instructor'}
+Amount Paid: $${amount}
+
+Thank you for your purchase!
+    `;
+
+    // Create and download receipt
+    const blob = new Blob([receiptContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `receipt_${orderId}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    toast({
+      title: "Receipt Downloaded",
+      description: "Your payment receipt has been downloaded successfully.",
+    });
+  };
+
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Course Enrollment Success',
+          text: `I just enrolled in ${course?.title}! Check it out.`,
+          url: window.location.origin + '/course/' + course?.id,
+        });
+      } else {
+        // Fallback for browsers that don't support Web Share API
+        const shareText = `I just enrolled in ${course?.title}! Check it out: ${window.location.origin}/course/${course?.id}`;
+        await navigator.clipboard.writeText(shareText);
+        toast({
+          title: "Link Copied",
+          description: "Course link has been copied to clipboard",
+        });
+      }
+    } catch (error) {
+      // Fallback: copy to clipboard
+      try {
+        const shareText = `I just enrolled in ${course?.title}! Check it out: ${window.location.origin}/course/${course?.id}`;
+        await navigator.clipboard.writeText(shareText);
+        toast({
+          title: "Link Copied", 
+          description: "Course link has been copied to clipboard",
+        });
+      } catch (clipboardError) {
+        toast({
+          title: "Share Failed",
+          description: "Unable to share or copy link",
+          variant: "destructive"
+        });
+      }
+    }
+  };
 
   if (!course) {
     return (
@@ -109,6 +185,7 @@ const PaymentSuccess = () => {
               <Button 
                 variant="outline" 
                 className="flex-1"
+                onClick={handleDownloadReceipt}
               >
                 <Download className="h-4 w-4 mr-2" />
                 Download Receipt

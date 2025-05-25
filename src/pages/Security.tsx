@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,6 +31,14 @@ const Security = () => {
   const { toast } = useToast();
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [showPasswordPolicy, setShowPasswordPolicy] = useState(false);
+
+  const [passwordPolicy, setPasswordPolicy] = useState({
+    minLength: 8,
+    requireUppercase: true,
+    requireLowercase: true,
+    requireNumbers: true,
+    requireSpecialChars: true
+  });
 
   const [securitySettings, setSecuritySettings] = useState({
     twoFactorRequired: true,
@@ -109,6 +116,14 @@ const Security = () => {
       details: "Automatic account lock after 5 failed attempts"
     }
   ]);
+
+  const handleSavePasswordPolicy = () => {
+    toast({
+      title: "Password Policy Updated",
+      description: "New password requirements have been saved and will apply to all future password changes.",
+    });
+    setShowPasswordPolicy(false);
+  };
 
   const handleUserAction = (userId: number, action: string) => {
     setUsers(users.map(user => {
@@ -514,27 +529,45 @@ const Security = () => {
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium">Minimum Length</label>
-                <Input type="number" defaultValue="8" />
+                <Input 
+                  type="number" 
+                  value={passwordPolicy.minLength}
+                  onChange={(e) => setPasswordPolicy(prev => ({ ...prev, minLength: parseInt(e.target.value) }))}
+                />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Require uppercase letters</span>
-                  <Switch defaultChecked />
+                  <Switch 
+                    checked={passwordPolicy.requireUppercase}
+                    onCheckedChange={(checked) => setPasswordPolicy(prev => ({ ...prev, requireUppercase: checked }))}
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Require lowercase letters</span>
-                  <Switch defaultChecked />
+                  <Switch 
+                    checked={passwordPolicy.requireLowercase}
+                    onCheckedChange={(checked) => setPasswordPolicy(prev => ({ ...prev, requireLowercase: checked }))}
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Require numbers</span>
-                  <Switch defaultChecked />
+                  <Switch 
+                    checked={passwordPolicy.requireNumbers}
+                    onCheckedChange={(checked) => setPasswordPolicy(prev => ({ ...prev, requireNumbers: checked }))}
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Require special characters</span>
-                  <Switch defaultChecked />
+                  <Switch 
+                    checked={passwordPolicy.requireSpecialChars}
+                    onCheckedChange={(checked) => setPasswordPolicy(prev => ({ ...prev, requireSpecialChars: checked }))}
+                  />
                 </div>
               </div>
-              <Button className="w-full">Save Password Policy</Button>
+              <Button className="w-full" onClick={handleSavePasswordPolicy}>
+                Save Password Policy
+              </Button>
             </div>
           </DialogContent>
         </Dialog>

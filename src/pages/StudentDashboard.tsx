@@ -22,10 +22,12 @@ import StatCard from '@/components/StatCard';
 import StatsModal from '@/components/StatsModal';
 import CertificateModal from '@/components/CertificateModal';
 import { useCourses } from '@/contexts/CourseContext';
+import { useToast } from '@/hooks/use-toast';
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const { achievements } = useCourses();
+  const { toast } = useToast();
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
     title: string;
