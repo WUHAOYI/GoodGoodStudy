@@ -98,19 +98,18 @@ const CourseDetails = () => {
   const handlePlayLesson = (lesson) => {
     console.log('Playing lesson:', lesson, 'isEnrolled:', isEnrolled);
     
-    // Check if lesson is preview or user is enrolled
-    if (lesson.isPreview || isEnrolled) {
-      if (lesson.isPreview && !isEnrolled) {
-        setPreviewLesson({
-          title: lesson.title,
-          videoUrl: lesson.videoUrl,
-          duration: lesson.duration
-        });
-        setIsPreviewOpen(true);
-      } else {
-        setSelectedLesson(lesson);
-        setIsLessonPlayerOpen(true);
-      }
+    // If user is enrolled, they can play any lesson
+    if (isEnrolled) {
+      setSelectedLesson(lesson);
+      setIsLessonPlayerOpen(true);
+    } else if (lesson.isPreview) {
+      // Non-enrolled users can only play preview lessons
+      setPreviewLesson({
+        title: lesson.title,
+        videoUrl: lesson.videoUrl,
+        duration: lesson.duration
+      });
+      setIsPreviewOpen(true);
     } else {
       // Show enrollment prompt for non-preview lessons
       toast({
@@ -128,7 +127,7 @@ const CourseDetails = () => {
   const handlePlayMainVideo = () => {
     console.log('Playing main course video:', course.videoUrl);
     if (isEnrolled) {
-      // If enrolled, play as a lesson
+      // If enrolled, play as a full lesson
       setSelectedLesson({
         id: 0,
         title: course.title + " - Course Introduction",

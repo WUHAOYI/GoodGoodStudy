@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -42,7 +41,7 @@ const StudentDashboard = () => {
   });
   const [certificateModalOpen, setCertificateModalOpen] = useState(false);
 
-  // Mock data for courses - filter based on enrolled courses
+  // Mock data for courses - filter based on enrolled courses and get real-time data
   const allCourses = [
     {
       id: 1,
@@ -53,7 +52,7 @@ const StudentDashboard = () => {
     },
     {
       id: 2,
-      title: "Advanced React Patterns",
+      title: "Advanced React Patterns", 
       progress: 50,
       duration: "20 hours",
       lastActivity: "Yesterday"
@@ -62,30 +61,22 @@ const StudentDashboard = () => {
       id: 3,
       title: "JavaScript Fundamentals",
       progress: 100,
-      duration: "15 hours",
+      duration: "15 hours", 
       lastActivity: "Completed"
-    }
-  ];
-
-  // Filter courses based on enrollment
-  const courses = allCourses.filter(course => enrolledCourses.includes(course.id));
-
-  // Mock data for learning paths
-  const learningPaths = [
-    {
-      id: 1,
-      title: "Web Development Career Path",
-      progress: 60,
-      coursesLeft: 5
     },
     {
-      id: 2,
-      title: "Data Science Career Path",
-      progress: 30,
-      coursesLeft: 8
+      id: 1001,
+      title: "Full Stack Web Development Bootcamp",
+      progress: 25,
+      duration: "40 hours",
+      lastActivity: "Just enrolled"
     }
   ];
 
+  // Filter courses based on current enrollment state
+  const courses = allCourses.filter(course => enrolledCourses.includes(course.id));
+
+  // Update course count to reflect current enrollments
   const handleStatClick = (type: string) => {
     let items: any[] = [];
     let title = '';
@@ -97,7 +88,7 @@ const StudentDashboard = () => {
           id: course.id,
           title: course.title,
           description: `Progress: ${course.progress}% • Last Activity: ${course.lastActivity}`,
-          status: 'In Progress',
+          status: course.progress === 100 ? 'Completed' : 'In Progress',
           date: '2024-05-20'
         }));
         break;

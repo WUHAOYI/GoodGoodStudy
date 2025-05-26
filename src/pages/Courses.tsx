@@ -332,9 +332,16 @@ const Courses = () => {
     const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          course.instructor.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || course.category === selectedCategory;
-    const matchesPrice = priceFilter === 'all' || 
-                        (priceFilter === 'free' && !course.isPaid) ||
-                        (priceFilter === 'paid' && course.isPaid);
+    
+    // Fix the price filtering logic
+    let matchesPrice = true;
+    if (priceFilter === 'free') {
+      matchesPrice = course.price === 0;
+    } else if (priceFilter === 'paid') {
+      matchesPrice = course.price > 0;
+    }
+    // 'all' matches everything, so matchesPrice stays true
+    
     return matchesSearch && matchesCategory && matchesPrice;
   });
 
