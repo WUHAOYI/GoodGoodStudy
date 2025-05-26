@@ -33,107 +33,66 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
   };
 
   const togglePlay = async () => {
-    if (videoRef.current && isLoaded && !hasError) {
-      try {
-        if (isPlaying) {
-          videoRef.current.pause();
-        } else {
-          await videoRef.current.play();
-        }
-      } catch (error) {
-        console.error('Error playing video:', error);
-        setHasError(true);
+    const video = videoRef.current;
+    if (!video || !isLoaded || hasError) return;
+
+    try {
+      if (isPlaying) {
+        video.pause();
+      } else {
+        await video.play();
       }
+    } catch (error) {
+      console.error('Error playing video:', error);
+      setHasError(true);
     }
   };
 
   const toggleMute = () => {
-    if (videoRef.current) {
-      videoRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
-    }
+    const video = videoRef.current;
+    if (!video) return;
+    
+    video.muted = !isMuted;
+    setIsMuted(!isMuted);
   };
 
   const handleSkip = (direction: 'forward' | 'back') => {
-    if (videoRef.current && isLoaded) {
-      const skipAmount = 10;
-      if (direction === 'forward') {
-        videoRef.current.currentTime = Math.min(videoRef.current.currentTime + skipAmount, totalTime);
-      } else {
-        videoRef.current.currentTime = Math.max(videoRef.current.currentTime - skipAmount, 0);
-      }
+    const video = videoRef.current;
+    if (!video || !isLoaded) return;
+    
+    const skipAmount = 10;
+    if (direction === 'forward') {
+      video.currentTime = Math.min(video.currentTime + skipAmount, totalTime);
+    } else {
+      video.currentTime = Math.max(video.currentTime - skipAmount, 0);
     }
-  };
-
-  const handleTimeUpdate = () => {
-    if (videoRef.current && isLoaded) {
-      const current = videoRef.current.currentTime;
-      if (isFinite(current)) {
-        setCurrentTime(current);
-      }
-    }
-  };
-
-  const handleLoadedData = () => {
-    if (videoRef.current) {
-      const duration = videoRef.current.duration;
-      if (!isNaN(duration) && isFinite(duration)) {
-        setTotalTime(duration);
-        setIsLoaded(true);
-        setIsLoading(false);
-        setHasError(false);
-        console.log('Video loaded successfully, duration:', duration);
-      }
-    }
-  };
-
-  const handleCanPlay = () => {
-    if (videoRef.current) {
-      const duration = videoRef.current.duration;
-      if (!isNaN(duration) && isFinite(duration)) {
-        setTotalTime(duration);
-        setIsLoaded(true);
-        setIsLoading(false);
-        setHasError(false);
-      }
-    }
-  };
-
-  const handleLoadStart = () => {
-    setIsLoading(true);
-    setIsLoaded(false);
-    setHasError(false);
-  };
-
-  const handleError = () => {
-    console.error('Video error occurred');
-    setIsLoading(false);
-    setIsLoaded(false);
-    setHasError(true);
   };
 
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!videoRef.current || !isLoaded || totalTime === 0 || hasError) return;
+    const video = videoRef.current;
+    if (!video || !isLoaded || totalTime === 0 || hasError) return;
     
     const rect = e.currentTarget.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
     const newTime = percent * totalTime;
-    videoRef.current.currentTime = newTime;
+    video.currentTime = newTime;
   };
 
   const toggleFullscreen = () => {
-    if (videoRef.current) {
-      if (document.fullscreenElement) {
-        document.exitFullscreen();
-      } else {
-        videoRef.current.requestFullscreen();
-      }
+    const video = videoRef.current;
+    if (!video) return;
+    
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      video.requestFullscreen();
     }
   };
 
   const handleClose = () => {
-    if (videoRef.current && !videoRef.current.paused) {
-      videoRef.current.pause();
+    const video = videoRef.current;
+    if (video && !video.paused) {
+      video.pause();
     }
     setIsPlaying(false);
     setCurrentTime(0);
@@ -143,32 +102,75 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
     onClose();
   };
 
+  // Initialize video when lesson changes
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || !isOpen || !lesson?.videoUrl) return;
+
+    console.log('Loading lesson video:', lesson.videoUrl);
+    setIsLoading(true);
+    setIsLoaded(false);
+    setCurrentTime(0);
+    setTotalTime(0);
+    setHasError(false);
+    
+    video.src = lesson.videoUrl;
+    video.preload = 'metadata';
+
+    const handleLoadedMetadata = () => {
+      const duration = video.duration;
+      if (!isNaN(duration) && isFinite(duration)) {
+        setTotalTime(duration);
+        setIsLoaded(true);
+        setIsLoading(false);
+        setHasError(false);
+        console.log('Video loaded successfully, duration:', duration);
+      }
+    };
+
+    const handleCanPlay = () => {
+      setIsLoaded(true);
+      setIsLoading(false);
+      setHasError(false);
+    };
+
+    const handleTimeUpdate = () => {
+      const current = video.currentTime;
+      if (isFinite(current)) {
+        setCurrentTime(current);
+      }
+    };
 
     const handlePlay = () => setIsPlaying(true);
     const handlePause = () => setIsPlaying(false);
 
+    const handleError = () => {
+      console.error('Video error occurred');
+      setIsLoading(false);
+      setIsLoaded(false);
+      setHasError(true);
+    };
+
+    video.addEventListener('loadedmetadata', handleLoadedMetadata);
+    video.addEventListener('canplay', handleCanPlay);
+    video.addEventListener('timeupdate', handleTimeUpdate);
     video.addEventListener('play', handlePlay);
     video.addEventListener('pause', handlePause);
-    video.addEventListener('timeupdate', handleTimeUpdate);
-    video.addEventListener('loadeddata', handleLoadedData);
-    video.addEventListener('canplay', handleCanPlay);
-    video.addEventListener('loadstart', handleLoadStart);
     video.addEventListener('error', handleError);
 
+    video.load();
+
     return () => {
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      video.removeEventListener('canplay', handleCanPlay);
+      video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('play', handlePlay);
       video.removeEventListener('pause', handlePause);
-      video.removeEventListener('timeupdate', handleTimeUpdate);
-      video.removeEventListener('loadeddata', handleLoadedData);
-      video.removeEventListener('canplay', handleCanPlay);
-      video.removeEventListener('loadstart', handleLoadStart);
       video.removeEventListener('error', handleError);
     };
-  }, [lesson?.videoUrl]);
+  }, [isOpen, lesson?.videoUrl]);
 
+  // Reset states when modal closes
   useEffect(() => {
     if (!isOpen || !lesson) {
       setCurrentTime(0);
@@ -177,20 +179,8 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
       setIsLoaded(false);
       setIsLoading(false);
       setHasError(false);
-    } else if (lesson && videoRef.current) {
-      console.log('Loading lesson video:', lesson.videoUrl);
-      setIsLoading(true);
-      setIsLoaded(false);
-      setCurrentTime(0);
-      setTotalTime(0);
-      setHasError(false);
-      
-      if (lesson.videoUrl) {
-        videoRef.current.src = lesson.videoUrl;
-        videoRef.current.load();
-      }
     }
-  }, [isOpen, lesson?.videoUrl]);
+  }, [isOpen, lesson]);
 
   if (!lesson) {
     return null;
@@ -219,6 +209,19 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
                 <div className="text-white text-center">
                   <p className="text-lg mb-2">Unable to load video</p>
                   <p className="text-sm opacity-75">Please try again later</p>
+                  <Button 
+                    variant="outline" 
+                    className="mt-4 text-white border-white"
+                    onClick={() => {
+                      setHasError(false);
+                      setIsLoading(true);
+                      if (videoRef.current) {
+                        videoRef.current.load();
+                      }
+                    }}
+                  >
+                    Retry
+                  </Button>
                 </div>
               </div>
             )}
@@ -228,8 +231,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
               className="w-full h-full"
               onClick={togglePlay}
               poster="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=450&fit=crop"
-              preload="metadata"
-              crossOrigin="anonymous"
+              playsInline
             >
               <source src={videoUrl} type="video/mp4" />
               Your browser does not support the video tag.
