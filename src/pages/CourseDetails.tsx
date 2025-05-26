@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import Header from '@/components/Header';
 import { useToast } from '@/hooks/use-toast';
+import { useEnrollment } from '@/contexts/EnrollmentContext';
+import { useWishlist } from '@/contexts/WishlistContext';
 import LessonPlayer from '@/components/LessonPlayer';
 import VideoPreview from '@/components/VideoPreview';
 import CourseReviews from '@/components/CourseReviews';
@@ -25,15 +27,19 @@ const CourseDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isEnrolled: checkEnrollment, enrollInCourse } = useEnrollment();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [isLessonPlayerOpen, setIsLessonPlayerOpen] = useState(false);
   const [previewLesson, setPreviewLesson] = useState(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [isEnrolled, setIsEnrolled] = useState(false); // Track enrollment status
+
+  const courseId = parseInt(id || '1');
+  const isEnrolled = checkEnrollment(courseId);
 
   // Mock course data - in a real app, this would be fetched based on the ID
   const course = {
-    id: parseInt(id || '1'),
+    id: courseId,
     title: "Full Stack Web Development Bootcamp",
     instructor: "Dr. Sarah Johnson",
     price: 299,
@@ -85,11 +91,11 @@ const CourseDetails = () => {
   };
 
   const handlePlayLesson = (lesson) => {
-    console.log('Playing lesson:', lesson);
+    console.log('Playing lesson:', lesson, 'isEnrolled:', isEnrolled);
     
     // Check if lesson is preview or user is enrolled
     if (lesson.isPreview || isEnrolled) {
-      if (lesson.isPreview) {
+      if (lesson.isPreview && !isEnrolled) {
         setPreviewLesson({
           title: lesson.title,
           videoUrl: lesson.videoUrl,
@@ -129,7 +135,14 @@ const CourseDetails = () => {
     navigate('/payment', { 
       state: { 
         course: course,
-        amount: course.price 
+        amount: course.price,
+        onSuccess: () => {
+          enrollInCourse(courseId);
+          toast({
+            title: "Successfully Enrolled!",
+            description: `You are now enrolled in ${course.title}`,
+          });
+        }
       } 
     });
   };
@@ -169,10 +182,28 @@ const CourseDetails = () => {
   };
 
   const handleWishlist = () => {
-    toast({
-      title: "Added to Wishlist",
-      description: `${course.title} has been added to your wishlist`,
-    });
+    const wishlistItem = {
+      id: course.id,
+      title: course.title,
+      instructor: course.instructor,
+      price: course.price,
+      image: course.image,
+      rating: course.rating
+    };
+
+    if (isInWishlist(course.id)) {
+      removeFromWishlist(course.id);
+      toast({
+        title: "Removed from Wishlist",
+        description: `${course.title} has been removed from your wishlist`,
+      });
+    } else {
+      addToWishlist(wishlistItem);
+      toast({
+        title: "Added to Wishlist",
+        description: `${course.title} has been added to your wishlist`,
+      });
+    }
   };
 
   return (
@@ -188,6 +219,15 @@ const CourseDetails = () => {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
+
+        {isEnrolled && (
+          <div className="bg-green-100 border border-green-300 rounded-lg p-4 mb-6">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-green-600" />
+              <span className="text-green-800 font-medium">You are enrolled in this course!</span>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
@@ -304,6 +344,9 @@ const CourseDetails = () => {
                                 {!lesson.isPreview && !isEnrolled && (
                                   <Badge variant="secondary" className="text-xs">Requires Enrollment</Badge>
                                 )}
+                                {isEnrolled && (
+                                  <Badge variant="default" className="text-xs bg-green-600">Enrolled</Badge>
+                                )}
                                 <Button
                                   size="sm"
                                   variant="ghost"
@@ -345,19 +388,39 @@ const CourseDetails = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-3xl font-bold text-gray-900">${course.price}</span>
-                  <span className="text-lg text-gray-500 line-through">${course.originalPrice}</span>
-                  <Badge variant="destructive" className="ml-auto">25% OFF</Badge>
-                </div>
+                {!isEnrolled ? (
+                  <>
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="text-3xl font-bold text-gray-900">${course.price}</span>
+                      <span className="text-lg text-gray-500 line-through">${course.originalPrice}</span>
+                      <Badge variant="destructive" className="ml-auto">25% OFF</Badge>
+                    </div>
 
-                <Button 
-                  className="w-full mb-3" 
-                  size="lg"
-                  onClick={handleEnroll}
-                >
-                  Enroll Now
-                </Button>
+                    <Button 
+                      className="w-full mb-3" 
+                      size="lg"
+                      onClick={handleEnroll}
+                    >
+                      Enroll Now
+                    </Button>
+                  </>
+                ) : (
+                  <div className="mb-4">
+                    <div className="bg-green-100 border border-green-300 rounded-lg p-3 mb-3">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <span className="text-green-800 font-medium">Enrolled</span>
+                      </div>
+                    </div>
+                    <Button 
+                      className="w-full" 
+                      size="lg"
+                      onClick={() => navigate('/continue-learning')}
+                    >
+                      Continue Learning
+                    </Button>
+                  </div>
+                )}
 
                 <div className="flex gap-2 mb-4">
                   <Button 
@@ -365,8 +428,8 @@ const CourseDetails = () => {
                     className="flex-1"
                     onClick={handleWishlist}
                   >
-                    <Heart className="h-4 w-4 mr-2" />
-                    Wishlist
+                    <Heart className={`h-4 w-4 mr-2 ${isInWishlist(course.id) ? 'text-red-500 fill-current' : ''}`} />
+                    {isInWishlist(course.id) ? 'Remove' : 'Wishlist'}
                   </Button>
                   <Button 
                     variant="outline" 

@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users, BookOpen, Star, TrendingUp } from 'lucide-react';
 
 interface Teacher {
@@ -185,78 +186,88 @@ const TeacherStatsModal = ({ isOpen, onClose }: TeacherStatsModalProps) => {
             </Card>
           </div>
 
-          {/* Teachers Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle>All Teachers</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Specialization</TableHead>
-                    <TableHead>Institution</TableHead>
-                    <TableHead>Courses</TableHead>
-                    <TableHead>Students</TableHead>
-                    <TableHead>Rating</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {teachers.map((teacher) => (
-                    <TableRow key={teacher.id}>
-                      <TableCell className="font-medium">{teacher.name}</TableCell>
-                      <TableCell>{teacher.specialization}</TableCell>
-                      <TableCell>{teacher.institution}</TableCell>
-                      <TableCell>{teacher.courses}</TableCell>
-                      <TableCell>{teacher.students.toLocaleString()}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                          {teacher.rating}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={getStatusColor(teacher.status)}>
-                          {teacher.status}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+          {/* Tabs for Teachers and Institutions */}
+          <Tabs defaultValue="teachers" className="space-y-6">
+            <TabsList>
+              <TabsTrigger value="teachers">All Teachers</TabsTrigger>
+              <TabsTrigger value="institutions">Partner Institutions</TabsTrigger>
+            </TabsList>
 
-          {/* Institutions Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Partner Institutions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Institution</TableHead>
-                    <TableHead>Teachers</TableHead>
-                    <TableHead>Courses</TableHead>
-                    <TableHead>Students</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {institutions.map((institution, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="font-medium">{institution.name}</TableCell>
-                      <TableCell>{institution.teachers}</TableCell>
-                      <TableCell>{institution.courses}</TableCell>
-                      <TableCell>{institution.students.toLocaleString()}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+            <TabsContent value="teachers">
+              <Card>
+                <CardHeader>
+                  <CardTitle>All Teachers</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Specialization</TableHead>
+                        <TableHead>Institution</TableHead>
+                        <TableHead>Courses</TableHead>
+                        <TableHead>Students</TableHead>
+                        <TableHead>Rating</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {teachers.map((teacher) => (
+                        <TableRow key={teacher.id}>
+                          <TableCell className="font-medium">{teacher.name}</TableCell>
+                          <TableCell>{teacher.specialization}</TableCell>
+                          <TableCell>{teacher.institution}</TableCell>
+                          <TableCell>{teacher.courses}</TableCell>
+                          <TableCell>{teacher.students.toLocaleString()}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1">
+                              <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                              {teacher.rating}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={getStatusColor(teacher.status)}>
+                              {teacher.status}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="institutions">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Partner Institutions</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Institution</TableHead>
+                        <TableHead>Teachers</TableHead>
+                        <TableHead>Courses</TableHead>
+                        <TableHead>Students</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {institutions.map((institution, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{institution.name}</TableCell>
+                          <TableCell>{institution.teachers}</TableCell>
+                          <TableCell>{institution.courses}</TableCell>
+                          <TableCell>{institution.students.toLocaleString()}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       </DialogContent>
     </Dialog>

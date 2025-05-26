@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,6 +22,7 @@ import {
 import Header from '@/components/Header';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useTeacherApplications } from '@/contexts/TeacherApplicationContext';
 import TeacherEditModal from '@/components/TeacherEditModal';
 import TeacherApplicationModal from '@/components/TeacherApplicationModal';
 
@@ -40,6 +40,7 @@ interface TeacherApplication {
 const TeacherManagement = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { applications, updateApplicationStatus } = useTeacherApplications();
   const [searchTerm, setSearchTerm] = useState('');
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [applicationModalOpen, setApplicationModalOpen] = useState(false);
@@ -89,30 +90,6 @@ const TeacherManagement = () => {
     }
   ]);
 
-  // Mock data for teacher applications
-  const [applications, setApplications] = useState<TeacherApplication[]>([
-    {
-      id: 1,
-      fullName: "John Smith",
-      email: "john.smith@example.com",
-      expertise: "Machine Learning",
-      experience: "5 years of experience in ML and AI, worked at Google and Microsoft",
-      courseIdeas: "Introduction to Machine Learning, Deep Learning Fundamentals, AI Ethics",
-      status: "pending",
-      appliedDate: "2024-01-20"
-    },
-    {
-      id: 2,
-      fullName: "Emily Chen",
-      email: "emily.chen@example.com", 
-      expertise: "UX Design",
-      experience: "8 years in UX design, previously at Apple and Airbnb",
-      courseIdeas: "UX Design Principles, User Research Methods, Design Systems",
-      status: "pending",
-      appliedDate: "2024-01-18"
-    }
-  ]);
-
   const handleApproveApplication = (applicationId: number) => {
     const application = applications.find(app => app.id === applicationId);
     if (application) {
@@ -133,20 +110,25 @@ const TeacherManagement = () => {
       };
       
       setTeachers([...teachers, newTeacher]);
-      setApplications(applications.map(app => 
-        app.id === applicationId 
-          ? { ...app, status: "approved" as const }
-          : app
-      ));
+      updateApplicationStatus(applicationId, "approved");
+      
+      toast({
+        title: "Application Approved",
+        description: `${application.fullName} has been approved as a teacher.`,
+      });
     }
   };
 
   const handleRejectApplication = (applicationId: number) => {
-    setApplications(applications.map(app => 
-      app.id === applicationId 
-        ? { ...app, status: "rejected" as const }
-        : app
-    ));
+    const application = applications.find(app => app.id === applicationId);
+    updateApplicationStatus(applicationId, "rejected");
+    
+    if (application) {
+      toast({
+        title: "Application Rejected",
+        description: `${application.fullName}'s application has been rejected.`,
+      });
+    }
   };
 
   const handleEditTeacher = (teacher: any) => {
