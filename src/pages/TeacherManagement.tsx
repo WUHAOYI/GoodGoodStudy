@@ -45,6 +45,7 @@ const TeacherManagement = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [applicationModalOpen, setApplicationModalOpen] = useState(false);
   const [selectedTeacher, setSelectedTeacher] = useState<any>(null);
+  const [selectedApplication, setSelectedApplication] = useState<TeacherApplication | null>(null);
 
   // Mock data for teachers
   const [teachers, setTeachers] = useState([
@@ -188,6 +189,11 @@ const TeacherManagement = () => {
 
   const pendingApplicationsCount = applications.filter(app => app.status === 'pending').length;
 
+  const handleViewApplicationDetails = (application: TeacherApplication) => {
+    setSelectedApplication(application);
+    setApplicationModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -242,7 +248,6 @@ const TeacherManagement = () => {
           </TabsList>
 
           <TabsContent value="teachers" className="space-y-6">
-            {/* Search and Filters */}
             <Card>
               <CardContent className="p-4">
                 <div className="flex gap-4">
@@ -260,7 +265,6 @@ const TeacherManagement = () => {
               </CardContent>
             </Card>
 
-            {/* Teachers Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
               {filteredTeachers.map((teacher) => (
                 <Card key={teacher.id}>
@@ -419,6 +423,7 @@ const TeacherManagement = () => {
                         size="sm" 
                         variant="outline" 
                         className="ml-auto"
+                        onClick={() => handleViewApplicationDetails(application)}
                       >
                         View Details
                       </Button>
@@ -449,7 +454,7 @@ const TeacherManagement = () => {
       <TeacherApplicationModal
         isOpen={applicationModalOpen}
         onClose={() => setApplicationModalOpen(false)}
-        applications={applications}
+        applications={selectedApplication ? [selectedApplication] : []}
         onApprove={handleApproveApplication}
         onReject={handleRejectApplication}
       />

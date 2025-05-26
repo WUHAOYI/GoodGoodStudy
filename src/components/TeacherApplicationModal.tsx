@@ -2,7 +2,8 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Mail, User, Briefcase, Lightbulb } from 'lucide-react';
+import { Calendar, Mail, User, Briefcase, Lightbulb, ArrowLeft, ArrowRight } from 'lucide-react';
+import { useState } from 'react';
 
 interface TeacherApplication {
   id: number;
@@ -16,7 +17,7 @@ interface TeacherApplication {
 }
 
 interface TeacherApplicationModalProps {
-  application: TeacherApplication | null;
+  applications: TeacherApplication[];
   isOpen: boolean;
   onClose: () => void;
   onApprove: (id: number) => void;
@@ -24,13 +25,17 @@ interface TeacherApplicationModalProps {
 }
 
 const TeacherApplicationModal = ({ 
-  application, 
+  applications, 
   isOpen, 
   onClose, 
   onApprove, 
   onReject 
 }: TeacherApplicationModalProps) => {
-  if (!application) return null;
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  if (!applications || applications.length === 0) return null;
+
+  const application = applications[currentIndex];
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -43,12 +48,25 @@ const TeacherApplicationModal = ({
     }
   };
 
+  const goToPrevious = () => {
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : applications.length - 1));
+  };
+
+  const goToNext = () => {
+    setCurrentIndex((prev) => (prev < applications.length - 1 ? prev + 1 : 0));
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            Teacher Application Details
+            <div className="flex items-center gap-3">
+              Teacher Application Details
+              <span className="text-sm text-gray-500">
+                ({currentIndex + 1} of {applications.length})
+              </span>
+            </div>
             <Badge className={getStatusColor(application.status)}>
               {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
             </Badge>
@@ -56,6 +74,19 @@ const TeacherApplicationModal = ({
         </DialogHeader>
 
         <div className="space-y-6">
+          {applications.length > 1 && (
+            <div className="flex justify-between items-center border-b pb-3">
+              <Button variant="outline" size="sm" onClick={goToPrevious}>
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Previous
+              </Button>
+              <Button variant="outline" size="sm" onClick={goToNext}>
+                Next
+                <ArrowRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-center gap-3">
               <User className="h-5 w-5 text-gray-500" />
