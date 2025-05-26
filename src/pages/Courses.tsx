@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -301,7 +300,7 @@ const Courses = () => {
     }
   ];
 
-  // Combine static courses with published courses from context
+  // Combine static courses with published courses from context, avoiding duplicates
   const publishedContextCourses = contextCourses
     .filter(course => course.status === 'Published')
     .map(course => ({
@@ -319,7 +318,22 @@ const Courses = () => {
       isPopular: course.students > 1000
     }));
 
-  const courses = [...staticCourses, ...publishedContextCourses];
+  // Create a unique set of courses, avoiding duplicates by ID
+  const allCoursesMap = new Map();
+  
+  // Add static courses first
+  staticCourses.forEach(course => {
+    allCoursesMap.set(course.id, course);
+  });
+  
+  // Add context courses, but don't override existing static courses
+  publishedContextCourses.forEach(course => {
+    if (!allCoursesMap.has(course.id)) {
+      allCoursesMap.set(course.id, course);
+    }
+  });
+  
+  const courses = Array.from(allCoursesMap.values());
 
   const categories = [
     { id: 'all', name: 'All Categories', icon: BookOpen },
@@ -334,7 +348,7 @@ const Courses = () => {
                          course.instructor.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || course.category === selectedCategory;
     
-    // Fixed price filtering logic
+    // Corrected price filtering logic
     let matchesPrice = true;
     if (priceFilter === 'free') {
       matchesPrice = course.price === 0;

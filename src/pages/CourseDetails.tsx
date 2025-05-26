@@ -100,10 +100,12 @@ const CourseDetails = () => {
     
     // If user is enrolled, they can play any lesson in full player
     if (isEnrolled) {
+      console.log('User enrolled - playing in lesson player');
       setSelectedLesson(lesson);
       setIsLessonPlayerOpen(true);
     } else if (lesson.isPreview) {
       // Non-enrolled users can only play preview lessons in preview modal
+      console.log('User not enrolled - playing preview');
       setPreviewLesson({
         title: lesson.title,
         videoUrl: lesson.videoUrl,
@@ -112,6 +114,7 @@ const CourseDetails = () => {
       setIsPreviewOpen(true);
     } else {
       // Show enrollment prompt for non-preview lessons
+      console.log('User not enrolled - showing enrollment prompt');
       toast({
         title: "Enrollment Required",
         description: "Please enroll in this course to access this lesson.",
@@ -128,6 +131,7 @@ const CourseDetails = () => {
     console.log('Playing main course video:', course.videoUrl, 'isEnrolled:', isEnrolled);
     if (isEnrolled) {
       // If enrolled, play as a full lesson
+      console.log('User enrolled - playing main video in lesson player');
       setSelectedLesson({
         id: 0,
         title: course.title + " - Course Introduction",
@@ -138,6 +142,7 @@ const CourseDetails = () => {
       setIsLessonPlayerOpen(true);
     } else {
       // If not enrolled, play as preview
+      console.log('User not enrolled - playing main video as preview');
       setPreviewLesson({
         title: course.title + " - Course Preview",
         videoUrl: course.videoUrl,
