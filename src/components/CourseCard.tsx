@@ -1,9 +1,12 @@
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Star, Clock, Users, DollarSign, Play, Heart } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useEnrollment } from '@/contexts/EnrollmentContext';
+import { useToast } from '@/hooks/use-toast';
 import VideoPreview from './VideoPreview';
 
 interface Course {
@@ -32,6 +35,8 @@ const CourseCard = ({ course }: CourseCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [showVideoPreview, setShowVideoPreview] = useState(false);
   const navigate = useNavigate();
+  const { enrollInCourse } = useEnrollment();
+  const { toast } = useToast();
 
   // Sample video URLs for demo purposes - ensuring each course gets a working video
   const sampleVideos = [
@@ -69,7 +74,13 @@ const CourseCard = ({ course }: CourseCardProps) => {
     if (course.isPaid) {
       navigate('/payment', { state: { course } });
     } else {
-      navigate('/student-dashboard', { state: { enrolledCourse: course } });
+      // For free courses, enroll directly and redirect to course details
+      enrollInCourse(course.id);
+      toast({
+        title: "Enrolled Successfully!",
+        description: `You have been enrolled in ${course.title}`,
+      });
+      navigate(`/course/${course.id}`);
     }
   };
 

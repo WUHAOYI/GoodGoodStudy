@@ -1,17 +1,29 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Search, BookOpen, Users, Award, Star, Filter } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import Header from '@/components/Header';
 import CourseCard from '@/components/CourseCard';
 import { useCourses } from '@/contexts/CourseContext';
 
 const Courses = () => {
   const { courses: contextCourses } = useCourses();
+  const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [priceFilter, setPriceFilter] = useState('all');
+
+  // Handle URL parameters for filtering
+  useEffect(() => {
+    const filterParam = searchParams.get('filter');
+    if (filterParam === 'free') {
+      setPriceFilter('free');
+    } else if (filterParam === 'paid') {
+      setPriceFilter('paid');
+    }
+  }, [searchParams]);
 
   // Extended mock course data combined with published courses from context
   const staticCourses = [

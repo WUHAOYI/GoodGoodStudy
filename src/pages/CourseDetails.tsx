@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -54,7 +55,7 @@ const CourseDetails = () => {
     duration: "40 hours",
     lessons: 156,
     level: "Beginner to Advanced",
-    image: "/placeholder.svg",
+    image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=250&fit=crop",
     description: "Master full-stack web development with this comprehensive bootcamp. Learn HTML, CSS, JavaScript, React, Node.js, and more.",
     videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     requirements: [
@@ -101,14 +102,17 @@ const CourseDetails = () => {
     // If user is enrolled, they can play any lesson in full player
     if (isEnrolled) {
       console.log('User enrolled - playing in lesson player');
-      setSelectedLesson(lesson);
+      setSelectedLesson({
+        ...lesson,
+        videoUrl: lesson.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+      });
       setIsLessonPlayerOpen(true);
     } else if (lesson.isPreview) {
       // Non-enrolled users can only play preview lessons in preview modal
       console.log('User not enrolled - playing preview');
       setPreviewLesson({
         title: lesson.title,
-        videoUrl: lesson.videoUrl,
+        videoUrl: lesson.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
         duration: lesson.duration
       });
       setIsPreviewOpen(true);

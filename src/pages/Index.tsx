@@ -1,10 +1,10 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Search, BookOpen, Users, Award, Star, Clock, DollarSign } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import CourseCard from '@/components/CourseCard';
 import UserTypeSelector from '@/components/UserTypeSelector';
@@ -13,6 +13,7 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [userType, setUserType] = useState<'student' | 'teacher' | 'admin'>('student');
+  const navigate = useNavigate();
 
   // Mock course data
   const courses = [
@@ -89,6 +90,14 @@ const Index = () => {
     const matchesCategory = selectedCategory === 'all' || course.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  const handleBrowseFreeCourses = () => {
+    navigate('/courses?filter=free');
+  };
+
+  const handleViewPremiumPlans = () => {
+    navigate('/courses?filter=paid');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
@@ -200,10 +209,20 @@ const Index = () => {
           <h2 className="text-4xl font-bold mb-6">Ready to Start Learning?</h2>
           <p className="text-xl mb-8 opacity-90">Join our community of learners and unlock your potential</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" className="px-8 py-3">
+            <Button 
+              size="lg" 
+              variant="secondary" 
+              className="px-8 py-3"
+              onClick={handleBrowseFreeCourses}
+            >
               Browse Free Courses
             </Button>
-            <Button size="lg" variant="outline" className="px-8 py-3 text-white border-white hover:bg-white hover:text-blue-600">
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="px-8 py-3 text-white border-white hover:bg-white hover:text-blue-600"
+              onClick={handleViewPremiumPlans}
+            >
               View Premium Plans
             </Button>
           </div>
