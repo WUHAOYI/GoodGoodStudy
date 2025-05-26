@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,6 +19,7 @@ import {
   Bookmark
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import ResourceUploadModal from '@/components/ResourceUploadModal';
 
 interface CommunityHubProps {
   isOpen: boolean;
@@ -29,6 +29,7 @@ interface CommunityHubProps {
 const CommunityHub = ({ isOpen, onClose }: CommunityHubProps) => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('discussions');
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [newPost, setNewPost] = useState({
     title: '',
     content: '',
@@ -43,6 +44,34 @@ const CommunityHub = ({ isOpen, onClose }: CommunityHubProps) => {
       description: "Your post has been shared with the community!",
     });
     setNewPost({ title: '', content: '', type: 'discussion', category: '' });
+  };
+
+  const handleJoinEvent = (eventTitle: string) => {
+    toast({
+      title: "Event Joined",
+      description: `You have successfully joined "${eventTitle}". Check your email for details.`,
+    });
+  };
+
+  const handleDownloadResource = (resourceTitle: string) => {
+    toast({
+      title: "Download Started",
+      description: `Downloading "${resourceTitle}"...`,
+    });
+    // Simulate download
+    setTimeout(() => {
+      toast({
+        title: "Download Complete",
+        description: `"${resourceTitle}" has been downloaded successfully.`,
+      });
+    }, 2000);
+  };
+
+  const handleResourceUpload = (resource: any) => {
+    toast({
+      title: "Resource Uploaded",
+      description: `"${resource.name}" has been uploaded successfully.`,
+    });
   };
 
   const mockDiscussions = [
@@ -200,7 +229,7 @@ const CommunityHub = ({ isOpen, onClose }: CommunityHubProps) => {
                             <span>{event.attendees} attending</span>
                           </div>
                         </div>
-                        <Button>Join Event</Button>
+                        <Button onClick={() => handleJoinEvent(event.title)}>Join Event</Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -211,7 +240,7 @@ const CommunityHub = ({ isOpen, onClose }: CommunityHubProps) => {
             <TabsContent value="resources" className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Shared Resources</h3>
-                <Button onClick={() => setActiveTab('create')}>
+                <Button onClick={() => setIsUploadModalOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Upload Resource
                 </Button>
@@ -235,7 +264,9 @@ const CommunityHub = ({ isOpen, onClose }: CommunityHubProps) => {
                             </div>
                           </div>
                         </div>
-                        <Button variant="outline">Download</Button>
+                        <Button variant="outline" onClick={() => handleDownloadResource(resource.title)}>
+                          Download
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -325,6 +356,12 @@ const CommunityHub = ({ isOpen, onClose }: CommunityHubProps) => {
           </Tabs>
         </div>
       </div>
+
+      <ResourceUploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onUpload={handleResourceUpload}
+      />
     </div>
   );
 };

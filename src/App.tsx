@@ -39,6 +39,7 @@ import ScheduleDemo from "./pages/ScheduleDemo";
 import ContactSales from "./pages/ContactSales";
 import HowItWorks from "./pages/HowItWorks";
 import InstructorApplication from "./pages/InstructorApplication";
+import Pricing from "./pages/Pricing";
 
 const queryClient = new QueryClient();
 
@@ -68,6 +69,7 @@ const App = () => (
                     <Route path="/teach" element={<TeachOnPlatform />} />
                     <Route path="/how-it-works" element={<HowItWorks />} />
                     <Route path="/instructor-application" element={<InstructorApplication />} />
+                    <Route path="/pricing" element={<Pricing />} />
                     
                     {/* Protected Routes */}
                     <Route path="/student-dashboard" element={

@@ -131,8 +131,38 @@ const StudentDashboard = () => {
         }));
         break;
       case 'community':
-        setIsCommunityHubOpen(true);
-        return;
+        title = 'Community Activity Summary';
+        items = [
+          {
+            id: 1,
+            title: 'Discussions Started',
+            description: '3 discussions initiated this month',
+            status: 'Active',
+            date: '2024-05-20'
+          },
+          {
+            id: 2,
+            title: 'Events Joined',
+            description: '2 events attended this month',
+            status: 'Participated',
+            date: '2024-05-20'
+          },
+          {
+            id: 3,
+            title: 'Resources Shared',
+            description: '1 resource uploaded this month',
+            status: 'Contributed',
+            date: '2024-05-20'
+          },
+          {
+            id: 4,
+            title: 'Comments Posted',
+            description: '6 comments made this month',
+            status: 'Engaged',
+            date: '2024-05-20'
+          }
+        ];
+        break;
     }
 
     setModalState({
