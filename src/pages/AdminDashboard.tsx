@@ -99,6 +99,57 @@ const AdminDashboard = () => {
     setSelectedActivity(activity);
   };
 
+  const getStatsModalData = () => {
+    if (!selectedStat) return { title: '', items: [] };
+
+    switch (selectedStat) {
+      case 'students':
+        return {
+          title: 'Student Statistics',
+          items: [
+            { id: 1, title: 'New Students This Week', description: '342 new registrations', status: 'Active', date: 'Last 7 days' },
+            { id: 2, title: 'Active Students', description: '12,847 currently active', status: 'Active', date: 'Current' },
+            { id: 3, title: 'Course Completions', description: '1,247 courses completed', status: 'Completed', date: 'This month' },
+            { id: 4, title: 'Certificates Issued', description: '956 certificates awarded', status: 'Completed', date: 'This month' }
+          ]
+        };
+      case 'courses':
+        return {
+          title: 'Course Statistics',
+          items: [
+            { id: 1, title: 'Total Courses', description: '486 courses available', status: 'Active', date: 'Current' },
+            { id: 2, title: 'New Courses This Month', description: '24 courses added', status: 'Active', date: 'This month' },
+            { id: 3, title: 'Popular Courses', description: 'React Fundamentals, Data Science', status: 'Active', date: 'Trending' },
+            { id: 4, title: 'Course Ratings', description: 'Average 4.6/5 stars', status: 'Active', date: 'Overall' }
+          ]
+        };
+      case 'revenue':
+        return {
+          title: 'Revenue Analytics',
+          items: [
+            { id: 1, title: 'Monthly Revenue', description: '$124,580 total earnings', status: 'Active', date: 'This month' },
+            { id: 2, title: 'Growth Rate', description: '15.3% increase from last month', status: 'Active', date: 'Growth' },
+            { id: 3, title: 'Top Earning Courses', description: 'Advanced Python, Machine Learning', status: 'Active', date: 'Performance' },
+            { id: 4, title: 'Payment Processing', description: '99.2% success rate', status: 'Active', date: 'Reliability' }
+          ]
+        };
+      case 'engagement':
+        return {
+          title: 'Engagement Metrics',
+          items: [
+            { id: 1, title: 'Average Engagement', description: '87.4% student engagement rate', status: 'Active', date: 'Current' },
+            { id: 2, title: 'Session Duration', description: '45 minutes average', status: 'Active', date: 'Average' },
+            { id: 3, title: 'Course Completion Rate', description: '73% completion rate', status: 'Active', date: 'Overall' },
+            { id: 4, title: 'Student Satisfaction', description: '4.8/5 average rating', status: 'Active', date: 'Feedback' }
+          ]
+        };
+      default:
+        return { title: '', items: [] };
+    }
+  };
+
+  const statsModalData = getStatsModalData();
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -468,7 +519,8 @@ const AdminDashboard = () => {
       <StatsModal
         isOpen={selectedStat !== null}
         onClose={() => setSelectedStat(null)}
-        statType={selectedStat}
+        title={statsModalData.title}
+        items={statsModalData.items}
       />
 
       {selectedActivity && (
