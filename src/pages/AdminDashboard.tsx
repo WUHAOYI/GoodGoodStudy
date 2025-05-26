@@ -293,9 +293,9 @@ const AdminDashboard = () => {
                     <GraduationCap className="h-4 w-4 mr-2" />
                     Teachers
                   </Button>
-                  <Button variant="outline" onClick={() => navigate('/course-management/new')}>
+                  <Button variant="outline" onClick={() => navigate('/content-review')}>
                     <BookOpen className="h-4 w-4 mr-2" />
-                    Courses
+                    Course Review
                   </Button>
                   <Button variant="outline" onClick={() => navigate('/resource-management')}>
                     <Database className="h-4 w-4 mr-2" />
@@ -346,19 +346,19 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/course-management/new')}>
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/content-review')}>
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <BookOpen className="h-5 w-5 mr-2" />
                     Course Management
                   </CardTitle>
-                  <CardDescription>Review and approve course submissions</CardDescription>
+                  <CardDescription>Review and approve course submissions, manage CRUD operations</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="flex justify-between items-center">
                     <div>
                       <div className="text-2xl font-bold">23</div>
-                      <p className="text-sm text-muted-foreground">Pending Approval</p>
+                      <p className="text-sm text-muted-foreground">Pending Review</p>
                     </div>
                     <ArrowRight className="h-5 w-5 text-muted-foreground" />
                   </div>
@@ -402,25 +402,6 @@ const AdminDashboard = () => {
                   </div>
                 </CardContent>
               </Card>
-
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/settings')}>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Settings className="h-5 w-5 mr-2" />
-                    System Settings
-                  </CardTitle>
-                  <CardDescription>Configure platform settings</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <div className="text-sm font-medium">Platform Settings</div>
-                      <p className="text-sm text-muted-foreground">Configure System</p>
-                    </div>
-                    <ArrowRight className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           </TabsContent>
 
@@ -454,17 +435,6 @@ const AdminDashboard = () => {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">User Satisfaction</CardTitle>
-                  <Star className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">4.8/5</div>
-                  <p className="text-xs text-muted-foreground">Average rating</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">System Performance</CardTitle>
                   <BarChart3 className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
@@ -473,12 +443,23 @@ const AdminDashboard = () => {
                   <p className="text-xs text-muted-foreground">Uptime</p>
                 </CardContent>
               </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Content Quality Score</CardTitle>
+                  <Star className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">4.8/5</div>
+                  <p className="text-xs text-muted-foreground">Average rating</p>
+                </CardContent>
+              </Card>
             </div>
 
             <Card>
               <CardHeader>
                 <CardTitle>Platform Analytics</CardTitle>
-                <CardDescription>Comprehensive platform performance metrics</CardDescription>
+                <CardDescription>Comprehensive platform performance metrics (excluding student-specific data)</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -486,9 +467,9 @@ const AdminDashboard = () => {
                     <BarChart3 className="h-4 w-4 mr-2" />
                     View Detailed Analytics
                   </Button>
-                  <Button variant="outline" onClick={() => navigate('/student-analytics')}>
-                    <Users className="h-4 w-4 mr-2" />
-                    Student Analytics
+                  <Button variant="outline" onClick={() => navigate('/analytics?tab=platform-overview')}>
+                    <TrendingUp className="h-4 w-4 mr-2" />
+                    Platform Overview
                   </Button>
                 </div>
               </CardContent>
@@ -570,20 +551,7 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>System Settings</CardTitle>
-                  <CardDescription>Configure platform settings</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button onClick={() => navigate('/settings')} className="w-full">
-                    <Settings className="h-4 w-4 mr-2" />
-                    General Settings
-                  </Button>
-                </CardContent>
-              </Card>
-
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
                   <CardTitle>Security</CardTitle>
@@ -599,13 +567,13 @@ const AdminDashboard = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Platform Analytics</CardTitle>
+                  <CardTitle>Analytics Dashboard</CardTitle>
                   <CardDescription>View comprehensive analytics</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Button onClick={() => navigate('/analytics')} className="w-full">
                     <BarChart3 className="h-4 w-4 mr-2" />
-                    Analytics Dashboard
+                    View Analytics
                   </Button>
                 </CardContent>
               </Card>
