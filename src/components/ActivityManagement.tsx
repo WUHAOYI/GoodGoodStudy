@@ -18,7 +18,11 @@ interface Activity {
   priority: 'high' | 'medium' | 'low';
 }
 
-const ActivityManagement = () => {
+interface ActivityManagementProps {
+  onViewDetails?: (activity: Activity) => void;
+}
+
+const ActivityManagement = ({ onViewDetails }: ActivityManagementProps) => {
   const { toast } = useToast();
   const [activities, setActivities] = useState<Activity[]>([
     {
@@ -227,7 +231,11 @@ const ActivityManagement = () => {
                     </div>
                     
                     <div className="flex justify-end gap-2">
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => onViewDetails?.(activity)}
+                      >
                         <Eye className="h-4 w-4 mr-1" />
                         View Details
                       </Button>
@@ -296,7 +304,11 @@ const ActivityManagement = () => {
                   </div>
                   
                   <div className="flex justify-end gap-2">
-                    <Button size="sm" variant="outline">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => onViewDetails?.(activity)}
+                    >
                       <Eye className="h-4 w-4 mr-1" />
                       View Details
                     </Button>

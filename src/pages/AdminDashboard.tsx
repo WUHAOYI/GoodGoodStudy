@@ -36,6 +36,13 @@ const AdminDashboard = () => {
     items: []
   });
   const [activeTab, setActiveTab] = useState<'overview' | 'activities'>('overview');
+  const [activityDetailModal, setActivityDetailModal] = useState<{
+    isOpen: boolean;
+    activity: any;
+  }>({
+    isOpen: false,
+    activity: null
+  });
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -168,6 +175,13 @@ const AdminDashboard = () => {
     { name: 'Business', value: 10, color: '#ef4444' }
   ];
 
+  const handleViewActivityDetails = (activity: any) => {
+    setActivityDetailModal({
+      isOpen: true,
+      activity
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -222,9 +236,9 @@ const AdminDashboard = () => {
                 <BarChart3 className="h-5 w-5" />
                 <span className="text-sm">Analytics</span>
               </Button>
-              <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => setActiveTab('activities')}>
-                <Calendar className="h-5 w-5" />
-                <span className="text-sm">Manage Activities</span>
+              <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => navigate('/security')}>
+                <Shield className="h-5 w-5" />
+                <span className="text-sm">Security</span>
               </Button>
             </div>
 
@@ -532,7 +546,7 @@ const AdminDashboard = () => {
             </Card>
           </>
         ) : (
-          <ActivityManagement />
+          <ActivityManagement onViewDetails={handleViewActivityDetails} />
         )}
       </div>
 
@@ -542,6 +556,50 @@ const AdminDashboard = () => {
         title={modalState.title}
         items={modalState.items}
       />
+
+      {/* Activity Detail Modal */}
+      {activityDetailModal.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4">
+            <div className="flex justify-between items-start mb-4">
+              <h2 className="text-xl font-bold">Activity Details</h2>
+              <Button variant="ghost" onClick={() => setActivityDetailModal({ isOpen: false, activity: null })}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            {activityDetailModal.activity && (
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-semibold text-lg">{activityDetailModal.activity.title}</h3>
+                  <p className="text-gray-600">{activityDetailModal.activity.description}</p>
+                </div>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="font-medium">Type:</span> {activityDetailModal.activity.type}
+                  </div>
+                  <div>
+                    <span className="font-medium">Creator:</span> {activityDetailModal.activity.creator}
+                  </div>
+                  <div>
+                    <span className="font-medium">Created:</span> {activityDetailModal.activity.createdAt}
+                  </div>
+                  <div>
+                    <span className="font-medium">Status:</span> {activityDetailModal.activity.status}
+                  </div>
+                  <div>
+                    <span className="font-medium">Priority:</span> {activityDetailModal.activity.priority}
+                  </div>
+                  {activityDetailModal.activity.participants && (
+                    <div>
+                      <span className="font-medium">Participants:</span> {activityDetailModal.activity.participants}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
