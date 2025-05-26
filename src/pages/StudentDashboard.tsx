@@ -24,6 +24,7 @@ import CertificateModal from '@/components/CertificateModal';
 import { useCourses } from '@/contexts/CourseContext';
 import { useEnrollment } from '@/contexts/EnrollmentContext';
 import { useToast } from '@/hooks/use-toast';
+import CommunityHub from '@/components/CommunityHub';
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
@@ -40,6 +41,7 @@ const StudentDashboard = () => {
     items: []
   });
   const [certificateModalOpen, setCertificateModalOpen] = useState(false);
+  const [isCommunityHubOpen, setIsCommunityHubOpen] = useState(false);
 
   // Mock data for courses - filter based on enrolled courses and get real-time data
   const allCourses = [
@@ -129,13 +131,8 @@ const StudentDashboard = () => {
         }));
         break;
       case 'community':
-        title = 'Community Activity';
-        items = [
-          { id: 1, title: 'New Discussion', description: 'Started by John Doe', status: 'Active', date: '2024-05-20' },
-          { id: 2, title: 'New Resource', description: 'Uploaded by Jane Smith', status: 'Available', date: '2024-05-19' },
-          { id: 3, title: 'New Event', description: 'Organized by Mike Johnson', status: 'Upcoming', date: '2024-05-22' }
-        ];
-        break;
+        setIsCommunityHubOpen(true);
+        return;
     }
 
     setModalState({
@@ -208,7 +205,7 @@ const StudentDashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
           <Button className="h-16 flex flex-col gap-1" onClick={() => navigate('/courses')}>
             <BookOpen className="h-5 w-5" />
             <span className="text-sm">Browse Courses</span>
@@ -236,6 +233,14 @@ const StudentDashboard = () => {
           >
             <Target className="h-5 w-5" />
             <span className="text-sm">Learning Goals</span>
+          </Button>
+          <Button 
+            variant="outline" 
+            className="h-16 flex flex-col gap-1"
+            onClick={() => setIsCommunityHubOpen(true)}
+          >
+            <Users className="h-5 w-5" />
+            <span className="text-sm">Community Hub</span>
           </Button>
         </div>
 
@@ -332,6 +337,11 @@ const StudentDashboard = () => {
       <CertificateModal
         isOpen={certificateModalOpen}
         onClose={() => setCertificateModalOpen(false)}
+      />
+
+      <CommunityHub
+        isOpen={isCommunityHubOpen}
+        onClose={() => setIsCommunityHubOpen(false)}
       />
     </div>
   );

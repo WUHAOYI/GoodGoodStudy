@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -65,15 +64,12 @@ const TeachOnPlatform = () => {
     if (user.role === 'teacher') {
       navigate('/teacher-dashboard');
     } else {
-      toast({
-        title: "Application Required",
-        description: "You need to apply to become an instructor. Redirecting to application form...",
-      });
-      // In a real app, this would redirect to an instructor application form
-      setTimeout(() => {
-        navigate('/teacher-dashboard');
-      }, 2000);
+      navigate('/instructor-application');
     }
+  };
+
+  const handleWatchDemo = () => {
+    navigate('/how-it-works');
   };
 
   return (
@@ -101,7 +97,7 @@ const TeachOnPlatform = () => {
               >
                 Get Started Today
               </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-purple-600">
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-purple-600" onClick={handleWatchDemo}>
                 <Play className="mr-2 h-4 w-4" />
                 Watch How It Works
               </Button>

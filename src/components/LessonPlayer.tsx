@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Maximize } from 'lucide-react';
@@ -122,7 +121,10 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
     // Reset video element
     video.pause();
     video.currentTime = 0;
-    video.src = lesson.videoUrl;
+    
+    // Use the provided videoUrl or fall back to a working sample
+    const videoUrl = lesson.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+    video.src = videoUrl;
     video.preload = 'metadata';
     video.muted = isMuted;
 
@@ -226,6 +228,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
     return null;
   }
 
+  // Always use the lesson's videoUrl, with fallback to working sample video
   const videoUrl = lesson.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
   const progressPercentage = totalTime > 0 && isFinite(currentTime) ? (currentTime / totalTime) * 100 : 0;
 

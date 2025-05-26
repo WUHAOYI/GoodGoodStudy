@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -35,6 +34,11 @@ import Security from "./pages/Security";
 import LearningGoals from "./pages/LearningGoals";
 import CourseRequest from "./pages/CourseRequest";
 import NotFound from "./pages/NotFound";
+import FreeTrial from "./pages/FreeTrial";
+import ScheduleDemo from "./pages/ScheduleDemo";
+import ContactSales from "./pages/ContactSales";
+import HowItWorks from "./pages/HowItWorks";
+import InstructorApplication from "./pages/InstructorApplication";
 
 const queryClient = new QueryClient();
 
@@ -58,7 +62,12 @@ const App = () => (
                     <Route path="/course/:id" element={<CourseDetails />} />
                     <Route path="/categories" element={<Categories />} />
                     <Route path="/for-business" element={<ForBusiness />} />
+                    <Route path="/free-trial" element={<FreeTrial />} />
+                    <Route path="/schedule-demo" element={<ScheduleDemo />} />
+                    <Route path="/contact-sales" element={<ContactSales />} />
                     <Route path="/teach" element={<TeachOnPlatform />} />
+                    <Route path="/how-it-works" element={<HowItWorks />} />
+                    <Route path="/instructor-application" element={<InstructorApplication />} />
                     
                     {/* Protected Routes */}
                     <Route path="/student-dashboard" element={

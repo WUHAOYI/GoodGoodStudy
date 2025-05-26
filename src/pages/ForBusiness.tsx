@@ -19,6 +19,8 @@ import Header from '@/components/Header';
 import TestimonialCarousel from '@/components/TestimonialCarousel';
 
 const ForBusiness = () => {
+  const navigate = useNavigate();
+
   const testimonials = [
     {
       id: 1,
@@ -67,10 +69,10 @@ const ForBusiness = () => {
               Empower your teams with cutting-edge skills training, comprehensive analytics, and scalable learning solutions designed for modern businesses.
             </p>
             <div className="flex gap-4 justify-center">
-              <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100">
+              <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100" onClick={() => navigate('/free-trial')}>
                 Start Free Trial
               </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600" onClick={() => navigate('/schedule-demo')}>
                 Schedule Demo
               </Button>
             </div>
@@ -261,11 +263,11 @@ const ForBusiness = () => {
             Join thousands of companies that trust our platform to deliver exceptional learning experiences.
           </p>
           <div className="flex gap-4 justify-center">
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+            <Button size="lg" className="bg-blue-600 hover:bg-blue-700" onClick={() => navigate('/free-trial')}>
               Get Started Today
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-            <Button size="lg" variant="outline" className="border-gray-600 text-white hover:bg-gray-800">
+            <Button size="lg" variant="outline" className="border-gray-600 text-white hover:bg-gray-800" onClick={() => navigate('/contact-sales')}>
               Contact Sales
             </Button>
           </div>
