@@ -1,486 +1,316 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { 
+  BookOpen, 
+  DollarSign, 
+  Users, 
+  TrendingUp, 
+  Play,
+  CheckCircle,
+  ArrowRight,
+  Star,
+  Award,
+  Clock,
+  Globe
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { DollarSign, Users, BookOpen, TrendingUp, Video, FileText, Award, Heart, CheckCircle } from 'lucide-react';
 import Header from '@/components/Header';
+import TestimonialCarousel from '@/components/TestimonialCarousel';
 
 const TeachOnPlatform = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { toast } = useToast();
-  const [showApplicationModal, setShowApplicationModal] = useState(false);
-  const [showLearnMoreModal, setShowLearnMoreModal] = useState(false);
-  const [applicationForm, setApplicationForm] = useState({
-    fullName: '',
-    email: '',
-    expertise: '',
-    experience: '',
-    courseIdeas: ''
-  });
 
-  const handleStartTeaching = () => {
-    setShowApplicationModal(true);
-  };
-
-  const handleLearnMore = () => {
-    setShowLearnMoreModal(true);
-  };
-
-  const handleApplicationSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Application submitted:', applicationForm);
-    toast({
-      title: "Application submitted!",
-      description: "We'll review your application and get back to you within 48 hours.",
-    });
-    setShowApplicationModal(false);
-    setApplicationForm({
-      fullName: '',
-      email: '',
-      expertise: '',
-      experience: '',
-      courseIdeas: ''
-    });
-  };
-
-  const handleApplyToTeach = () => {
-    setShowApplicationModal(true);
-  };
-
-  const benefits = [
+  const instructorTestimonials = [
     {
-      icon: DollarSign,
-      title: 'Earn Money',
-      description: 'Keep up to 85% of your course revenue with our competitive instructor rates',
-      stat: '85%'
+      id: 1,
+      name: "Dr. Jennifer Walsh",
+      title: "Data Science Instructor",
+      company: "Top-Rated Teacher",
+      rating: 5,
+      content: "Teaching on this platform has been incredibly rewarding. I've reached over 10,000 students globally and the support team is fantastic. The earnings potential is real!",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
     },
     {
-      icon: Users,
-      title: 'Reach Students Globally',
-      description: 'Access our community of 50,000+ learners from around the world',
-      stat: '50K+'
+      id: 2,
+      name: "Mark Thompson",
+      title: "Web Development Expert",
+      company: "Full-Stack Specialist",
+      rating: 5,
+      content: "I've made over $50,000 in my first year teaching here. The platform tools make it easy to create engaging content and track student progress effectively.",
+      avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face"
     },
     {
-      icon: TrendingUp,
-      title: 'Analytics & Insights',
-      description: 'Track your course performance with detailed analytics and student feedback',
-      stat: '24/7'
-    },
-    {
-      icon: Award,
-      title: 'Build Your Brand',
-      description: 'Establish yourself as an expert and grow your professional reputation',
-      stat: '⭐'
+      id: 3,
+      name: "Lisa Rodriguez",
+      title: "Digital Marketing Guru",
+      company: "Marketing Strategist",
+      rating: 5,
+      content: "The flexibility to teach on my schedule while helping others learn digital marketing has been amazing. My courses consistently rank in the top 10!",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b1d4?w=150&h=150&fit=crop&crop=face"
     }
   ];
 
-  const steps = [
-    {
-      number: '1',
-      title: 'Plan Your Course',
-      description: 'Define your course topic, learning objectives, and target audience',
-      icon: FileText
-    },
-    {
-      number: '2',
-      title: 'Create Content',
-      description: 'Record videos, create assignments, and develop course materials',
-      icon: Video
-    },
-    {
-      number: '3',
-      title: 'Publish & Promote',
-      description: 'Launch your course and start earning from your first student enrollment',
-      icon: BookOpen
+  const handleGetStarted = () => {
+    if (!user) {
+      navigate('/register');
+      return;
     }
-  ];
 
-  const requirements = [
-    'Industry expertise or professional experience in your teaching subject',
-    'Ability to create engaging, high-quality video content',
-    'Commitment to student success and responsive communication',
-    'Basic technical skills for content creation and platform navigation'
-  ];
-
-  const testimonials = [
-    {
-      name: 'Dr. Sarah Mitchell',
-      role: 'Data Science Instructor',
-      avatar: '👩‍🔬',
-      quote: 'Teaching on EduPlatform has allowed me to reach thousands of students and generate significant passive income.',
-      earnings: '$15K+/month'
-    },
-    {
-      name: 'Marcus Johnson',
-      role: 'Web Development Expert',
-      avatar: '👨‍💻',
-      quote: 'The platform provides excellent tools for course creation and the student community is amazing.',
-      earnings: '$8K+/month'
-    },
-    {
-      name: 'Elena Rodriguez',
-      role: 'Digital Marketing Specialist',
-      avatar: '👩‍💼',
-      quote: 'I love how easy it is to create and manage courses. The analytics help me improve constantly.',
-      earnings: '$12K+/month'
+    if (user.role === 'teacher') {
+      navigate('/teacher-dashboard');
+    } else {
+      toast({
+        title: "Application Required",
+        description: "You need to apply to become an instructor. Redirecting to application form...",
+      });
+      // In a real app, this would redirect to an instructor application form
+      setTimeout(() => {
+        navigate('/teacher-dashboard');
+      }, 2000);
     }
-  ];
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="min-h-screen bg-gray-50">
       <Header />
       
       {/* Hero Section */}
-      <section className="container mx-auto px-6 py-16">
-        <div className="text-center mb-16">
-          <Badge className="mb-4" variant="outline">
-            For Instructors
-          </Badge>
-          <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
-            Share Your Knowledge,
-            <span className="text-blue-600 block">Earn Income</span>
-          </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Join thousands of instructors who are teaching what they love and earning money 
-            doing it. Create engaging courses and build a thriving online teaching business.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="px-8 py-3" onClick={handleStartTeaching}>
-              Start Teaching Today
-            </Button>
-            <Button size="lg" variant="outline" className="px-8 py-3" onClick={handleLearnMore}>
-              Learn More
-            </Button>
+      <section className="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-20">
+        <div className="container mx-auto px-6">
+          <div className="max-w-4xl mx-auto text-center">
+            <Badge className="bg-white/20 text-white mb-4" variant="secondary">
+              Become an Instructor
+            </Badge>
+            <h1 className="text-5xl font-bold mb-6">
+              Share Your Expertise with the World
+            </h1>
+            <p className="text-xl mb-8 text-purple-100">
+              Create engaging courses, reach millions of students, and earn money doing what you love. Join our community of expert instructors today.
+            </p>
+            <div className="flex gap-4 justify-center">
+              <Button 
+                size="lg" 
+                className="bg-white text-purple-600 hover:bg-gray-100"
+                onClick={handleGetStarted}
+              >
+                Get Started Today
+              </Button>
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-purple-600">
+                <Play className="mr-2 h-4 w-4" />
+                Watch How It Works
+              </Button>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Benefits Section */}
-      <section className="container mx-auto px-6 py-16">
-        <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
-          Why Teach on EduPlatform?
-        </h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {benefits.map((benefit, index) => {
-            const Icon = benefit.icon;
-            return (
-              <Card key={index} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 text-center">
-                <CardHeader>
-                  <div className="bg-blue-100 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                    <Icon className="h-8 w-8 text-blue-600" />
-                  </div>
-                  <div className="text-3xl font-bold text-blue-600 mb-2">{benefit.stat}</div>
-                  <CardTitle className="text-xl font-semibold text-gray-900">
-                    {benefit.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-gray-600">
-                    {benefit.description}
-                  </CardDescription>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      </section>
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Why Teach With Us?
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Join thousands of instructors who are already earning and making an impact
+            </p>
+          </div>
 
-      {/* How It Works Section */}
-      <section className="container mx-auto px-6 py-16">
-        <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
-          How to Get Started
-        </h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {steps.map((step, index) => {
-            const Icon = step.icon;
-            return (
-              <Card key={index} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg relative">
-                <CardHeader className="text-center">
-                  <div className="bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4 text-xl font-bold">
-                    {step.number}
-                  </div>
-                  <Icon className="h-8 w-8 text-blue-600 mx-auto mb-4" />
-                  <CardTitle className="text-xl font-semibold text-gray-900">
-                    {step.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="text-center">
-                  <CardDescription className="text-gray-600">
-                    {step.description}
-                  </CardDescription>
-                </CardContent>
-                
-                {index < steps.length - 1 && (
-                  <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-0.5 bg-blue-200"></div>
-                )}
-              </Card>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Requirements Section */}
-      <section className="container mx-auto px-6 py-16">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-            Instructor Requirements
-          </h2>
-          
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4">What We Look For:</h3>
-                  <ul className="space-y-3">
-                    {requirements.map((requirement, index) => (
-                      <li key={index} className="flex items-start gap-3">
-                        <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-700">{requirement}</span>
-                      </li>
-                    ))}
-                  </ul>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <Card>
+              <CardHeader>
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                  <DollarSign className="h-6 w-6 text-green-600" />
                 </div>
-                
-                <div className="bg-blue-50 p-6 rounded-lg">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4">Ready to Apply?</h3>
-                  <p className="text-gray-600 mb-4">
-                    Fill out our instructor application form and we'll review your profile within 2-3 business days.
-                  </p>
-                  <Button className="w-full" onClick={handleApplyToTeach}>
-                    Apply to Teach
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="container mx-auto px-6 py-16">
-        <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">
-          Success Stories from Our Instructors
-        </h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => (
-            <Card key={index} className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="text-3xl">{testimonial.avatar}</div>
-                  <div>
-                    <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                    <div className="text-sm text-gray-500">{testimonial.role}</div>
-                    <Badge variant="secondary" className="text-xs mt-1">
-                      {testimonial.earnings}
-                    </Badge>
-                  </div>
-                </div>
-                <blockquote className="text-gray-600 italic">
-                  "{testimonial.quote}"
-                </blockquote>
+                <CardTitle>Earn Great Money</CardTitle>
+                <CardDescription>
+                  Top instructors earn over $100,000 annually
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    Keep 70% of course revenue
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    Monthly payments
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    Bonus programs available
+                  </li>
+                </ul>
               </CardContent>
             </Card>
-          ))}
+
+            <Card>
+              <CardHeader>
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                  <Globe className="h-6 w-6 text-blue-600" />
+                </div>
+                <CardTitle>Global Reach</CardTitle>
+                <CardDescription>
+                  Teach students from around the world
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    5M+ active learners
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    190+ countries
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    Multiple languages supported
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                  <Award className="h-6 w-6 text-purple-600" />
+                </div>
+                <CardTitle>Professional Tools</CardTitle>
+                <CardDescription>
+                  Everything you need to create amazing courses
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    Video recording tools
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    Course builder
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    Analytics dashboard
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
-      {/* Application Form Section */}
-      <section className="container mx-auto px-6 py-16">
-        <div className="max-w-2xl mx-auto">
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-bold text-gray-900">
-                Start Your Teaching Journey
-              </CardTitle>
-              <CardDescription>
-                Fill out the form below and we'll get back to you within 48 hours
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Full Name
-                  </label>
-                  <Input 
-                    placeholder="Enter your full name"
-                    value={applicationForm.fullName}
-                    onChange={(e) => setApplicationForm({...applicationForm, fullName: e.target.value})}
-                  />
+      {/* Stats Section */}
+      <section className="py-16">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <div className="text-4xl font-bold text-purple-600 mb-2">50K+</div>
+              <div className="text-gray-600">Expert Instructors</div>
+            </div>
+            <div>
+              <div className="text-4xl font-bold text-purple-600 mb-2">5M+</div>
+              <div className="text-gray-600">Students Taught</div>
+            </div>
+            <div>
+              <div className="text-4xl font-bold text-purple-600 mb-2">$50M+</div>
+              <div className="text-gray-600">Paid to Instructors</div>
+            </div>
+            <div>
+              <div className="text-4xl font-bold text-purple-600 mb-2">4.8/5</div>
+              <div className="text-gray-600">Average Rating</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              How It Works
+            </h2>
+            <p className="text-lg text-gray-600">
+              Start teaching in just a few simple steps
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                step: "1",
+                title: "Plan Your Course",
+                description: "Choose your topic, outline your curriculum, and set learning objectives"
+              },
+              {
+                step: "2", 
+                title: "Create Content",
+                description: "Record videos, create assignments, and build engaging course materials"
+              },
+              {
+                step: "3",
+                title: "Publish & Earn",
+                description: "Launch your course, attract students, and start earning from day one"
+              }
+            ].map((item, index) => (
+              <div key={index} className="text-center">
+                <div className="w-16 h-16 bg-purple-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+                  {item.step}
                 </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Email Address
-                  </label>
-                  <Input 
-                    type="email" 
-                    placeholder="Enter your email"
-                    value={applicationForm.email}
-                    onChange={(e) => setApplicationForm({...applicationForm, email: e.target.value})}
-                  />
-                </div>
+                <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
+                <p className="text-gray-600">{item.description}</p>
               </div>
-              
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Area of Expertise
-                </label>
-                <Input 
-                  placeholder="e.g., Web Development, Data Science, Marketing"
-                  value={applicationForm.expertise}
-                  onChange={(e) => setApplicationForm({...applicationForm, expertise: e.target.value})}
-                />
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Teaching Experience
-                </label>
-                <Textarea 
-                  placeholder="Tell us about your teaching or professional experience..."
-                  className="min-h-[100px]"
-                  value={applicationForm.experience}
-                  onChange={(e) => setApplicationForm({...applicationForm, experience: e.target.value})}
-                />
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Course Ideas
-                </label>
-                <Textarea 
-                  placeholder="What courses would you like to create on our platform?"
-                  className="min-h-[100px]"
-                  value={applicationForm.courseIdeas}
-                  onChange={(e) => setApplicationForm({...applicationForm, courseIdeas: e.target.value})}
-                />
-              </div>
-              
-              <Button 
-                className="w-full" 
-                size="lg"
-                onClick={() => {
-                  if (applicationForm.fullName && applicationForm.email && applicationForm.expertise) {
-                    handleApplicationSubmit(new Event('submit') as any);
-                  } else {
-                    toast({
-                      title: "Missing information",
-                      description: "Please fill in all required fields.",
-                      variant: "destructive"
-                    });
-                  }
-                }}
-              >
-                Submit Application
-              </Button>
-            </CardContent>
-          </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Success Stories */}
+      <section className="py-16">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Success Stories from Our Instructors
+            </h2>
+            <p className="text-lg text-gray-600">
+              Real stories from real instructors making real impact
+            </p>
+          </div>
+
+          <TestimonialCarousel testimonials={instructorTestimonials} />
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-16">
+      <section className="py-16 bg-gradient-to-r from-purple-600 to-blue-600 text-white">
         <div className="container mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold mb-6">Ready to Start Teaching?</h2>
-          <p className="text-xl mb-8 opacity-90">
-            Join our community of expert instructors and start earning today
+          <h2 className="text-3xl font-bold mb-4">
+            Ready to Start Teaching?
+          </h2>
+          <p className="text-lg text-purple-100 mb-8 max-w-2xl mx-auto">
+            Join our community of expert instructors and start making an impact today. Your knowledge can change lives.
           </p>
-          <Button size="lg" variant="secondary" className="px-8 py-3" onClick={handleStartTeaching}>
-            Get Started Now
+          <Button 
+            size="lg" 
+            className="bg-white text-purple-600 hover:bg-gray-100"
+            onClick={handleGetStarted}
+          >
+            Become an Instructor
+            <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
       </section>
-
-      {/* Application Modal */}
-      <Dialog open={showApplicationModal} onOpenChange={setShowApplicationModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Instructor Application</DialogTitle>
-            <DialogDescription>
-              Tell us about yourself and your teaching interests.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleApplicationSubmit} className="space-y-4">
-            <Input
-              placeholder="Full Name"
-              value={applicationForm.fullName}
-              onChange={(e) => setApplicationForm({...applicationForm, fullName: e.target.value})}
-              required
-            />
-            <Input
-              type="email"
-              placeholder="Email Address"
-              value={applicationForm.email}
-              onChange={(e) => setApplicationForm({...applicationForm, email: e.target.value})}
-              required
-            />
-            <Input
-              placeholder="Area of Expertise"
-              value={applicationForm.expertise}
-              onChange={(e) => setApplicationForm({...applicationForm, expertise: e.target.value})}
-              required
-            />
-            <Textarea
-              placeholder="Teaching Experience"
-              value={applicationForm.experience}
-              onChange={(e) => setApplicationForm({...applicationForm, experience: e.target.value})}
-            />
-            <Textarea
-              placeholder="Course Ideas"
-              value={applicationForm.courseIdeas}
-              onChange={(e) => setApplicationForm({...applicationForm, courseIdeas: e.target.value})}
-            />
-            <Button type="submit" className="w-full">
-              Submit Application
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Learn More Modal */}
-      <Dialog open={showLearnMoreModal} onOpenChange={setShowLearnMoreModal}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Learn More About Teaching</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <h4 className="font-semibold mb-2">What You'll Get:</h4>
-              <ul className="text-sm text-gray-600 space-y-1">
-                <li>• Complete course creation tools</li>
-                <li>• Marketing and promotional support</li>
-                <li>• Student engagement analytics</li>
-                <li>• Revenue sharing up to 85%</li>
-                <li>• Dedicated instructor support</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-2">How It Works:</h4>
-              <ol className="text-sm text-gray-600 space-y-1">
-                <li>1. Submit your instructor application</li>
-                <li>2. Get approved within 48 hours</li>
-                <li>3. Create and upload your course content</li>
-                <li>4. Publish and start earning from enrollments</li>
-              </ol>
-            </div>
-            <Button className="w-full" onClick={() => {
-              setShowLearnMoreModal(false);
-              setShowApplicationModal(true);
-            }}>
-              Apply Now
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

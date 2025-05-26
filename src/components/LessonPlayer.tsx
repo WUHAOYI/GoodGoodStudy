@@ -105,7 +105,11 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
   // Initialize video when lesson changes
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !isOpen || !lesson?.videoUrl) return;
+    if (!video || !isOpen || !lesson?.videoUrl) {
+      setIsLoaded(false);
+      setIsLoading(false);
+      return;
+    }
 
     console.log('Loading lesson video:', lesson.videoUrl);
     setIsLoading(true);
@@ -113,22 +117,33 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
     setCurrentTime(0);
     setTotalTime(0);
     setHasError(false);
+    setIsPlaying(false);
     
+    // Reset video element
+    video.pause();
+    video.currentTime = 0;
     video.src = lesson.videoUrl;
     video.preload = 'metadata';
+    video.muted = isMuted;
 
     const handleLoadedMetadata = () => {
       const duration = video.duration;
-      if (!isNaN(duration) && isFinite(duration)) {
+      console.log('Video metadata loaded, duration:', duration);
+      if (!isNaN(duration) && isFinite(duration) && duration > 0) {
         setTotalTime(duration);
         setIsLoaded(true);
         setIsLoading(false);
         setHasError(false);
-        console.log('Video loaded successfully, duration:', duration);
+        console.log('Video ready to play, duration:', duration);
+      } else {
+        console.warn('Invalid video duration:', duration);
+        setHasError(true);
+        setIsLoading(false);
       }
     };
 
     const handleCanPlay = () => {
+      console.log('Video can play');
       setIsLoaded(true);
       setIsLoading(false);
       setHasError(false);
@@ -141,34 +156,59 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
       }
     };
 
-    const handlePlay = () => setIsPlaying(true);
-    const handlePause = () => setIsPlaying(false);
+    const handlePlay = () => {
+      console.log('Video playing');
+      setIsPlaying(true);
+    };
+    
+    const handlePause = () => {
+      console.log('Video paused');
+      setIsPlaying(false);
+    };
 
-    const handleError = () => {
-      console.error('Video error occurred');
+    const handleError = (e: Event) => {
+      console.error('Video error occurred:', e);
       setIsLoading(false);
       setIsLoaded(false);
       setHasError(true);
+      setIsPlaying(false);
     };
 
+    const handleWaiting = () => {
+      console.log('Video buffering...');
+      setIsLoading(true);
+    };
+
+    const handleCanPlayThrough = () => {
+      console.log('Video can play through');
+      setIsLoading(false);
+      setIsLoaded(true);
+    };
+
+    // Add event listeners
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
     video.addEventListener('canplay', handleCanPlay);
+    video.addEventListener('canplaythrough', handleCanPlayThrough);
     video.addEventListener('timeupdate', handleTimeUpdate);
     video.addEventListener('play', handlePlay);
     video.addEventListener('pause', handlePause);
     video.addEventListener('error', handleError);
+    video.addEventListener('waiting', handleWaiting);
 
+    // Load the video
     video.load();
 
     return () => {
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
       video.removeEventListener('canplay', handleCanPlay);
+      video.removeEventListener('canplaythrough', handleCanPlayThrough);
       video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('play', handlePlay);
       video.removeEventListener('pause', handlePause);
       video.removeEventListener('error', handleError);
+      video.removeEventListener('waiting', handleWaiting);
     };
-  }, [isOpen, lesson?.videoUrl]);
+  }, [isOpen, lesson?.videoUrl, isMuted]);
 
   // Reset states when modal closes
   useEffect(() => {
@@ -232,6 +272,7 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
               onClick={togglePlay}
               poster="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=450&fit=crop"
               playsInline
+              controls={false}
             >
               <source src={videoUrl} type="video/mp4" />
               Your browser does not support the video tag.

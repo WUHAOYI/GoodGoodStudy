@@ -76,6 +76,16 @@ const App = () => (
                         <AdminDashboard />
                       </ProtectedRoute>
                     } />
+                    <Route path="/course-management/:id" element={
+                      <ProtectedRoute allowedRoles={['teacher', 'admin']}>
+                        <CourseManagement />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/course-management/new" element={
+                      <ProtectedRoute allowedRoles={['teacher', 'admin']}>
+                        <CourseManagement />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/payment" element={
                       <ProtectedRoute allowedRoles={['student']}>
                         <Payment />
@@ -109,11 +119,6 @@ const App = () => (
                     <Route path="/content-review" element={
                       <ProtectedRoute allowedRoles={['admin']}>
                         <ContentReview />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/course-management" element={
-                      <ProtectedRoute allowedRoles={['teacher', 'admin']}>
-                        <CourseManagement />
                       </ProtectedRoute>
                     } />
                     <Route path="/resource-management" element={
