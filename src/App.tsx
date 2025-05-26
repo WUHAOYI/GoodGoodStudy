@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -45,6 +44,7 @@ import StudentManagement from "./components/StudentManagement";
 import StudentDetails from "./pages/StudentDetails";
 import StudentAnalytics from "./pages/StudentAnalytics";
 import StudentPerformance from "./pages/StudentPerformance";
+import ActivityManagement from "./pages/ActivityManagement";
 
 const queryClient = new QueryClient();
 
@@ -98,6 +98,11 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     <Route path="/course-management/new" element={
+                      <ProtectedRoute allowedRoles={['teacher', 'admin']}>
+                        <CourseManagement />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/course-management" element={
                       <ProtectedRoute allowedRoles={['teacher', 'admin']}>
                         <CourseManagement />
                       </ProtectedRoute>
@@ -160,6 +165,11 @@ const App = () => (
                     <Route path="/course-request" element={
                       <ProtectedRoute allowedRoles={['student']}>
                         <CourseRequest />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/activity-management" element={
+                      <ProtectedRoute allowedRoles={['admin']}>
+                        <ActivityManagement />
                       </ProtectedRoute>
                     } />
                     

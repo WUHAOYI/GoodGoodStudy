@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,12 +22,14 @@ import {
   Edit,
   FileCheck,
   UserCheck,
-  Settings
+  Settings,
+  Upload
 } from 'lucide-react';
 import Header from '@/components/Header';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import StatsModal from '@/components/StatsModal';
+import ResourceUploadModal from '@/components/ResourceUploadModal';
 
 interface Activity {
   id: number;
@@ -76,12 +77,49 @@ const mockRecentActivities: Activity[] = [
   },
 ];
 
+// Mock activity analytics data
+const mockActivityAnalytics = [
+  { name: 'Enrollments', value: 234, change: '+15%' },
+  { name: 'Completions', value: 156, change: '+8%' },
+  { name: 'Course Reviews', value: 89, change: '+22%' },
+  { name: 'Support Tickets', value: 45, change: '-5%' },
+];
+
+// Mock pending courses data
+const mockPendingCourses = [
+  {
+    id: 1,
+    title: 'Advanced Machine Learning',
+    instructor: 'Dr. Sarah Johnson',
+    status: 'pending',
+    submissionDate: '2024-05-20',
+    category: 'Technology'
+  },
+  {
+    id: 2,
+    title: 'Digital Marketing Fundamentals',
+    instructor: 'Prof. Michael Chen',
+    status: 'pending',
+    submissionDate: '2024-05-19',
+    category: 'Business'
+  },
+  {
+    id: 3,
+    title: 'React Native Development',
+    instructor: 'Jane Smith',
+    status: 'approved',
+    submissionDate: '2024-05-18',
+    category: 'Technology'
+  }
+];
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [selectedStat, setSelectedStat] = useState<string | null>(null);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [showAllActivities, setShowAllActivities] = useState(false);
+  const [resourceUploadModalOpen, setResourceUploadModalOpen] = useState(false);
 
   const handleViewAllActivities = () => {
     setShowAllActivities(true);
@@ -96,7 +134,7 @@ const AdminDashboard = () => {
   };
 
   const handleActivityManagement = () => {
-    navigate('/analytics?tab=activity-management');
+    navigate('/activity-management');
   };
 
   const handleViewActivityDetails = (activity: Activity) => {
@@ -104,11 +142,25 @@ const AdminDashboard = () => {
   };
 
   const handleCourseManagement = () => {
-    navigate('/content-review');
+    navigate('/course-management');
   };
 
   const handleCourseCreation = () => {
     navigate('/course-management/new');
+  };
+
+  const handleReviewSubmissions = () => {
+    // Create a modal or navigate to submissions page with the mock data
+    alert(`Found ${mockPendingCourses.length} course submissions:\n\n${mockPendingCourses.map(course => `• ${course.title} by ${course.instructor} (${course.status})`).join('\n')}`);
+  };
+
+  const handleUploadResource = () => {
+    setResourceUploadModalOpen(true);
+  };
+
+  const handleResourceUpload = (newResource: any) => {
+    console.log('New resource uploaded:', newResource);
+    // Handle the uploaded resource
   };
 
   const getStatsModalData = () => {
@@ -171,12 +223,6 @@ const AdminDashboard = () => {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
             <p className="text-gray-600">Welcome back, {user?.name || 'Admin'}</p>
-          </div>
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={() => navigate('/teacher-management')}>
-              <UserPlus className="h-4 w-4 mr-2" />
-              Teacher Management
-            </Button>
           </div>
         </div>
 
@@ -301,7 +347,7 @@ const AdminDashboard = () => {
                   </Button>
                   <Button variant="outline" onClick={handleCourseManagement}>
                     <BookOpen className="h-4 w-4 mr-2" />
-                    Course Review
+                    Courses
                   </Button>
                   <Button variant="outline" onClick={() => navigate('/resource-management')}>
                     <Database className="h-4 w-4 mr-2" />
@@ -378,13 +424,13 @@ const AdminDashboard = () => {
                     <BookOpen className="h-5 w-5 mr-2" />
                     Course Management
                   </CardTitle>
-                  <CardDescription>Review courses, manage CRUD operations, approve submissions</CardDescription>
+                  <CardDescription>Manage courses, CRUD operations, review submissions</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="flex justify-between items-center mb-4">
                     <div>
-                      <div className="text-2xl font-bold">23</div>
-                      <p className="text-sm text-muted-foreground">Pending Review</p>
+                      <div className="text-2xl font-bold">486</div>
+                      <p className="text-sm text-muted-foreground">Total Courses</p>
                     </div>
                     <ArrowRight className="h-5 w-5 text-muted-foreground" />
                   </div>
@@ -393,7 +439,7 @@ const AdminDashboard = () => {
                       <Edit className="h-4 w-4 mr-1" />
                       Create Course
                     </Button>
-                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate('/content-review?tab=pending'); }}>
+                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); handleReviewSubmissions(); }}>
                       <FileCheck className="h-4 w-4 mr-1" />
                       Review Submissions
                     </Button>
@@ -418,8 +464,8 @@ const AdminDashboard = () => {
                     <ArrowRight className="h-5 w-5 text-muted-foreground" />
                   </div>
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate('/resource-management?action=upload'); }}>
-                      <Database className="h-4 w-4 mr-1" />
+                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); handleUploadResource(); }}>
+                      <Upload className="h-4 w-4 mr-1" />
                       Upload Resource
                     </Button>
                     <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate('/resource-management?action=manage'); }}>
@@ -515,7 +561,7 @@ const AdminDashboard = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Platform Analytics</CardTitle>
-                <CardDescription>Comprehensive platform performance metrics (excluding student-specific data)</CardDescription>
+                <CardDescription>Platform performance metrics (excluding student-specific data)</CardDescription>
               </CardHeader>
               <CardContent>
                 <Button onClick={() => navigate('/analytics')}>
@@ -586,7 +632,7 @@ const AdminDashboard = () => {
                 <CardDescription>Monitor and manage platform activities</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                   <Button onClick={handleActivityManagement}>
                     <Activity className="h-4 w-4 mr-2" />
                     Manage Activities
@@ -595,6 +641,26 @@ const AdminDashboard = () => {
                     <BarChart3 className="h-4 w-4 mr-2" />
                     Activity Analytics
                   </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Activity Analytics</CardTitle>
+                <CardDescription>Analysis of activity-related data</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {mockActivityAnalytics.map((metric, index) => (
+                    <div key={index} className="p-4 border rounded-lg">
+                      <div className="text-2xl font-bold">{metric.value}</div>
+                      <div className="text-sm font-medium text-gray-700">{metric.name}</div>
+                      <div className={`text-xs ${metric.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
+                        {metric.change} from last period
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -607,6 +673,12 @@ const AdminDashboard = () => {
         onClose={() => setSelectedStat(null)}
         title={statsModalData.title}
         items={statsModalData.items}
+      />
+
+      <ResourceUploadModal
+        isOpen={resourceUploadModalOpen}
+        onClose={() => setResourceUploadModalOpen(false)}
+        onUpload={handleResourceUpload}
       />
 
       {selectedActivity && (
