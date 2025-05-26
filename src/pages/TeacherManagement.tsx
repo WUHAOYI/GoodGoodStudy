@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,17 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import TeacherEditModal from '@/components/TeacherEditModal';
 import TeacherApplicationModal from '@/components/TeacherApplicationModal';
+
+interface TeacherApplication {
+  id: number;
+  fullName: string;
+  email: string;
+  expertise: string;
+  experience: string;
+  courseIdeas: string;
+  status: 'pending' | 'approved' | 'rejected';
+  appliedDate: string;
+}
 
 const TeacherManagement = () => {
   const navigate = useNavigate();
@@ -78,7 +90,7 @@ const TeacherManagement = () => {
   ]);
 
   // Mock data for teacher applications
-  const [applications, setApplications] = useState([
+  const [applications, setApplications] = useState<TeacherApplication[]>([
     {
       id: 1,
       fullName: "John Smith",
@@ -86,7 +98,7 @@ const TeacherManagement = () => {
       expertise: "Machine Learning",
       experience: "5 years of experience in ML and AI, worked at Google and Microsoft",
       courseIdeas: "Introduction to Machine Learning, Deep Learning Fundamentals, AI Ethics",
-      status: "pending" as const,
+      status: "pending",
       appliedDate: "2024-01-20"
     },
     {
@@ -96,7 +108,7 @@ const TeacherManagement = () => {
       expertise: "UX Design",
       experience: "8 years in UX design, previously at Apple and Airbnb",
       courseIdeas: "UX Design Principles, User Research Methods, Design Systems",
-      status: "pending" as const,
+      status: "pending",
       appliedDate: "2024-01-18"
     }
   ]);
