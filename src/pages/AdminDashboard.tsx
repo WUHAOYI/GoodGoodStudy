@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Users, Shield, AlertCircle, CheckCircle, Clock, Eye, BarChart3, Trash2, X, FileText } from 'lucide-react';
+import { BookOpen, Users, Shield, AlertCircle, CheckCircle, Clock, Eye, BarChart3, Trash2, X, FileText, Calendar } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useNavigate } from 'react-router-dom';
 import { useCourses } from '@/contexts/CourseContext';
@@ -10,6 +10,7 @@ import Header from '@/components/Header';
 import { useState } from 'react';
 import StatCard from '@/components/StatCard';
 import StatsModal from '@/components/StatsModal';
+import ActivityManagement from '@/components/ActivityManagement';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ const AdminDashboard = () => {
     title: '',
     items: []
   });
+  const [activeTab, setActiveTab] = useState<'overview' | 'activities'>('overview');
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -176,328 +178,362 @@ const AdminDashboard = () => {
           <p className="text-gray-600">Monitor platform activity and manage content reviews</p>
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Button className="h-16 flex flex-col gap-1" onClick={() => navigate('/teacher-management')}>
-            <Users className="h-5 w-5" />
-            <span className="text-sm">Manage Teachers</span>
-          </Button>
-          <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => navigate('/resource-management')}>
-            <FileText className="h-5 w-5" />
-            <span className="text-sm">Manage Resources</span>
-          </Button>
-          <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => navigate('/analytics')}>
-            <BarChart3 className="h-5 w-5" />
-            <span className="text-sm">Analytics</span>
-          </Button>
-          <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => navigate('/security')}>
-            <Shield className="h-5 w-5" />
-            <span className="text-sm">Security</span>
-          </Button>
+        {/* Tab Navigation */}
+        <div className="mb-8">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('overview')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'overview'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Overview
+              </button>
+              <button
+                onClick={() => setActiveTab('activities')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'activities'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Activity Management
+              </button>
+            </nav>
+          </div>
         </div>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <StatCard
-            title="Total Courses"
-            value={courses.length.toString()}
-            subtitle={`+${courses.filter(c => c.status === 'Published').length} published`}
-            icon={BookOpen}
-            iconBgColor="bg-blue-100"
-            iconColor="text-blue-600"
-            onClick={() => handleStatClick('courses')}
-          />
-          
-          <StatCard
-            title="Teachers & Institutions"
-            value="89"
-            subtitle="+3 this month"
-            icon={Users}
-            iconBgColor="bg-green-100"
-            iconColor="text-green-600"
-            onClick={() => handleStatClick('institutions')}
-          />
-          
-          <StatCard
-            title="Pending Reviews"
-            value={(pendingReviews.length + deletionRequests.length).toString()}
-            subtitle={`${pendingReviews.filter(r => r.priority === 'High').length} high priority`}
-            icon={AlertCircle}
-            iconBgColor="bg-orange-100"
-            iconColor="text-orange-600"
-            onClick={() => handleStatClick('reviews')}
-          />
-          
-          <StatCard
-            title="Active Students"
-            value={courses.reduce((total, course) => total + course.students, 0).toLocaleString()}
-            subtitle="+1,234 this month"
-            icon={Shield}
-            iconBgColor="bg-purple-100"
-            iconColor="text-purple-600"
-            onClick={() => handleStatClick('students')}
-          />
-        </div>
-
-        {/* Analytics Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+        {activeTab === 'overview' ? (
+          <>
+            {/* Quick Actions */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+              <Button className="h-16 flex flex-col gap-1" onClick={() => navigate('/teacher-management')}>
+                <Users className="h-5 w-5" />
+                <span className="text-sm">Manage Teachers</span>
+              </Button>
+              <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => navigate('/resource-management')}>
+                <FileText className="h-5 w-5" />
+                <span className="text-sm">Manage Resources</span>
+              </Button>
+              <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => navigate('/analytics')}>
                 <BarChart3 className="h-5 w-5" />
-                Platform Growth
-              </CardTitle>
-              <CardDescription>Track overall platform performance</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={platformGrowth}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="students" stroke="#3b82f6" strokeWidth={2} name="Students" />
-                  <Line type="monotone" dataKey="courses" stroke="#10b981" strokeWidth={2} name="Courses" />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Course Categories</CardTitle>
-              <CardDescription>Distribution by category</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={categoryDistribution}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    dataKey="value"
-                  >
-                    {categoryDistribution.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="mt-4 space-y-2">
-                {categoryDistribution.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <div 
-                        className="w-3 h-3 rounded-full" 
-                        style={{ backgroundColor: item.color }}
-                      />
-                      <span>{item.name}</span>
-                    </div>
-                    <span className="font-medium">{item.value}%</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Pending Reviews */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Pending Reviews ({pendingReviews.length})</CardTitle>
-              <CardDescription>Content waiting for approval</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {pendingReviews.map((item) => (
-                  <div key={item.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 className="font-semibold text-gray-900">{item.title}</h3>
-                        <p className="text-sm text-gray-600">by {item.instructor}</p>
-                      </div>
-                      <Badge className={getPriorityColor(item.priority)}>
-                        {item.priority}
-                      </Badge>
-                    </div>
-                    
-                    <div className="mb-3">
-                      <label className="text-sm font-medium text-gray-700">Review Reason (optional)</label>
-                      <input
-                        type="text"
-                        placeholder="Enter review reason..."
-                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
-                        value={reviewReason[item.id] || ''}
-                        onChange={(e) => setReviewReason(prev => ({...prev, [item.id]: e.target.value}))}
-                      />
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <div className="text-sm text-gray-500">
-                        <span className="font-medium">{item.type}</span> • Submitted {item.submittedDate}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleReviewContent(item.id)}
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          Review
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleApproveReview(item.courseId, item.id)}
-                          className="text-green-600"
-                        >
-                          <CheckCircle className="h-4 w-4 mr-1" />
-                          Approve
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleRejectReview(item.courseId, item.id)}
-                          className="text-red-600"
-                        >
-                          <X className="h-4 w-4 mr-1" />
-                          Reject
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                {pendingReviews.length === 0 && (
-                  <p className="text-gray-500 text-center py-4">No pending reviews</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Recent Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Actions ({recentActions.length})</CardTitle>
-              <CardDescription>Latest platform activities</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentActions.slice(0, 8).map((action) => (
-                  <div key={action.id} className="flex items-start gap-3 p-3 border rounded-lg">
-                    {getActionIcon(action.type)}
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">{action.action}</p>
-                      <div className="flex justify-between items-center mt-1">
-                        <p className="text-xs text-gray-600">{action.user}</p>
-                        <p className="text-xs text-gray-500">{action.time}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                {recentActions.length === 0 && (
-                  <p className="text-gray-500 text-center py-4">No recent actions</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Deletion Requests */}
-        {deletionRequests.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Deletion Requests</CardTitle>
-              <CardDescription>Course deletion requests awaiting approval</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {deletionRequests.map((request) => (
-                  <div key={request.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 className="font-semibold text-gray-900">{request.courseTitle}</h3>
-                        <p className="text-sm text-gray-600">Requested by {request.requestedBy}</p>
-                        {request.reason && <p className="text-sm text-gray-500">Reason: {request.reason}</p>}
-                      </div>
-                      <Badge className="bg-orange-100 text-orange-800">
-                        Pending Deletion
-                      </Badge>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <div className="text-sm text-gray-500">
-                        Requested on {request.requestedAt}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleApproveDeletion(request.id)}
-                          className="text-red-600"
-                        >
-                          <CheckCircle className="h-4 w-4 mr-1" />
-                          Approve
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleRejectDeletion(request.id)}
-                        >
-                          <X className="h-4 w-4 mr-1" />
-                          Reject
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* All Courses Management */}
-        <Card>
-          <CardHeader>
-            <CardTitle>All Courses ({courses.filter(c => c.status === 'Published').length})</CardTitle>
-            <CardDescription>Published courses on the platform</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {courses.filter(c => c.status === 'Published').map((course) => (
-                <div key={course.id} className="border rounded-lg p-4">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <h3 className="font-semibold text-gray-900 mb-1">{course.title}</h3>
-                      <p className="text-sm text-gray-600">Last updated: {course.lastUpdated}</p>
-                      <p className="text-sm text-gray-500">{course.students} students • ${course.revenue} revenue</p>
-                      {course.reviewReason && (
-                        <p className="text-sm text-blue-600 mt-1">Review reason: {course.reviewReason}</p>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      <Badge className="bg-green-100 text-green-800">
-                        {course.status}
-                      </Badge>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => handleDirectDelete(course.id, course.title)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4 mr-1" />
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                <span className="text-sm">Analytics</span>
+              </Button>
+              <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => setActiveTab('activities')}>
+                <Calendar className="h-5 w-5" />
+                <span className="text-sm">Manage Activities</span>
+              </Button>
             </div>
-          </CardContent>
-        </Card>
+
+            {/* Stats Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              <StatCard
+                title="Total Courses"
+                value={courses.length.toString()}
+                subtitle={`+${courses.filter(c => c.status === 'Published').length} published`}
+                icon={BookOpen}
+                iconBgColor="bg-blue-100"
+                iconColor="text-blue-600"
+                onClick={() => handleStatClick('courses')}
+              />
+              
+              <StatCard
+                title="Teachers & Institutions"
+                value="89"
+                subtitle="+3 this month"
+                icon={Users}
+                iconBgColor="bg-green-100"
+                iconColor="text-green-600"
+                onClick={() => handleStatClick('institutions')}
+              />
+              
+              <StatCard
+                title="Pending Reviews"
+                value={(pendingReviews.length + deletionRequests.length).toString()}
+                subtitle={`${pendingReviews.filter(r => r.priority === 'High').length} high priority`}
+                icon={AlertCircle}
+                iconBgColor="bg-orange-100"
+                iconColor="text-orange-600"
+                onClick={() => handleStatClick('reviews')}
+              />
+              
+              <StatCard
+                title="Active Students"
+                value={courses.reduce((total, course) => total + course.students, 0).toLocaleString()}
+                subtitle="+1,234 this month"
+                icon={Shield}
+                iconBgColor="bg-purple-100"
+                iconColor="text-purple-600"
+                onClick={() => handleStatClick('students')}
+              />
+            </div>
+
+            {/* Analytics Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+              <Card className="lg:col-span-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5" />
+                    Platform Growth
+                  </CardTitle>
+                  <CardDescription>Track overall platform performance</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={platformGrowth}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis />
+                      <Tooltip />
+                      <Line type="monotone" dataKey="students" stroke="#3b82f6" strokeWidth={2} name="Students" />
+                      <Line type="monotone" dataKey="courses" stroke="#10b981" strokeWidth={2} name="Courses" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Course Categories</CardTitle>
+                  <CardDescription>Distribution by category</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={categoryDistribution}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={100}
+                        dataKey="value"
+                      >
+                        {categoryDistribution.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="mt-4 space-y-2">
+                    {categoryDistribution.map((item, index) => (
+                      <div key={index} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-3 h-3 rounded-full" 
+                            style={{ backgroundColor: item.color }}
+                          />
+                          <span>{item.name}</span>
+                        </div>
+                        <span className="font-medium">{item.value}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              {/* Pending Reviews */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Pending Reviews ({pendingReviews.length})</CardTitle>
+                  <CardDescription>Content waiting for approval</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {pendingReviews.map((item) => (
+                      <div key={item.id} className="border rounded-lg p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h3 className="font-semibold text-gray-900">{item.title}</h3>
+                            <p className="text-sm text-gray-600">by {item.instructor}</p>
+                          </div>
+                          <Badge className={getPriorityColor(item.priority)}>
+                            {item.priority}
+                          </Badge>
+                        </div>
+                        
+                        <div className="mb-3">
+                          <label className="text-sm font-medium text-gray-700">Review Reason (optional)</label>
+                          <input
+                            type="text"
+                            placeholder="Enter review reason..."
+                            className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                            value={reviewReason[item.id] || ''}
+                            onChange={(e) => setReviewReason(prev => ({...prev, [item.id]: e.target.value}))}
+                          />
+                        </div>
+                        
+                        <div className="flex justify-between items-center">
+                          <div className="text-sm text-gray-500">
+                            <span className="font-medium">{item.type}</span> • Submitted {item.submittedDate}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleReviewContent(item.id)}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              Review
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleApproveReview(item.courseId, item.id)}
+                              className="text-green-600"
+                            >
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              Approve
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleRejectReview(item.courseId, item.id)}
+                              className="text-red-600"
+                            >
+                              <X className="h-4 w-4 mr-1" />
+                              Reject
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {pendingReviews.length === 0 && (
+                      <p className="text-gray-500 text-center py-4">No pending reviews</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Recent Actions */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Actions ({recentActions.length})</CardTitle>
+                  <CardDescription>Latest platform activities</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {recentActions.slice(0, 8).map((action) => (
+                      <div key={action.id} className="flex items-start gap-3 p-3 border rounded-lg">
+                        {getActionIcon(action.type)}
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">{action.action}</p>
+                          <div className="flex justify-between items-center mt-1">
+                            <p className="text-xs text-gray-600">{action.user}</p>
+                            <p className="text-xs text-gray-500">{action.time}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {recentActions.length === 0 && (
+                      <p className="text-gray-500 text-center py-4">No recent actions</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Deletion Requests */}
+            {deletionRequests.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Deletion Requests</CardTitle>
+                  <CardDescription>Course deletion requests awaiting approval</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {deletionRequests.map((request) => (
+                      <div key={request.id} className="border rounded-lg p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h3 className="font-semibold text-gray-900">{request.courseTitle}</h3>
+                            <p className="text-sm text-gray-600">Requested by {request.requestedBy}</p>
+                            {request.reason && <p className="text-sm text-gray-500">Reason: {request.reason}</p>}
+                          </div>
+                          <Badge className="bg-orange-100 text-orange-800">
+                            Pending Deletion
+                          </Badge>
+                        </div>
+                        
+                        <div className="flex justify-between items-center">
+                          <div className="text-sm text-gray-500">
+                            Requested on {request.requestedAt}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleApproveDeletion(request.id)}
+                              className="text-red-600"
+                            >
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              Approve
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleRejectDeletion(request.id)}
+                            >
+                              <X className="h-4 w-4 mr-1" />
+                              Reject
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* All Courses Management */}
+            <Card>
+              <CardHeader>
+                <CardTitle>All Courses ({courses.filter(c => c.status === 'Published').length})</CardTitle>
+                <CardDescription>Published courses on the platform</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {courses.filter(c => c.status === 'Published').map((course) => (
+                    <div key={course.id} className="border rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <h3 className="font-semibold text-gray-900 mb-1">{course.title}</h3>
+                          <p className="text-sm text-gray-600">Last updated: {course.lastUpdated}</p>
+                          <p className="text-sm text-gray-500">{course.students} students • ${course.revenue} revenue</p>
+                          {course.reviewReason && (
+                            <p className="text-sm text-blue-600 mt-1">Review reason: {course.reviewReason}</p>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <Badge className="bg-green-100 text-green-800">
+                            {course.status}
+                          </Badge>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleDirectDelete(course.id, course.title)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        ) : (
+          <ActivityManagement />
+        )}
       </div>
 
       <StatsModal

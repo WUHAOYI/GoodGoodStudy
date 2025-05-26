@@ -56,6 +56,9 @@ const Header = () => {
             <Link to="/categories" className="text-gray-700 hover:text-blue-600 transition-colors">
               Categories
             </Link>
+            <Link to="/pricing" className="text-gray-700 hover:text-blue-600 transition-colors">
+              Pricing
+            </Link>
             <Link to="/for-business" className="text-gray-700 hover:text-blue-600 transition-colors">
               For Business
             </Link>
@@ -131,6 +134,13 @@ const Header = () => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Categories
+              </Link>
+              <Link 
+                to="/pricing" 
+                className="text-gray-700 hover:text-blue-600 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Pricing
               </Link>
               <Link 
                 to="/for-business" 
