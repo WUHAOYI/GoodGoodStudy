@@ -22,7 +22,6 @@ import {
   Edit,
   FileCheck,
   UserCheck,
-  Settings,
   Upload
 } from 'lucide-react';
 import Header from '@/components/Header';
@@ -30,6 +29,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import StatsModal from '@/components/StatsModal';
 import ResourceUploadModal from '@/components/ResourceUploadModal';
+import ActivityAnalytics from '@/components/ActivityAnalytics';
 
 interface Activity {
   id: number;
@@ -37,6 +37,8 @@ interface Activity {
   description: string;
   user: string;
   timestamp: string;
+  status: string;
+  category: string;
 }
 
 const mockRecentActivities: Activity[] = [
@@ -45,44 +47,46 @@ const mockRecentActivities: Activity[] = [
     type: 'enrollment',
     description: 'John Doe enrolled in React Fundamentals',
     user: 'John Doe',
-    timestamp: '2 minutes ago',
+    timestamp: '2024-05-26T10:30:00',
+    status: 'completed',
+    category: 'enrollment'
   },
   {
     id: 2,
     type: 'completion',
     description: 'Jane Smith completed Node.js Masterclass',
     user: 'Jane Smith',
-    timestamp: '5 minutes ago',
+    timestamp: '2024-05-26T09:45:00',
+    status: 'completed',
+    category: 'completion'
   },
   {
     id: 3,
     type: 'payment',
     description: 'Alice Johnson made a payment for Advanced Python',
     user: 'Alice Johnson',
-    timestamp: '10 minutes ago',
+    timestamp: '2024-05-26T08:20:00',
+    status: 'pending',
+    category: 'payment'
   },
   {
     id: 4,
     type: 'enrollment',
     description: 'Bob Williams enrolled in Data Science Bootcamp',
     user: 'Bob Williams',
-    timestamp: '15 minutes ago',
+    timestamp: '2024-05-25T15:30:00',
+    status: 'completed',
+    category: 'enrollment'
   },
   {
     id: 5,
     type: 'completion',
     description: 'Charlie Brown completed Machine Learning A-Z',
     user: 'Charlie Brown',
-    timestamp: '20 minutes ago',
+    timestamp: '2024-05-25T14:20:00',
+    status: 'completed',
+    category: 'completion'
   },
-];
-
-// Mock activity analytics data
-const mockActivityAnalytics = [
-  { name: 'Enrollments', value: 234, change: '+15%' },
-  { name: 'Completions', value: 156, change: '+8%' },
-  { name: 'Course Reviews', value: 89, change: '+22%' },
-  { name: 'Support Tickets', value: 45, change: '-5%' },
 ];
 
 // Mock pending courses data
@@ -122,15 +126,15 @@ const AdminDashboard = () => {
   const [resourceUploadModalOpen, setResourceUploadModalOpen] = useState(false);
 
   const handleViewAllActivities = () => {
-    setShowAllActivities(true);
+    navigate('/activity-management');
   };
 
   const handleViewPendingActivities = () => {
-    navigate('/analytics?tab=pending-activities');
+    navigate('/activity-management?filter=pending');
   };
 
   const handleViewCompletedActivities = () => {
-    navigate('/analytics?tab=completed-activities');
+    navigate('/activity-management?filter=completed');
   };
 
   const handleActivityManagement = () => {
@@ -150,8 +154,7 @@ const AdminDashboard = () => {
   };
 
   const handleReviewSubmissions = () => {
-    // Create a modal or navigate to submissions page with the mock data
-    alert(`Found ${mockPendingCourses.length} course submissions:\n\n${mockPendingCourses.map(course => `• ${course.title} by ${course.instructor} (${course.status})`).join('\n')}`);
+    navigate('/course-management?tab=submissions');
   };
 
   const handleUploadResource = () => {
@@ -160,7 +163,6 @@ const AdminDashboard = () => {
 
   const handleResourceUpload = (newResource: any) => {
     console.log('New resource uploaded:', newResource);
-    // Handle the uploaded resource
   };
 
   const getStatsModalData = () => {
@@ -310,7 +312,7 @@ const AdminDashboard = () => {
                       }`} />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900">{activity.description}</p>
-                        <p className="text-xs text-gray-500">{activity.timestamp}</p>
+                        <p className="text-xs text-gray-500">{new Date(activity.timestamp).toLocaleString()}</p>
                       </div>
                       <Button 
                         variant="ghost" 
@@ -468,10 +470,6 @@ const AdminDashboard = () => {
                       <Upload className="h-4 w-4 mr-1" />
                       Upload Resource
                     </Button>
-                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate('/resource-management?action=manage'); }}>
-                      <Settings className="h-4 w-4 mr-1" />
-                      Manage Files
-                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -566,7 +564,7 @@ const AdminDashboard = () => {
               <CardContent>
                 <Button onClick={() => navigate('/analytics')}>
                   <BarChart3 className="h-4 w-4 mr-2" />
-                  View Platform Analytics
+                  View Detailed Analytics
                 </Button>
               </CardContent>
             </Card>
@@ -580,7 +578,7 @@ const AdminDashboard = () => {
                   <Clock className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">23</div>
+                  <div className="text-2xl font-bold">{mockRecentActivities.filter(a => a.status === 'pending').length}</div>
                   <Button 
                     variant="link" 
                     className="p-0 h-auto text-xs" 
@@ -597,7 +595,7 @@ const AdminDashboard = () => {
                   <CheckCircle className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">156</div>
+                  <div className="text-2xl font-bold">{mockRecentActivities.filter(a => a.status === 'completed').length}</div>
                   <Button 
                     variant="link" 
                     className="p-0 h-auto text-xs"
@@ -614,7 +612,7 @@ const AdminDashboard = () => {
                   <Activity className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">1,247</div>
+                  <div className="text-2xl font-bold">{mockRecentActivities.length}</div>
                   <Button 
                     variant="link" 
                     className="p-0 h-auto text-xs"
@@ -651,17 +649,7 @@ const AdminDashboard = () => {
                 <CardDescription>Analysis of activity-related data</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {mockActivityAnalytics.map((metric, index) => (
-                    <div key={index} className="p-4 border rounded-lg">
-                      <div className="text-2xl font-bold">{metric.value}</div>
-                      <div className="text-sm font-medium text-gray-700">{metric.name}</div>
-                      <div className={`text-xs ${metric.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
-                        {metric.change} from last period
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <ActivityAnalytics activities={mockRecentActivities} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -692,7 +680,7 @@ const AdminDashboard = () => {
                 <p><strong>Type:</strong> {selectedActivity.type}</p>
                 <p><strong>Description:</strong> {selectedActivity.description}</p>
                 <p><strong>User:</strong> {selectedActivity.user}</p>
-                <p><strong>Time:</strong> {selectedActivity.timestamp}</p>
+                <p><strong>Time:</strong> {new Date(selectedActivity.timestamp).toLocaleString()}</p>
               </div>
               <div className="flex justify-end gap-2 mt-4">
                 <Button variant="outline" onClick={() => setSelectedActivity(null)}>
