@@ -1,13 +1,15 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
-import { Users, Search, Eye, Ban, CheckCircle, AlertTriangle, BookOpen, Trophy, TrendingUp, Filter } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Users, Search, Eye, Ban, CheckCircle, AlertTriangle, BookOpen, Trophy, TrendingUp, Filter, Award, UserPlus, UserMinus, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
+import { useEnrollment } from '@/contexts/EnrollmentContext';
 
 interface Student {
   id: number;
@@ -22,13 +24,25 @@ interface Student {
   averageScore: number;
   interests: string[];
   behavior: 'excellent' | 'good' | 'warning' | 'poor';
+  enrolledCourseIds: number[];
+  certificates: Array<{
+    id: number;
+    courseName: string;
+    issueDate: string;
+    status: 'active' | 'revoked';
+  }>;
 }
 
 const StudentManagement = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { enrollInCourse, unenrollFromCourse } = useEnrollment();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [courseManagementOpen, setCourseManagementOpen] = useState(false);
+  const [certificateManagementOpen, setCertificateManagementOpen] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<string>('');
   
   const [students, setStudents] = useState<Student[]>([
     {
@@ -43,7 +57,12 @@ const StudentManagement = () => {
       totalHours: 124,
       averageScore: 85,
       interests: ['Programming', 'AI', 'Web Development'],
-      behavior: 'excellent'
+      behavior: 'excellent',
+      enrolledCourseIds: [1, 2, 3],
+      certificates: [
+        { id: 1, courseName: 'JavaScript Fundamentals', issueDate: '2024-04-15', status: 'active' },
+        { id: 2, courseName: 'React Basics', issueDate: '2024-05-10', status: 'active' }
+      ]
     },
     {
       id: 2,
@@ -57,7 +76,11 @@ const StudentManagement = () => {
       totalHours: 87,
       averageScore: 92,
       interests: ['Design', 'UI/UX', 'Creative Writing'],
-      behavior: 'excellent'
+      behavior: 'excellent',
+      enrolledCourseIds: [4, 5],
+      certificates: [
+        { id: 3, courseName: 'UI/UX Design', issueDate: '2024-05-20', status: 'active' }
+      ]
     },
     {
       id: 3,
@@ -71,7 +94,9 @@ const StudentManagement = () => {
       totalHours: 45,
       averageScore: 73,
       interests: ['Marketing', 'Business', 'Analytics'],
-      behavior: 'good'
+      behavior: 'good',
+      enrolledCourseIds: [6, 7],
+      certificates: []
     },
     {
       id: 4,
@@ -85,9 +110,23 @@ const StudentManagement = () => {
       totalHours: 12,
       averageScore: 65,
       interests: ['Photography', 'Art'],
-      behavior: 'warning'
+      behavior: 'warning',
+      enrolledCourseIds: [8],
+      certificates: []
     }
   ]);
+
+  // Available courses for enrollment management
+  const availableCourses = [
+    { id: 1, name: 'JavaScript Fundamentals' },
+    { id: 2, name: 'React Basics' },
+    { id: 3, name: 'Node.js Backend' },
+    { id: 4, name: 'UI/UX Design' },
+    { id: 5, name: 'Digital Marketing' },
+    { id: 6, name: 'Python Programming' },
+    { id: 7, name: 'Data Analysis' },
+    { id: 8, name: 'Photography Basics' }
+  ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -138,6 +177,118 @@ const StudentManagement = () => {
     });
   };
 
+  const handleEnrollStudent = () => {
+    if (!selectedStudent || !selectedCourse) return;
+    
+    const courseId = parseInt(selectedCourse);
+    const courseName = availableCourses.find(c => c.id === courseId)?.name;
+    
+    setStudents(prev => 
+      prev.map(student => 
+        student.id === selectedStudent.id 
+          ? { 
+              ...student, 
+              enrolledCourseIds: [...student.enrolledCourseIds, courseId],
+              coursesEnrolled: student.coursesEnrolled + 1
+            }
+          : student
+      )
+    );
+    
+    // Update enrollment context
+    enrollInCourse(courseId);
+    
+    toast({
+      title: "Student Enrolled",
+      description: `${selectedStudent.name} has been enrolled in ${courseName}.`,
+    });
+    
+    setCourseManagementOpen(false);
+    setSelectedCourse('');
+  };
+
+  const handleUnenrollStudent = (courseId: number) => {
+    if (!selectedStudent) return;
+    
+    const courseName = availableCourses.find(c => c.id === courseId)?.name;
+    
+    setStudents(prev => 
+      prev.map(student => 
+        student.id === selectedStudent.id 
+          ? { 
+              ...student, 
+              enrolledCourseIds: student.enrolledCourseIds.filter(id => id !== courseId),
+              coursesEnrolled: student.coursesEnrolled - 1
+            }
+          : student
+      )
+    );
+    
+    // Update enrollment context
+    unenrollFromCourse(courseId);
+    
+    toast({
+      title: "Student Unenrolled",
+      description: `${selectedStudent.name} has been unenrolled from ${courseName}.`,
+    });
+  };
+
+  const handleIssueCertificate = () => {
+    if (!selectedStudent || !selectedCourse) return;
+    
+    const courseName = availableCourses.find(c => c.id === parseInt(selectedCourse))?.name;
+    
+    const newCertificate = {
+      id: Date.now(),
+      courseName: courseName || 'Unknown Course',
+      issueDate: new Date().toISOString().split('T')[0],
+      status: 'active' as const
+    };
+    
+    setStudents(prev => 
+      prev.map(student => 
+        student.id === selectedStudent.id 
+          ? { 
+              ...student, 
+              certificates: [...student.certificates, newCertificate]
+            }
+          : student
+      )
+    );
+    
+    toast({
+      title: "Certificate Issued",
+      description: `Certificate for ${courseName} has been issued to ${selectedStudent.name}.`,
+    });
+    
+    setCertificateManagementOpen(false);
+    setSelectedCourse('');
+  };
+
+  const handleRevokeCertificate = (certificateId: number) => {
+    if (!selectedStudent) return;
+    
+    const certificate = selectedStudent.certificates.find(c => c.id === certificateId);
+    
+    setStudents(prev => 
+      prev.map(student => 
+        student.id === selectedStudent.id 
+          ? { 
+              ...student, 
+              certificates: student.certificates.map(cert =>
+                cert.id === certificateId ? { ...cert, status: 'revoked' as const } : cert
+              )
+            }
+          : student
+      )
+    );
+    
+    toast({
+      title: "Certificate Revoked",
+      description: `Certificate for ${certificate?.courseName} has been revoked.`,
+    });
+  };
+
   const filteredStudents = students.filter(student => {
     const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          student.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -151,6 +302,13 @@ const StudentManagement = () => {
   const avgCompletionRate = Math.round(
     students.reduce((sum, s) => sum + (s.completedCourses / s.coursesEnrolled * 100), 0) / students.length
   );
+
+  // Fix the interest analytics calculation
+  const allInterests = students.flatMap(s => s.interests);
+  const interestCounts = allInterests.reduce((acc, interest) => {
+    acc[interest] = (acc[interest] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
 
   return (
     <div className="space-y-6">
@@ -304,7 +462,7 @@ const StudentManagement = () => {
                     <span className="text-sm text-gray-600">{student.lastActivity}</span>
                   </TableCell>
                   <TableCell>
-                    <div className="flex gap-2">
+                    <div className="flex gap-1 flex-wrap">
                       <Button 
                         size="sm" 
                         variant="outline"
@@ -312,6 +470,28 @@ const StudentManagement = () => {
                       >
                         <Eye className="h-4 w-4 mr-1" />
                         View
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedStudent(student);
+                          setCourseManagementOpen(true);
+                        }}
+                      >
+                        <Settings className="h-4 w-4 mr-1" />
+                        Courses
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedStudent(student);
+                          setCertificateManagementOpen(true);
+                        }}
+                      >
+                        <Award className="h-4 w-4 mr-1" />
+                        Certs
                       </Button>
                       {student.status === 'active' ? (
                         <Button 
@@ -343,7 +523,149 @@ const StudentManagement = () => {
         </CardContent>
       </Card>
 
-      {/* Interest Analytics */}
+      {/* Course Management Dialog */}
+      <Dialog open={courseManagementOpen} onOpenChange={setCourseManagementOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Manage Course Enrollment</DialogTitle>
+            <DialogDescription>
+              Enroll or unenroll {selectedStudent?.name} from courses
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-medium mb-2">Currently Enrolled Courses</h4>
+              <div className="space-y-2">
+                {selectedStudent?.enrolledCourseIds.map(courseId => {
+                  const course = availableCourses.find(c => c.id === courseId);
+                  return (
+                    <div key={courseId} className="flex justify-between items-center p-2 border rounded">
+                      <span>{course?.name}</span>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => handleUnenrollStudent(courseId)}
+                        className="text-red-600"
+                      >
+                        <UserMinus className="h-4 w-4 mr-1" />
+                        Unenroll
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            
+            <div>
+              <h4 className="font-medium mb-2">Enroll in New Course</h4>
+              <Select value={selectedCourse} onValueChange={setSelectedCourse}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a course" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableCourses
+                    .filter(course => !selectedStudent?.enrolledCourseIds.includes(course.id))
+                    .map(course => (
+                      <SelectItem key={course.id} value={course.id.toString()}>
+                        {course.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCourseManagementOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleEnrollStudent} disabled={!selectedCourse}>
+              <UserPlus className="h-4 w-4 mr-2" />
+              Enroll Student
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Certificate Management Dialog */}
+      <Dialog open={certificateManagementOpen} onOpenChange={setCertificateManagementOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Manage Certificates</DialogTitle>
+            <DialogDescription>
+              Issue or revoke certificates for {selectedStudent?.name}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-medium mb-2">Current Certificates</h4>
+              <div className="space-y-2">
+                {selectedStudent?.certificates.map(certificate => (
+                  <div key={certificate.id} className="flex justify-between items-center p-2 border rounded">
+                    <div>
+                      <span className="font-medium">{certificate.courseName}</span>
+                      <p className="text-sm text-gray-500">Issued: {certificate.issueDate}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge className={certificate.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                        {certificate.status}
+                      </Badge>
+                      {certificate.status === 'active' && (
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => handleRevokeCertificate(certificate.id)}
+                          className="text-red-600"
+                        >
+                          Revoke
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                {selectedStudent?.certificates.length === 0 && (
+                  <p className="text-gray-500 text-center py-4">No certificates issued</p>
+                )}
+              </div>
+            </div>
+            
+            <div>
+              <h4 className="font-medium mb-2">Issue New Certificate</h4>
+              <Select value={selectedCourse} onValueChange={setSelectedCourse}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a course" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableCourses
+                    .filter(course => selectedStudent?.enrolledCourseIds.includes(course.id))
+                    .filter(course => !selectedStudent?.certificates.some(cert => 
+                      cert.courseName === course.name && cert.status === 'active'
+                    ))
+                    .map(course => (
+                      <SelectItem key={course.id} value={course.id.toString()}>
+                        {course.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCertificateManagementOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleIssueCertificate} disabled={!selectedCourse}>
+              <Award className="h-4 w-4 mr-2" />
+              Issue Certificate
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Interest Analytics - Fixed calculation */}
       <Card>
         <CardHeader>
           <CardTitle>Student Interest Analytics</CardTitle>
@@ -351,8 +673,7 @@ const StudentManagement = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {['Programming', 'Design', 'Marketing', 'Business', 'AI', 'Web Development'].map((interest) => {
-              const count = students.filter(s => s.interests.includes(interest)).length;
+            {Object.entries(interestCounts).map(([interest, count]) => {
               const percentage = Math.round((count / totalStudents) * 100);
               return (
                 <div key={interest} className="text-center p-4 border rounded-lg">

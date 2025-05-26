@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -239,10 +240,6 @@ const AdminDashboard = () => {
                 <Users className="h-5 w-5" />
                 <span className="text-sm">Manage Teachers</span>
               </Button>
-              <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => setActiveTab('students')}>
-                <Users className="h-5 w-5" />
-                <span className="text-sm">Manage Students</span>
-              </Button>
               <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => navigate('/resource-management')}>
                 <FileText className="h-5 w-5" />
                 <span className="text-sm">Manage Resources</span>
@@ -254,6 +251,10 @@ const AdminDashboard = () => {
               <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => navigate('/security')}>
                 <Shield className="h-5 w-5" />
                 <span className="text-sm">Security</span>
+              </Button>
+              <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => setActiveTab('students')}>
+                <Users className="h-5 w-5" />
+                <span className="text-sm">Student Management</span>
               </Button>
             </div>
 
