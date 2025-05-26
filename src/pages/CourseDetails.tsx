@@ -29,6 +29,7 @@ const CourseDetails = () => {
   const [isLessonPlayerOpen, setIsLessonPlayerOpen] = useState(false);
   const [previewLesson, setPreviewLesson] = useState(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isEnrolled, setIsEnrolled] = useState(false); // Track enrollment status
 
   // Mock course data - in a real app, this would be fetched based on the ID
   const course = {
@@ -85,16 +86,31 @@ const CourseDetails = () => {
 
   const handlePlayLesson = (lesson) => {
     console.log('Playing lesson:', lesson);
-    if (lesson.isPreview) {
-      setPreviewLesson({
-        title: lesson.title,
-        videoUrl: lesson.videoUrl,
-        duration: lesson.duration
-      });
-      setIsPreviewOpen(true);
+    
+    // Check if lesson is preview or user is enrolled
+    if (lesson.isPreview || isEnrolled) {
+      if (lesson.isPreview) {
+        setPreviewLesson({
+          title: lesson.title,
+          videoUrl: lesson.videoUrl,
+          duration: lesson.duration
+        });
+        setIsPreviewOpen(true);
+      } else {
+        setSelectedLesson(lesson);
+        setIsLessonPlayerOpen(true);
+      }
     } else {
-      setSelectedLesson(lesson);
-      setIsLessonPlayerOpen(true);
+      // Show enrollment prompt for non-preview lessons
+      toast({
+        title: "Enrollment Required",
+        description: "Please enroll in this course to access this lesson.",
+        action: (
+          <Button size="sm" onClick={handleEnroll}>
+            Enroll Now
+          </Button>
+        )
+      });
     }
   };
 
@@ -284,6 +300,9 @@ const CourseDetails = () => {
                               <div className="flex items-center gap-2">
                                 {lesson.isPreview && (
                                   <Badge variant="outline" className="text-xs">Preview</Badge>
+                                )}
+                                {!lesson.isPreview && !isEnrolled && (
+                                  <Badge variant="secondary" className="text-xs">Requires Enrollment</Badge>
                                 )}
                                 <Button
                                   size="sm"
