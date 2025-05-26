@@ -1,187 +1,102 @@
-
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Users, Shield, AlertCircle, CheckCircle, Clock, Eye, BarChart3, Trash2, X, FileText, Calendar } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { useNavigate } from 'react-router-dom';
-import { useCourses } from '@/contexts/CourseContext';
-import { useToast } from '@/hooks/use-toast';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  Users, 
+  BookOpen, 
+  BarChart3,
+  Settings,
+  Shield,
+  Activity,
+  TrendingUp,
+  DollarSign,
+  Star,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  Eye,
+  Plus,
+  UserPlus,
+  GraduationCap,
+  Award
+} from 'lucide-react';
 import Header from '@/components/Header';
-import { useState } from 'react';
-import StatCard from '@/components/StatCard';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import StatsModal from '@/components/StatsModal';
-import ActivityManagement from '@/components/ActivityManagement';
-import StudentManagement from '@/components/StudentManagement';
+
+interface Activity {
+  id: number;
+  type: string;
+  description: string;
+  user: string;
+  timestamp: string;
+}
+
+const mockRecentActivities: Activity[] = [
+  {
+    id: 1,
+    type: 'enrollment',
+    description: 'John Doe enrolled in React Fundamentals',
+    user: 'John Doe',
+    timestamp: '2 minutes ago',
+  },
+  {
+    id: 2,
+    type: 'completion',
+    description: 'Jane Smith completed Node.js Masterclass',
+    user: 'Jane Smith',
+    timestamp: '5 minutes ago',
+  },
+  {
+    id: 3,
+    type: 'payment',
+    description: 'Alice Johnson made a payment for Advanced Python',
+    user: 'Alice Johnson',
+    timestamp: '10 minutes ago',
+  },
+  {
+    id: 4,
+    type: 'enrollment',
+    description: 'Bob Williams enrolled in Data Science Bootcamp',
+    user: 'Bob Williams',
+    timestamp: '15 minutes ago',
+  },
+  {
+    id: 5,
+    type: 'completion',
+    description: 'Charlie Brown completed Machine Learning A-Z',
+    user: 'Charlie Brown',
+    timestamp: '20 minutes ago',
+  },
+];
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const { 
-    courses, 
-    deletionRequests, 
-    pendingReviews, 
-    recentActions, 
-    approveDeletion, 
-    rejectDeletion, 
-    directDelete, 
-    updateReviewStatus 
-  } = useCourses();
-  const { toast } = useToast();
-  const [reviewReason, setReviewReason] = useState<{[key: number]: string}>({});
-  const [modalState, setModalState] = useState<{
-    isOpen: boolean;
-    title: string;
-    items: any[];
-  }>({
-    isOpen: false,
-    title: '',
-    items: []
-  });
-  const [activeTab, setActiveTab] = useState<'overview' | 'activities' | 'students'>('overview');
-  const [activityDetailModal, setActivityDetailModal] = useState<{
-    isOpen: boolean;
-    activity: any;
-  }>({
-    isOpen: false,
-    activity: null
-  });
+  const { user } = useAuth();
+  const [selectedStat, setSelectedStat] = useState<string | null>(null);
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "High": return "bg-red-100 text-red-800";
-      case "Medium": return "bg-yellow-100 text-yellow-800";
-      case "Low": return "bg-green-100 text-green-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
+  const handleViewAllActivities = () => {
+    alert('View All Activities clicked');
   };
 
-  const getActionIcon = (type: string) => {
-    switch (type) {
-      case "approved": return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case "rejected": return <AlertCircle className="h-4 w-4 text-red-600" />;
-      default: return <Clock className="h-4 w-4 text-blue-600" />;
-    }
+  const handleViewPendingActivities = () => {
+    alert('View Pending Activities clicked');
   };
 
-  const handleReviewContent = (itemId: number) => {
-    navigate(`/content-review/${itemId}`);
+  const handleViewCompletedActivities = () => {
+    alert('View Completed Activities clicked');
   };
 
-  const handleApproveReview = (courseId: number, reviewId: number) => {
-    const reason = reviewReason[reviewId] || '';
-    updateReviewStatus(courseId, 'Published', reason);
-    toast({
-      title: "Course Approved",
-      description: "The course has been approved and published.",
-    });
+  const handleManageActivities = () => {
+    alert('Manage Activities clicked');
   };
 
-  const handleRejectReview = (courseId: number, reviewId: number) => {
-    const reason = reviewReason[reviewId] || '';
-    updateReviewStatus(courseId, 'Draft', reason);
-    toast({
-      title: "Course Rejected",
-      description: "The course has been rejected and returned to draft status.",
-    });
-  };
-
-  const handleApproveDeletion = (requestId: number) => {
-    approveDeletion(requestId);
-    toast({
-      title: "Deletion Approved",
-      description: "The course has been deleted successfully.",
-    });
-  };
-
-  const handleRejectDeletion = (requestId: number) => {
-    rejectDeletion(requestId);
-    toast({
-      title: "Deletion Rejected",
-      description: "The deletion request has been rejected.",
-    });
-  };
-
-  const handleDirectDelete = (courseId: number, courseTitle: string) => {
-    if (confirm(`Are you sure you want to delete "${courseTitle}"? This action cannot be undone.`)) {
-      directDelete(courseId);
-      toast({
-        title: "Course Deleted",
-        description: `"${courseTitle}" has been deleted successfully.`,
-      });
-    }
-  };
-
-  const handleStatClick = (type: string) => {
-    let items: any[] = [];
-    let title = '';
-
-    switch (type) {
-      case 'courses':
-        title = 'All Courses';
-        items = courses.map(course => ({
-          id: course.id,
-          title: course.title,
-          description: `${course.students} students • Status: ${course.status}`,
-          status: course.status,
-          date: course.lastUpdated
-        }));
-        break;
-      case 'institutions':
-        title = 'Institutions';
-        items = [
-          { id: 1, title: 'Tech Academy', description: '25 courses • 5,000 students', status: 'Active', date: '2024-01-15' },
-          { id: 2, title: 'Business School Pro', description: '15 courses • 3,200 students', status: 'Active', date: '2024-02-01' },
-          { id: 3, title: 'Design Institute', description: '18 courses • 2,800 students', status: 'Active', date: '2024-01-20' }
-        ];
-        break;
-      case 'reviews':
-        title = 'Pending Reviews';
-        items = [...pendingReviews, ...deletionRequests].map(item => ({
-          id: item.id,
-          title: 'courseTitle' in item ? item.courseTitle : item.title,
-          description: 'requestedBy' in item ? `Deletion request by ${item.requestedBy}` : `Review by ${item.instructor}`,
-          status: 'Pending',
-          date: 'requestedAt' in item ? item.requestedAt : item.submittedDate
-        }));
-        break;
-      case 'students':
-        title = 'Active Students';
-        items = [
-          { id: 1, title: 'John Doe', description: '3 courses enrolled • Last active: Today', status: 'Active', date: '2024-05-20' },
-          { id: 2, title: 'Jane Smith', description: '5 courses enrolled • Last active: Yesterday', status: 'Active', date: '2024-05-19' },
-          { id: 3, title: 'Mike Johnson', description: '2 courses enrolled • Last active: 2 days ago', status: 'Active', date: '2024-05-18' }
-        ];
-        break;
-    }
-
-    setModalState({
-      isOpen: true,
-      title,
-      items
-    });
-  };
-
-  // Analytics data
-  const platformGrowth = [
-    { month: 'Jan', courses: 120, students: 15000, revenue: 180000 },
-    { month: 'Feb', courses: 135, students: 18000, revenue: 220000 },
-    { month: 'Mar', courses: 142, students: 21000, revenue: 280000 },
-    { month: 'Apr', courses: 150, students: 23500, revenue: 320000 },
-    { month: 'May', courses: courses.length, students: 24567, revenue: 350000 },
-  ];
-
-  const categoryDistribution = [
-    { name: 'Programming', value: 45, color: '#3b82f6' },
-    { name: 'Design', value: 25, color: '#10b981' },
-    { name: 'Marketing', value: 20, color: '#f59e0b' },
-    { name: 'Business', value: 10, color: '#ef4444' }
-  ];
-
-  const handleViewActivityDetails = (activity: any) => {
-    setActivityDetailModal({
-      isOpen: true,
-      activity
-    });
+  const handleViewActivityDetails = (activity: Activity) => {
+    setSelectedActivity(activity);
   };
 
   return (
@@ -189,433 +104,393 @@ const AdminDashboard = () => {
       <Header />
       
       <div className="container mx-auto px-6 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-          <p className="text-gray-600">Monitor platform activity and manage content reviews</p>
-        </div>
-
-        {/* Tab Navigation */}
-        <div className="mb-8">
-          <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8">
-              <button
-                onClick={() => setActiveTab('overview')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'overview'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Overview
-              </button>
-              <button
-                onClick={() => setActiveTab('activities')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'activities'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Activity Management
-              </button>
-              <button
-                onClick={() => setActiveTab('students')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'students'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Student Management
-              </button>
-            </nav>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
+            <p className="text-gray-600">Welcome back, {user?.name || 'Admin'}</p>
+          </div>
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={() => navigate('/teacher-management')}>
+              <UserPlus className="h-4 w-4 mr-2" />
+              Teacher Management
+            </Button>
           </div>
         </div>
 
-        {activeTab === 'overview' ? (
-          <>
-            {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-              <Button className="h-16 flex flex-col gap-1" onClick={() => navigate('/teacher-management')}>
-                <Users className="h-5 w-5" />
-                <span className="text-sm">Manage Teachers</span>
-              </Button>
-              <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => navigate('/resource-management')}>
-                <FileText className="h-5 w-5" />
-                <span className="text-sm">Manage Resources</span>
-              </Button>
-              <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => navigate('/analytics')}>
-                <BarChart3 className="h-5 w-5" />
-                <span className="text-sm">Analytics</span>
-              </Button>
-              <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => navigate('/security')}>
-                <Shield className="h-5 w-5" />
-                <span className="text-sm">Security</span>
-              </Button>
-              <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => setActiveTab('students')}>
-                <Users className="h-5 w-5" />
-                <span className="text-sm">Student Management</span>
-              </Button>
-            </div>
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="students">Student Management</TabsTrigger>
+            <TabsTrigger value="activities">Activity Management</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+          </TabsList>
 
-            {/* Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <StatCard
-                title="Total Courses"
-                value={courses.length.toString()}
-                subtitle={`+${courses.filter(c => c.status === 'Published').length} published`}
-                icon={BookOpen}
-                iconBgColor="bg-blue-100"
-                iconColor="text-blue-600"
-                onClick={() => handleStatClick('courses')}
-              />
-              
-              <StatCard
-                title="Teachers & Institutions"
-                value="89"
-                subtitle="+3 this month"
-                icon={Users}
-                iconBgColor="bg-green-100"
-                iconColor="text-green-600"
-                onClick={() => handleStatClick('institutions')}
-              />
-              
-              <StatCard
-                title="Pending Reviews"
-                value={(pendingReviews.length + deletionRequests.length).toString()}
-                subtitle={`${pendingReviews.filter(r => r.priority === 'High').length} high priority`}
-                icon={AlertCircle}
-                iconBgColor="bg-orange-100"
-                iconColor="text-orange-600"
-                onClick={() => handleStatClick('reviews')}
-              />
-              
-              <StatCard
-                title="Active Students"
-                value={courses.reduce((total, course) => total + course.students, 0).toLocaleString()}
-                subtitle="+1,234 this month"
-                icon={Shield}
-                iconBgColor="bg-purple-100"
-                iconColor="text-purple-600"
-                onClick={() => handleStatClick('students')}
-              />
-            </div>
-
-            {/* Analytics Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-              <Card className="lg:col-span-2">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BarChart3 className="h-5 w-5" />
-                    Platform Growth
-                  </CardTitle>
-                  <CardDescription>Track overall platform performance</CardDescription>
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setSelectedStat('students')}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Students</CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={platformGrowth}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="students" stroke="#3b82f6" strokeWidth={2} name="Students" />
-                      <Line type="monotone" dataKey="courses" stroke="#10b981" strokeWidth={2} name="Courses" />
-                    </LineChart>
-                  </ResponsiveContainer>
+                  <div className="text-2xl font-bold">15,234</div>
+                  <p className="text-xs text-muted-foreground">
+                    <span className="text-green-600">+12.5%</span> from last month
+                  </p>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Course Categories</CardTitle>
-                  <CardDescription>Distribution by category</CardDescription>
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setSelectedStat('courses')}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
+                  <BookOpen className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={categoryDistribution}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={100}
-                        dataKey="value"
+                  <div className="text-2xl font-bold">486</div>
+                  <p className="text-xs text-muted-foreground">
+                    <span className="text-green-600">+8.2%</span> from last month
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setSelectedStat('revenue')}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">$124,580</div>
+                  <p className="text-xs text-muted-foreground">
+                    <span className="text-green-600">+15.3%</span> from last month
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setSelectedStat('engagement')}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Avg. Engagement</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">87.4%</div>
+                  <p className="text-xs text-muted-foreground">
+                    <span className="text-green-600">+3.1%</span> from last month
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <CardTitle>Recent Activities</CardTitle>
+                    <Button variant="outline" size="sm" onClick={handleViewAllActivities}>
+                      <Eye className="h-4 w-4 mr-2" />
+                      View All
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {mockRecentActivities.slice(0, 5).map((activity) => (
+                    <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50">
+                      <div className={`w-2 h-2 rounded-full mt-2 ${
+                        activity.type === 'enrollment' ? 'bg-green-500' :
+                        activity.type === 'completion' ? 'bg-blue-500' :
+                        activity.type === 'payment' ? 'bg-yellow-500' : 'bg-gray-500'
+                      }`} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900">{activity.description}</p>
+                        <p className="text-xs text-gray-500">{activity.timestamp}</p>
+                      </div>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleViewActivityDetails(activity)}
                       >
-                        {categoryDistribution.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="mt-4 space-y-2">
-                    {categoryDistribution.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2">
-                          <div 
-                            className="w-3 h-3 rounded-full" 
-                            style={{ backgroundColor: item.color }}
-                          />
-                          <span>{item.name}</span>
-                        </div>
-                        <span className="font-medium">{item.value}%</span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              {/* Pending Reviews */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Pending Reviews ({pendingReviews.length})</CardTitle>
-                  <CardDescription>Content waiting for approval</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {pendingReviews.map((item) => (
-                      <div key={item.id} className="border rounded-lg p-4">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <h3 className="font-semibold text-gray-900">{item.title}</h3>
-                            <p className="text-sm text-gray-600">by {item.instructor}</p>
-                          </div>
-                          <Badge className={getPriorityColor(item.priority)}>
-                            {item.priority}
-                          </Badge>
-                        </div>
-                        
-                        <div className="mb-3">
-                          <label className="text-sm font-medium text-gray-700">Review Reason (optional)</label>
-                          <input
-                            type="text"
-                            placeholder="Enter review reason..."
-                            className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
-                            value={reviewReason[item.id] || ''}
-                            onChange={(e) => setReviewReason(prev => ({...prev, [item.id]: e.target.value}))}
-                          />
-                        </div>
-                        
-                        <div className="flex justify-between items-center">
-                          <div className="text-sm text-gray-500">
-                            <span className="font-medium">{item.type}</span> • Submitted {item.submittedDate}
-                          </div>
-                          <div className="flex gap-2">
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleReviewContent(item.id)}
-                            >
-                              <Eye className="h-4 w-4 mr-1" />
-                              Review
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleApproveReview(item.courseId, item.id)}
-                              className="text-green-600"
-                            >
-                              <CheckCircle className="h-4 w-4 mr-1" />
-                              Approve
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleRejectReview(item.courseId, item.id)}
-                              className="text-red-600"
-                            >
-                              <X className="h-4 w-4 mr-1" />
-                              Reject
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    {pendingReviews.length === 0 && (
-                      <p className="text-gray-500 text-center py-4">No pending reviews</p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Recent Actions */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Actions ({recentActions.length})</CardTitle>
-                  <CardDescription>Latest platform activities</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {recentActions.slice(0, 8).map((action) => (
-                      <div key={action.id} className="flex items-start gap-3 p-3 border rounded-lg">
-                        {getActionIcon(action.type)}
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">{action.action}</p>
-                          <div className="flex justify-between items-center mt-1">
-                            <p className="text-xs text-gray-600">{action.user}</p>
-                            <p className="text-xs text-gray-500">{action.time}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    {recentActions.length === 0 && (
-                      <p className="text-gray-500 text-center py-4">No recent actions</p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Deletion Requests */}
-            {deletionRequests.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Deletion Requests</CardTitle>
-                  <CardDescription>Course deletion requests awaiting approval</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {deletionRequests.map((request) => (
-                      <div key={request.id} className="border rounded-lg p-4">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <h3 className="font-semibold text-gray-900">{request.courseTitle}</h3>
-                            <p className="text-sm text-gray-600">Requested by {request.requestedBy}</p>
-                            {request.reason && <p className="text-sm text-gray-500">Reason: {request.reason}</p>}
-                          </div>
-                          <Badge className="bg-orange-100 text-orange-800">
-                            Pending Deletion
-                          </Badge>
-                        </div>
-                        
-                        <div className="flex justify-between items-center">
-                          <div className="text-sm text-gray-500">
-                            Requested on {request.requestedAt}
-                          </div>
-                          <div className="flex gap-2">
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleApproveDeletion(request.id)}
-                              className="text-red-600"
-                            >
-                              <CheckCircle className="h-4 w-4 mr-1" />
-                              Approve
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleRejectDeletion(request.id)}
-                            >
-                              <X className="h-4 w-4 mr-1" />
-                              Reject
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* All Courses Management */}
-            <Card>
-              <CardHeader>
-                <CardTitle>All Courses ({courses.filter(c => c.status === 'Published').length})</CardTitle>
-                <CardDescription>Published courses on the platform</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {courses.filter(c => c.status === 'Published').map((course) => (
-                    <div key={course.id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h3 className="font-semibold text-gray-900 mb-1">{course.title}</h3>
-                          <p className="text-sm text-gray-600">Last updated: {course.lastUpdated}</p>
-                          <p className="text-sm text-gray-500">{course.students} students • ${course.revenue} revenue</p>
-                          {course.reviewReason && (
-                            <p className="text-sm text-blue-600 mt-1">Review reason: {course.reviewReason}</p>
-                          )}
-                        </div>
-                        <div className="flex gap-2">
-                          <Badge className="bg-green-100 text-green-800">
-                            {course.status}
-                          </Badge>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => handleDirectDelete(course.id, course.title)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="h-4 w-4 mr-1" />
-                            Delete
-                          </Button>
-                        </div>
-                      </div>
+                        <Eye className="h-4 w-4" />
+                      </Button>
                     </div>
                   ))}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Quick Actions</CardTitle>
+                  <CardDescription>Frequently used admin functions</CardDescription>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 gap-4">
+                  <Button variant="outline" onClick={() => navigate('/analytics')}>
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    Analytics
+                  </Button>
+                  <Button variant="outline" onClick={() => navigate('/content-review')}>
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Content Review
+                  </Button>
+                  <Button variant="outline" onClick={() => navigate('/security')}>
+                    <Shield className="h-4 w-4 mr-2" />
+                    Security
+                  </Button>
+                  <Button variant="outline" onClick={handleManageActivities}>
+                    <Activity className="h-4 w-4 mr-2" />
+                    Activity Management
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="students" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Active Students</CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">12,847</div>
+                  <p className="text-xs text-muted-foreground">
+                    <span className="text-green-600">+5.2%</span> from last week
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">New Enrollments</CardTitle>
+                  <UserPlus className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">342</div>
+                  <p className="text-xs text-muted-foreground">This week</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Course Completions</CardTitle>
+                  <GraduationCap className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">1,247</div>
+                  <p className="text-xs text-muted-foreground">This month</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Certificates Issued</CardTitle>
+                  <Award className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">956</div>
+                  <p className="text-xs text-muted-foreground">This month</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Student Management Actions</CardTitle>
+                  <CardDescription>Manage student accounts and activities</CardDescription>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 gap-4">
+                  <Button onClick={() => navigate('/student-management')}>
+                    <Users className="h-4 w-4 mr-2" />
+                    View All Students
+                  </Button>
+                  <Button variant="outline" onClick={() => navigate('/student-analytics')}>
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    Student Analytics
+                  </Button>
+                  <Button variant="outline" onClick={() => navigate('/student-performance')}>
+                    <TrendingUp className="h-4 w-4 mr-2" />
+                    Performance Reports
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Student Activity</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <div className="flex-1">
+                        <p className="text-sm">Sarah Johnson completed "React Fundamentals"</p>
+                        <p className="text-xs text-gray-500">2 minutes ago</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <div className="flex-1">
+                        <p className="text-sm">Mike Chen enrolled in "Data Science Basics"</p>
+                        <p className="text-xs text-gray-500">5 minutes ago</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                      <div className="flex-1">
+                        <p className="text-sm">Emma Davis earned certificate for "Web Design"</p>
+                        <p className="text-xs text-gray-500">10 minutes ago</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="activities" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Pending Activities</CardTitle>
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">23</div>
+                  <Button 
+                    variant="link" 
+                    className="p-0 h-auto text-xs" 
+                    onClick={handleViewPendingActivities}
+                  >
+                    View Details →
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Completed Today</CardTitle>
+                  <CheckCircle className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">156</div>
+                  <Button 
+                    variant="link" 
+                    className="p-0 h-auto text-xs"
+                    onClick={handleViewCompletedActivities}
+                  >
+                    View Details →
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">All Activities</CardTitle>
+                  <Activity className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">1,247</div>
+                  <Button 
+                    variant="link" 
+                    className="p-0 h-auto text-xs"
+                    onClick={handleViewAllActivities}
+                  >
+                    View Details →
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Activity Management</CardTitle>
+                <CardDescription>Monitor and manage platform activities</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Button onClick={handleManageActivities}>
+                    <Activity className="h-4 w-4 mr-2" />
+                    Manage Activities
+                  </Button>
+                  <Button variant="outline" onClick={() => navigate('/analytics')}>
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    View Analytics
+                  </Button>
                 </div>
               </CardContent>
             </Card>
-          </>
-        ) : activeTab === 'activities' ? (
-          <ActivityManagement onViewDetails={handleViewActivityDetails} />
-        ) : (
-          <StudentManagement />
-        )}
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>System Settings</CardTitle>
+                  <CardDescription>Configure platform settings</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button onClick={() => navigate('/settings')} className="w-full">
+                    <Settings className="h-4 w-4 mr-2" />
+                    General Settings
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Security</CardTitle>
+                  <CardDescription>Manage security and permissions</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button onClick={() => navigate('/security')} className="w-full">
+                    <Shield className="h-4 w-4 mr-2" />
+                    Security Settings
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Content Management</CardTitle>
+                  <CardDescription>Review and manage content</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button onClick={() => navigate('/content-review')} className="w-full">
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Content Review
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
 
       <StatsModal
-        isOpen={modalState.isOpen}
-        onClose={() => setModalState(prev => ({ ...prev, isOpen: false }))}
-        title={modalState.title}
-        items={modalState.items}
+        isOpen={selectedStat !== null}
+        onClose={() => setSelectedStat(null)}
+        statType={selectedStat}
       />
 
-      {/* Activity Detail Modal */}
-      {activityDetailModal.isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4">
-            <div className="flex justify-between items-start mb-4">
-              <h2 className="text-xl font-bold">Activity Details</h2>
-              <Button variant="ghost" onClick={() => setActivityDetailModal({ isOpen: false, activity: null })}>
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-            {activityDetailModal.activity && (
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-semibold text-lg">{activityDetailModal.activity.title}</h3>
-                  <p className="text-gray-600">{activityDetailModal.activity.description}</p>
-                </div>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="font-medium">Type:</span> {activityDetailModal.activity.type}
-                  </div>
-                  <div>
-                    <span className="font-medium">Creator:</span> {activityDetailModal.activity.creator}
-                  </div>
-                  <div>
-                    <span className="font-medium">Created:</span> {activityDetailModal.activity.createdAt}
-                  </div>
-                  <div>
-                    <span className="font-medium">Status:</span> {activityDetailModal.activity.status}
-                  </div>
-                  <div>
-                    <span className="font-medium">Priority:</span> {activityDetailModal.activity.priority}
-                  </div>
-                  {activityDetailModal.activity.participants && (
-                    <div>
-                      <span className="font-medium">Participants:</span> {activityDetailModal.activity.participants}
-                    </div>
-                  )}
-                </div>
+      {selectedActivity && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle>Activity Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p><strong>Type:</strong> {selectedActivity.type}</p>
+                <p><strong>Description:</strong> {selectedActivity.description}</p>
+                <p><strong>User:</strong> {selectedActivity.user}</p>
+                <p><strong>Time:</strong> {selectedActivity.timestamp}</p>
               </div>
-            )}
-          </div>
+              <div className="flex justify-end gap-2 mt-4">
+                <Button variant="outline" onClick={() => setSelectedActivity(null)}>
+                  Close
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>

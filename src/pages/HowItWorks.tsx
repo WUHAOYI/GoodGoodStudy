@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -15,9 +16,19 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
+import VideoPreview from '@/components/VideoPreview';
 
 const HowItWorks = () => {
   const navigate = useNavigate();
+  const [showVideoPreview, setShowVideoPreview] = useState(false);
+
+  const handleVideoClick = () => {
+    setShowVideoPreview(true);
+  };
+
+  const handleVideoClose = () => {
+    setShowVideoPreview(false);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -47,7 +58,10 @@ const HowItWorks = () => {
           </div>
 
           {/* Video Section */}
-          <div className="relative aspect-video bg-gray-900 rounded-lg overflow-hidden mb-12 cursor-pointer group">
+          <div 
+            className="relative aspect-video bg-gray-900 rounded-lg overflow-hidden mb-12 cursor-pointer group"
+            onClick={handleVideoClick}
+          >
             <img
               src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=450&fit=crop"
               alt="How to create courses"
@@ -194,7 +208,6 @@ const HowItWorks = () => {
             </CardContent>
           </Card>
 
-          {/* Success Stats */}
           <Card className="mb-12">
             <CardHeader>
               <CardTitle className="text-center">Instructor Success Stories</CardTitle>
@@ -217,7 +230,6 @@ const HowItWorks = () => {
             </CardContent>
           </Card>
 
-          {/* CTA */}
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
               Ready to Start Teaching?
@@ -236,6 +248,14 @@ const HowItWorks = () => {
           </div>
         </div>
       </div>
+
+      <VideoPreview
+        isOpen={showVideoPreview}
+        onClose={handleVideoClose}
+        videoUrl="https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4"
+        thumbnail="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=450&fit=crop"
+        title="How to Create Your First Course"
+      />
     </div>
   );
 };
