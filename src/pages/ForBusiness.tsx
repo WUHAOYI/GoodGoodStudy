@@ -15,6 +15,7 @@ import {
   Target,
   Zap
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import TestimonialCarousel from '@/components/TestimonialCarousel';
 
