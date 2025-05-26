@@ -22,15 +22,19 @@ import {
   Edit,
   FileCheck,
   UserCheck,
-  Upload
+  Upload,
+  Settings,
+  Calendar,
+  MessageSquare
 } from 'lucide-react';
 import Header from '@/components/Header';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCourses } from '@/contexts/CourseContext';
 import StatsModal from '@/components/StatsModal';
 import ResourceUploadModal from '@/components/ResourceUploadModal';
 import ActivityAnalytics from '@/components/ActivityAnalytics';
-import AdminCourseManagement from '@/components/AdminCourseManagement';
+import CourseManagement from '@/components/CourseManagement';
 import SecurityManagement from '@/components/SecurityManagement';
 
 interface Activity {
@@ -123,6 +127,7 @@ const mockPendingCourses = [
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { courses, updateReviewStatus } = useCourses();
   const [selectedStat, setSelectedStat] = useState<string | null>(null);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [showAllActivities, setShowAllActivities] = useState(false);
@@ -148,16 +153,28 @@ const AdminDashboard = () => {
     setSelectedActivity(activity);
   };
 
-  const handleCourseManagement = () => {
-    navigate('/course-management');
+  const handleStudentManagement = () => {
+    navigate('/student-management');
   };
 
-  const handleCourseCreation = () => {
-    navigate('/course-management/new');
+  const handleTeacherManagement = () => {
+    navigate('/teacher-management');
   };
 
-  const handleReviewSubmissions = () => {
-    navigate('/course-management?tab=submissions');
+  const handleContentReview = () => {
+    navigate('/content-review');
+  };
+
+  const handleResourceManagement = () => {
+    navigate('/resource-management');
+  };
+
+  const handleSecurityManagement = () => {
+    navigate('/security');
+  };
+
+  const handleAnalytics = () => {
+    navigate('/analytics');
   };
 
   const handleUploadResource = () => {
@@ -168,8 +185,24 @@ const AdminDashboard = () => {
     console.log('New resource uploaded:', newResource);
   };
 
-  const handleStudentManagement = () => {
-    navigate('/student-management');
+  const handleViewCourse = (courseId: number) => {
+    navigate(`/course/${courseId}`);
+  };
+
+  const handleEditCourse = (courseId: number) => {
+    navigate(`/course-management/${courseId}`);
+  };
+
+  const handleCreateCourse = () => {
+    navigate('/course-management/new');
+  };
+
+  const handleApproveCourse = (courseId: number) => {
+    updateReviewStatus(courseId, 'Published');
+  };
+
+  const handleRejectCourse = (courseId: number) => {
+    updateReviewStatus(courseId, 'Draft', 'Needs improvement');
   };
 
   const getStatsModalData = () => {
@@ -351,9 +384,25 @@ const AdminDashboard = () => {
                     <Users className="h-4 w-4 mr-2" />
                     Students
                   </Button>
-                  <Button variant="outline" onClick={() => navigate('/resource-management')}>
+                  <Button variant="outline" onClick={handleTeacherManagement}>
+                    <GraduationCap className="h-4 w-4 mr-2" />
+                    Teachers
+                  </Button>
+                  <Button variant="outline" onClick={handleContentReview}>
+                    <FileCheck className="h-4 w-4 mr-2" />
+                    Content Review
+                  </Button>
+                  <Button variant="outline" onClick={handleResourceManagement}>
                     <Database className="h-4 w-4 mr-2" />
                     Resources
+                  </Button>
+                  <Button variant="outline" onClick={handleSecurityManagement}>
+                    <Shield className="h-4 w-4 mr-2" />
+                    Security
+                  </Button>
+                  <Button variant="outline" onClick={handleAnalytics}>
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    Analytics
                   </Button>
                 </CardContent>
               </Card>
@@ -401,7 +450,14 @@ const AdminDashboard = () => {
               </TabsContent>
 
               <TabsContent value="courses">
-                <AdminCourseManagement />
+                <CourseManagement 
+                  courses={courses}
+                  onViewCourse={handleViewCourse}
+                  onEditCourse={handleEditCourse}
+                  onCreateCourse={handleCreateCourse}
+                  onApproveCourse={handleApproveCourse}
+                  onRejectCourse={handleRejectCourse}
+                />
               </TabsContent>
 
               <TabsContent value="security">
