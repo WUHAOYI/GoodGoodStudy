@@ -98,12 +98,12 @@ const CourseDetails = () => {
   const handlePlayLesson = (lesson) => {
     console.log('Playing lesson:', lesson, 'isEnrolled:', isEnrolled);
     
-    // If user is enrolled, they can play any lesson
+    // If user is enrolled, they can play any lesson in full player
     if (isEnrolled) {
       setSelectedLesson(lesson);
       setIsLessonPlayerOpen(true);
     } else if (lesson.isPreview) {
-      // Non-enrolled users can only play preview lessons
+      // Non-enrolled users can only play preview lessons in preview modal
       setPreviewLesson({
         title: lesson.title,
         videoUrl: lesson.videoUrl,
@@ -125,7 +125,7 @@ const CourseDetails = () => {
   };
 
   const handlePlayMainVideo = () => {
-    console.log('Playing main course video:', course.videoUrl);
+    console.log('Playing main course video:', course.videoUrl, 'isEnrolled:', isEnrolled);
     if (isEnrolled) {
       // If enrolled, play as a full lesson
       setSelectedLesson({

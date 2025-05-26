@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -96,7 +97,7 @@ const Courses = () => {
       duration: "50 hours",
       level: "Advanced",
       category: "programming",
-      image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400&h=250&fit=crop",
+      image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7c9c?w=400&h=250&fit=crop",
       isPaid: false,
       isPopular: false
     },
@@ -333,7 +334,7 @@ const Courses = () => {
                          course.instructor.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || course.category === selectedCategory;
     
-    // Fix the price filtering logic
+    // Fixed price filtering logic
     let matchesPrice = true;
     if (priceFilter === 'free') {
       matchesPrice = course.price === 0;

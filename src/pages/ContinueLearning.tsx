@@ -50,6 +50,16 @@ const ContinueLearning = () => {
       currentLessonIndex: 20,
       estimatedTime: "0 minutes",
       lastWatched: "1 week ago"
+    },
+    {
+      id: 1001,
+      title: "Full Stack Web Development Bootcamp",
+      progress: 25,
+      currentLesson: "Introduction to Web Development",
+      totalLessons: 45,
+      currentLessonIndex: 10,
+      estimatedTime: "18 minutes",
+      lastWatched: "Just enrolled"
     }
   ];
 
@@ -59,6 +69,7 @@ const ContinueLearning = () => {
   );
 
   const handleContinueCourse = (courseId: number) => {
+    // Navigate to course details page where they can continue learning
     navigate(`/course/${courseId}`);
   };
 
