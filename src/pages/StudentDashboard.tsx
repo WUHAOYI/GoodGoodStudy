@@ -76,6 +76,22 @@ const StudentDashboard = () => {
   // Filter courses based on current enrollment state
   const courses = allCourses.filter(course => enrolledCourses.includes(course.id));
 
+  // Mock data for learning paths
+  const learningPaths = [
+    {
+      id: 1,
+      title: "Web Development Career Path",
+      progress: 60,
+      coursesLeft: 5
+    },
+    {
+      id: 2,
+      title: "Data Science Career Path",
+      progress: 30,
+      coursesLeft: 8
+    }
+  ];
+
   // Update course count to reflect current enrollments
   const handleStatClick = (type: string) => {
     let items: any[] = [];
