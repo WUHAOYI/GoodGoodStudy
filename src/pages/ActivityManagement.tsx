@@ -22,6 +22,7 @@ import { useNavigate } from 'react-router-dom';
 import ActivityDetailsModal from '@/components/ActivityDetailsModal';
 import ActivityStatsCards from '@/components/ActivityStatsCards';
 import ActivityList from '@/components/ActivityList';
+import AddActivityModal from '@/components/AddActivityModal';
 import { useToast } from '@/hooks/use-toast';
 
 const ActivityManagement = () => {
@@ -30,58 +31,62 @@ const ActivityManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [selectedActivity, setSelectedActivity] = useState(null);
+  const [addActivityModalOpen, setAddActivityModalOpen] = useState(false);
 
   // Mock activity data
   const [activities, setActivities] = useState([
     {
       id: 1,
-      type: 'enrollment',
-      description: 'Student John Doe enrolled in React Fundamentals',
+      type: 'workshop',
+      title: 'React Workshop',
+      description: 'Advanced React patterns and best practices',
       user: 'John Doe',
       timestamp: '2024-05-26 10:30:00',
-      status: 'completed',
-      category: 'enrollment'
+      status: 'pending',
+      category: 'workshop',
+      priority: 'high',
+      participants: 25
     },
     {
       id: 2,
-      type: 'completion',
-      description: 'Student Jane Smith completed Node.js Masterclass',
+      type: 'event',
+      title: 'Study Group Meeting',
+      description: 'Weekly study group for JavaScript fundamentals',
       user: 'Jane Smith',
       timestamp: '2024-05-26 09:45:00',
-      status: 'completed',
-      category: 'completion'
+      status: 'approved',
+      category: 'event',
+      priority: 'medium',
+      participants: 15
     },
     {
       id: 3,
-      type: 'payment',
-      description: 'Payment received from Alice Johnson for Advanced Python',
+      type: 'discussion',
+      title: 'Career Development Discussion',
+      description: 'Share experiences and advice for career growth in tech',
       user: 'Alice Johnson',
       timestamp: '2024-05-26 08:20:00',
-      status: 'pending',
-      category: 'payment'
+      status: 'approved',
+      category: 'discussion',
+      priority: 'medium',
+      participants: 42
     },
     {
       id: 4,
-      type: 'course_submission',
-      description: 'New course submitted by Dr. Sarah Johnson for review',
-      user: 'Dr. Sarah Johnson',
+      type: 'resource',
+      title: 'JavaScript Cheat Sheet',
+      description: 'Comprehensive guide to JavaScript ES6+ features',
+      user: 'Bob Williams',
       timestamp: '2024-05-25 16:15:00',
       status: 'pending',
-      category: 'course_management'
-    },
-    {
-      id: 5,
-      type: 'support_ticket',
-      description: 'Support ticket created by Bob Williams',
-      user: 'Bob Williams',
-      timestamp: '2024-05-25 14:30:00',
-      status: 'in_progress',
-      category: 'support'
+      category: 'resource',
+      priority: 'low'
     }
   ]);
 
   const filteredActivities = activities.filter(activity => {
-    const matchesSearch = activity.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = activity.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         activity.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          activity.user.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = selectedFilter === 'all' || activity.status === selectedFilter;
     return matchesSearch && matchesFilter;
@@ -99,21 +104,8 @@ const ActivityManagement = () => {
     });
   };
 
-  const handleAddActivity = () => {
-    const newActivity = {
-      id: Date.now(),
-      type: 'manual',
-      description: 'New activity added manually',
-      user: 'Admin',
-      timestamp: new Date().toISOString(),
-      status: 'pending',
-      category: 'manual'
-    };
+  const handleAddActivity = (newActivity) => {
     setActivities(prev => [newActivity, ...prev]);
-    toast({
-      title: "Activity Added",
-      description: "A new activity has been added.",
-    });
   };
 
   const handleBack = () => {
@@ -139,7 +131,7 @@ const ActivityManagement = () => {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Activity Management</h1>
             <p className="text-gray-600">Monitor and manage all platform activities</p>
           </div>
-          <Button onClick={handleAddActivity}>
+          <Button onClick={() => setAddActivityModalOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Add Activity
           </Button>
@@ -155,7 +147,7 @@ const ActivityManagement = () => {
               <div className="flex-1 relative">
                 <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
                 <Input
-                  placeholder="Search activities by description or user..."
+                  placeholder="Search activities by title, description, or user..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -167,9 +159,9 @@ const ActivityManagement = () => {
                 onChange={(e) => setSelectedFilter(e.target.value)}
               >
                 <option value="all">All Statuses</option>
-                <option value="completed">Completed</option>
+                <option value="approved">Approved</option>
                 <option value="pending">Pending</option>
-                <option value="in_progress">In Progress</option>
+                <option value="rejected">Rejected</option>
               </select>
             </div>
           </CardContent>
@@ -192,6 +184,13 @@ const ActivityManagement = () => {
         activity={selectedActivity}
         isOpen={!!selectedActivity}
         onClose={() => setSelectedActivity(null)}
+      />
+
+      {/* Add Activity Modal */}
+      <AddActivityModal
+        isOpen={addActivityModalOpen}
+        onClose={() => setAddActivityModalOpen(false)}
+        onAdd={handleAddActivity}
       />
     </div>
   );

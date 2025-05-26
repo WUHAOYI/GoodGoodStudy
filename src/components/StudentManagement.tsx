@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,14 +15,16 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 const StudentManagement = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
 
   // Mock student data
-  const students = [
+  const [students, setStudents] = useState([
     {
       id: 1,
       name: 'John Doe',
@@ -54,7 +55,7 @@ const StudentManagement = () => {
       joinDate: '2024-03-10',
       lastActivity: '2024-04-15'
     }
-  ];
+  ]);
 
   const filteredStudents = students.filter(student => {
     const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -72,19 +73,65 @@ const StudentManagement = () => {
   };
 
   const handleEditStudent = (studentId: number) => {
-    console.log('Edit student:', studentId);
+    toast({
+      title: "Edit Student",
+      description: `Editing student with ID: ${studentId}`,
+    });
+    // TODO: Implement edit modal
   };
 
   const handleDeleteStudent = (studentId: number) => {
-    console.log('Delete student:', studentId);
+    setStudents(prev => prev.filter(student => student.id !== studentId));
+    toast({
+      title: "Student Deleted",
+      description: "Student has been successfully deleted.",
+    });
   };
 
   const handleAddStudent = () => {
-    console.log('Add new student');
+    const newStudent = {
+      id: Date.now(),
+      name: 'New Student',
+      email: 'new@email.com',
+      status: 'active',
+      enrolledCourses: 0,
+      completedCourses: 0,
+      joinDate: new Date().toISOString().split('T')[0],
+      lastActivity: new Date().toISOString().split('T')[0]
+    };
+    setStudents(prev => [...prev, newStudent]);
+    toast({
+      title: "Student Added",
+      description: "New student has been successfully added.",
+    });
   };
 
   const handleExportData = () => {
-    console.log('Export student data');
+    const csvContent = [
+      ['Name', 'Email', 'Status', 'Enrolled Courses', 'Completed Courses', 'Join Date', 'Last Activity'],
+      ...filteredStudents.map(student => [
+        student.name,
+        student.email,
+        student.status,
+        student.enrolledCourses,
+        student.completedCourses,
+        student.joinDate,
+        student.lastActivity
+      ])
+    ].map(row => row.join(',')).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'student_data.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+
+    toast({
+      title: "Data Exported",
+      description: "Student data has been exported to CSV.",
+    });
   };
 
   const getStatusColor = (status: string) => {

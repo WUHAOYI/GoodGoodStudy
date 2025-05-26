@@ -30,6 +30,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import StatsModal from '@/components/StatsModal';
 import ResourceUploadModal from '@/components/ResourceUploadModal';
 import ActivityAnalytics from '@/components/ActivityAnalytics';
+import AdminCourseManagement from '@/components/AdminCourseManagement';
+import SecurityManagement from '@/components/SecurityManagement';
 
 interface Activity {
   id: number;
@@ -349,14 +351,6 @@ const AdminDashboard = () => {
                     <Users className="h-4 w-4 mr-2" />
                     Students
                   </Button>
-                  <Button variant="outline" onClick={() => navigate('/teacher-management')}>
-                    <GraduationCap className="h-4 w-4 mr-2" />
-                    Teachers
-                  </Button>
-                  <Button variant="outline" onClick={handleCourseManagement}>
-                    <BookOpen className="h-4 w-4 mr-2" />
-                    Courses
-                  </Button>
                   <Button variant="outline" onClick={() => navigate('/resource-management')}>
                     <Database className="h-4 w-4 mr-2" />
                     Resources
@@ -367,148 +361,80 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="management" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={handleStudentManagement}>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Users className="h-5 w-5 mr-2" />
-                    Student Management
-                  </CardTitle>
-                  <CardDescription>Manage student accounts, enrollments, and certificates</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex justify-between items-center mb-4">
-                    <div>
-                      <div className="text-2xl font-bold">15,234</div>
-                      <p className="text-sm text-muted-foreground">Total Students</p>
-                    </div>
-                    <ArrowRight className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate('/student-details/1'); }}>
-                      <Eye className="h-4 w-4 mr-1" />
-                      View Details
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate('/student-analytics'); }}>
-                      <BarChart3 className="h-4 w-4 mr-1" />
-                      Analytics
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+            <Tabs defaultValue="students" className="space-y-4">
+              <TabsList>
+                <TabsTrigger value="students">Students</TabsTrigger>
+                <TabsTrigger value="courses">Courses</TabsTrigger>
+                <TabsTrigger value="security">Security</TabsTrigger>
+                <TabsTrigger value="resources">Resources</TabsTrigger>
+              </TabsList>
 
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/teacher-management')}>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <GraduationCap className="h-5 w-5 mr-2" />
-                    Teacher Management
-                  </CardTitle>
-                  <CardDescription>Manage instructors and their permissions</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex justify-between items-center mb-4">
-                    <div>
-                      <div className="text-2xl font-bold">342</div>
-                      <p className="text-sm text-muted-foreground">Active Teachers</p>
+              <TabsContent value="students">
+                <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={handleStudentManagement}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Users className="h-5 w-5 mr-2" />
+                      Student Management
+                    </CardTitle>
+                    <CardDescription>Manage student accounts, enrollments, and certificates</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex justify-between items-center mb-4">
+                      <div>
+                        <div className="text-2xl font-bold">15,234</div>
+                        <p className="text-sm text-muted-foreground">Total Students</p>
+                      </div>
+                      <ArrowRight className="h-5 w-5 text-muted-foreground" />
                     </div>
-                    <ArrowRight className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate('/teacher-management?action=add'); }}>
-                      <UserPlus className="h-4 w-4 mr-1" />
-                      Add Teacher
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate('/teacher-management?action=review'); }}>
-                      <UserCheck className="h-4 w-4 mr-1" />
-                      Review Applications
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate('/student-details/1'); }}>
+                        <Eye className="h-4 w-4 mr-1" />
+                        View Details
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate('/student-analytics'); }}>
+                        <BarChart3 className="h-4 w-4 mr-1" />
+                        Analytics
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={handleCourseManagement}>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <BookOpen className="h-5 w-5 mr-2" />
-                    Course Management
-                  </CardTitle>
-                  <CardDescription>Manage courses, CRUD operations, review submissions</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex justify-between items-center mb-4">
-                    <div>
-                      <div className="text-2xl font-bold">486</div>
-                      <p className="text-sm text-muted-foreground">Total Courses</p>
-                    </div>
-                    <ArrowRight className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); handleCourseCreation(); }}>
-                      <Edit className="h-4 w-4 mr-1" />
-                      Create Course
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); handleReviewSubmissions(); }}>
-                      <FileCheck className="h-4 w-4 mr-1" />
-                      Review Submissions
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <TabsContent value="courses">
+                <AdminCourseManagement />
+              </TabsContent>
 
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/resource-management')}>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Database className="h-5 w-5 mr-2" />
-                    Resource Management
-                  </CardTitle>
-                  <CardDescription>Manage files, videos, and course materials</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex justify-between items-center mb-4">
-                    <div>
-                      <div className="text-2xl font-bold">1,247</div>
-                      <p className="text-sm text-muted-foreground">Total Resources</p>
-                    </div>
-                    <ArrowRight className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); handleUploadResource(); }}>
-                      <Upload className="h-4 w-4 mr-1" />
-                      Upload Resource
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <TabsContent value="security">
+                <SecurityManagement />
+              </TabsContent>
 
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/security')}>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Shield className="h-5 w-5 mr-2" />
-                    Security Management
-                  </CardTitle>
-                  <CardDescription>Manage security settings and permissions</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex justify-between items-center mb-4">
-                    <div>
-                      <div className="text-sm font-medium">Security Status</div>
-                      <p className="text-sm text-green-600">All Systems Secure</p>
+              <TabsContent value="resources">
+                <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/resource-management')}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Database className="h-5 w-5 mr-2" />
+                      Resource Management
+                    </CardTitle>
+                    <CardDescription>Manage files, videos, and course materials</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex justify-between items-center mb-4">
+                      <div>
+                        <div className="text-2xl font-bold">1,247</div>
+                        <p className="text-sm text-muted-foreground">Total Resources</p>
+                      </div>
+                      <ArrowRight className="h-5 w-5 text-muted-foreground" />
                     </div>
-                    <ArrowRight className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate('/security?tab=permissions'); }}>
-                      <Shield className="h-4 w-4 mr-1" />
-                      Permissions
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate('/security?tab=audit'); }}>
-                      <Eye className="h-4 w-4 mr-1" />
-                      Audit Logs
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); handleUploadResource(); }}>
+                        <Upload className="h-4 w-4 mr-1" />
+                        Upload Resource
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">

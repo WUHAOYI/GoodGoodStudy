@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -44,7 +43,7 @@ const StudentDetails = () => {
       
       <div className="container mx-auto px-6 py-8">
         <div className="mb-6">
-          <Button variant="outline" onClick={() => navigate('/admin-dashboard')} className="mb-4">
+          <Button variant="outline" onClick={() => navigate('/student-management')} className="mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Student Management
           </Button>
