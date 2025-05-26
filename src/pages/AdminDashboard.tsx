@@ -8,7 +8,6 @@ import {
   Users, 
   BookOpen, 
   BarChart3,
-  Settings,
   Shield,
   Activity,
   TrendingUp,
@@ -16,15 +15,15 @@ import {
   Star,
   Clock,
   CheckCircle,
-  AlertCircle,
   Eye,
-  Plus,
   UserPlus,
   GraduationCap,
-  Award,
-  FileText,
   ArrowRight,
-  Database
+  Database,
+  Edit,
+  FileCheck,
+  UserCheck,
+  Settings
 } from 'lucide-react';
 import Header from '@/components/Header';
 import { useNavigate } from 'react-router-dom';
@@ -104,6 +103,14 @@ const AdminDashboard = () => {
     setSelectedActivity(activity);
   };
 
+  const handleCourseManagement = () => {
+    navigate('/content-review');
+  };
+
+  const handleCourseCreation = () => {
+    navigate('/course-management/new');
+  };
+
   const getStatsModalData = () => {
     if (!selectedStat) return { title: '', items: [] };
 
@@ -174,12 +181,11 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="management">Management</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="activities">Activities</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -293,7 +299,7 @@ const AdminDashboard = () => {
                     <GraduationCap className="h-4 w-4 mr-2" />
                     Teachers
                   </Button>
-                  <Button variant="outline" onClick={() => navigate('/content-review')}>
+                  <Button variant="outline" onClick={handleCourseManagement}>
                     <BookOpen className="h-4 w-4 mr-2" />
                     Course Review
                   </Button>
@@ -317,12 +323,22 @@ const AdminDashboard = () => {
                   <CardDescription>Manage student accounts, enrollments, and certificates</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center mb-4">
                     <div>
                       <div className="text-2xl font-bold">15,234</div>
                       <p className="text-sm text-muted-foreground">Total Students</p>
                     </div>
                     <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate('/student-details/1'); }}>
+                      <Eye className="h-4 w-4 mr-1" />
+                      View Details
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate('/student-analytics'); }}>
+                      <BarChart3 className="h-4 w-4 mr-1" />
+                      Analytics
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -336,31 +352,51 @@ const AdminDashboard = () => {
                   <CardDescription>Manage instructors and their permissions</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center mb-4">
                     <div>
                       <div className="text-2xl font-bold">342</div>
                       <p className="text-sm text-muted-foreground">Active Teachers</p>
                     </div>
                     <ArrowRight className="h-5 w-5 text-muted-foreground" />
                   </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate('/teacher-management?action=add'); }}>
+                      <UserPlus className="h-4 w-4 mr-1" />
+                      Add Teacher
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate('/teacher-management?action=review'); }}>
+                      <UserCheck className="h-4 w-4 mr-1" />
+                      Review Applications
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/content-review')}>
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={handleCourseManagement}>
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <BookOpen className="h-5 w-5 mr-2" />
                     Course Management
                   </CardTitle>
-                  <CardDescription>Review and approve course submissions, manage CRUD operations</CardDescription>
+                  <CardDescription>Review courses, manage CRUD operations, approve submissions</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center mb-4">
                     <div>
                       <div className="text-2xl font-bold">23</div>
                       <p className="text-sm text-muted-foreground">Pending Review</p>
                     </div>
                     <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); handleCourseCreation(); }}>
+                      <Edit className="h-4 w-4 mr-1" />
+                      Create Course
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate('/content-review?tab=pending'); }}>
+                      <FileCheck className="h-4 w-4 mr-1" />
+                      Review Submissions
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -374,12 +410,22 @@ const AdminDashboard = () => {
                   <CardDescription>Manage files, videos, and course materials</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center mb-4">
                     <div>
                       <div className="text-2xl font-bold">1,247</div>
                       <p className="text-sm text-muted-foreground">Total Resources</p>
                     </div>
                     <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate('/resource-management?action=upload'); }}>
+                      <Database className="h-4 w-4 mr-1" />
+                      Upload Resource
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate('/resource-management?action=manage'); }}>
+                      <Settings className="h-4 w-4 mr-1" />
+                      Manage Files
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -393,12 +439,22 @@ const AdminDashboard = () => {
                   <CardDescription>Manage security settings and permissions</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center mb-4">
                     <div>
                       <div className="text-sm font-medium">Security Status</div>
                       <p className="text-sm text-green-600">All Systems Secure</p>
                     </div>
                     <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate('/security?tab=permissions'); }}>
+                      <Shield className="h-4 w-4 mr-1" />
+                      Permissions
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate('/security?tab=audit'); }}>
+                      <Eye className="h-4 w-4 mr-1" />
+                      Audit Logs
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -462,16 +518,10 @@ const AdminDashboard = () => {
                 <CardDescription>Comprehensive platform performance metrics (excluding student-specific data)</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Button onClick={() => navigate('/analytics')}>
-                    <BarChart3 className="h-4 w-4 mr-2" />
-                    View Detailed Analytics
-                  </Button>
-                  <Button variant="outline" onClick={() => navigate('/analytics?tab=platform-overview')}>
-                    <TrendingUp className="h-4 w-4 mr-2" />
-                    Platform Overview
-                  </Button>
-                </div>
+                <Button onClick={() => navigate('/analytics')}>
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  View Platform Analytics
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>
@@ -514,7 +564,7 @@ const AdminDashboard = () => {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">All Activities</CardTitle>
+                  <CardTitle className="text-sm font-medium">Total Activities</CardTitle>
                   <Activity className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -541,43 +591,13 @@ const AdminDashboard = () => {
                     <Activity className="h-4 w-4 mr-2" />
                     Manage Activities
                   </Button>
-                  <Button variant="outline" onClick={() => navigate('/analytics?tab=activities')}>
+                  <Button variant="outline" onClick={() => navigate('/analytics?tab=activity-analytics')}>
                     <BarChart3 className="h-4 w-4 mr-2" />
                     Activity Analytics
                   </Button>
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-
-          <TabsContent value="settings" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Security</CardTitle>
-                  <CardDescription>Manage security and permissions</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button onClick={() => navigate('/security')} className="w-full">
-                    <Shield className="h-4 w-4 mr-2" />
-                    Security Settings
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Analytics Dashboard</CardTitle>
-                  <CardDescription>View comprehensive analytics</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button onClick={() => navigate('/analytics')} className="w-full">
-                    <BarChart3 className="h-4 w-4 mr-2" />
-                    View Analytics
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
           </TabsContent>
         </Tabs>
       </div>
