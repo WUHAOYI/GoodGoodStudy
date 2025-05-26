@@ -3,7 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Mail, User, Briefcase, Lightbulb, ArrowLeft, ArrowRight } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useTeacherApplications } from '@/contexts/TeacherApplicationContext';
 
 interface TeacherApplication {
   id: number;
@@ -32,10 +33,23 @@ const TeacherApplicationModal = ({
   onReject 
 }: TeacherApplicationModalProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { applications: contextApplications } = useTeacherApplications();
 
-  if (!applications || applications.length === 0) return null;
+  // Use the most up-to-date applications from context
+  const currentApplications = applications.length > 0 ? applications : contextApplications;
 
-  const application = applications[currentIndex];
+  // Reset index when modal opens or applications change
+  useEffect(() => {
+    if (isOpen) {
+      setCurrentIndex(0);
+    }
+  }, [isOpen, currentApplications]);
+
+  if (!currentApplications || currentApplications.length === 0) return null;
+
+  const application = currentApplications[currentIndex];
+
+  if (!application) return null;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -49,11 +63,21 @@ const TeacherApplicationModal = ({
   };
 
   const goToPrevious = () => {
-    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : applications.length - 1));
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : currentApplications.length - 1));
   };
 
   const goToNext = () => {
-    setCurrentIndex((prev) => (prev < applications.length - 1 ? prev + 1 : 0));
+    setCurrentIndex((prev) => (prev < currentApplications.length - 1 ? prev + 1 : 0));
+  };
+
+  const handleApprove = (id: number) => {
+    onApprove(id);
+    // Don't close modal, just refresh to show updated status
+  };
+
+  const handleReject = (id: number) => {
+    onReject(id);
+    // Don't close modal, just refresh to show updated status
   };
 
   return (
@@ -64,7 +88,7 @@ const TeacherApplicationModal = ({
             <div className="flex items-center gap-3">
               Teacher Application Details
               <span className="text-sm text-gray-500">
-                ({currentIndex + 1} of {applications.length})
+                ({currentIndex + 1} of {currentApplications.length})
               </span>
             </div>
             <Badge className={getStatusColor(application.status)}>
@@ -74,7 +98,7 @@ const TeacherApplicationModal = ({
         </DialogHeader>
 
         <div className="space-y-6">
-          {applications.length > 1 && (
+          {currentApplications.length > 1 && (
             <div className="flex justify-between items-center border-b pb-3">
               <Button variant="outline" size="sm" onClick={goToPrevious}>
                 <ArrowLeft className="h-4 w-4 mr-1" />
@@ -144,14 +168,14 @@ const TeacherApplicationModal = ({
           {application.status === 'pending' && (
             <div className="flex gap-4 pt-4 border-t">
               <Button
-                onClick={() => onApprove(application.id)}
+                onClick={() => handleApprove(application.id)}
                 className="flex-1 bg-green-600 hover:bg-green-700"
               >
                 Approve Application
               </Button>
               <Button
                 variant="destructive"
-                onClick={() => onReject(application.id)}
+                onClick={() => handleReject(application.id)}
                 className="flex-1"
               >
                 Reject Application
@@ -162,7 +186,7 @@ const TeacherApplicationModal = ({
           {application.status !== 'pending' && (
             <div className="pt-4 border-t text-center">
               <p className="text-gray-600">
-                This application has been {application.status}.
+                This application has been {application.status === 'approved' ? 'approved and processed' : 'rejected'}.
               </p>
             </div>
           )}

@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface WishlistItem {
   id: number;
@@ -21,6 +21,24 @@ const WishlistContext = createContext<WishlistContextType | undefined>(undefined
 
 export const WishlistProvider = ({ children }: { children: ReactNode }) => {
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
+
+  // Load wishlist from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('wishlistItems');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setWishlistItems(parsed);
+      } catch (error) {
+        console.error('Error loading wishlist:', error);
+      }
+    }
+  }, []);
+
+  // Save to localStorage whenever wishlistItems changes
+  useEffect(() => {
+    localStorage.setItem('wishlistItems', JSON.stringify(wishlistItems));
+  }, [wishlistItems]);
 
   const addToWishlist = (item: WishlistItem) => {
     setWishlistItems(prev => {

@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -36,6 +36,11 @@ const CourseDetails = () => {
 
   const courseId = parseInt(id || '1');
   const isEnrolled = checkEnrollment(courseId);
+
+  // Listen for enrollment changes and refresh the page data
+  useEffect(() => {
+    console.log('Enrollment status changed for course', courseId, ':', isEnrolled);
+  }, [isEnrolled, courseId]);
 
   // Mock course data - in a real app, this would be fetched based on the ID
   const course = {
@@ -122,12 +127,25 @@ const CourseDetails = () => {
 
   const handlePlayMainVideo = () => {
     console.log('Playing main course video:', course.videoUrl);
-    setPreviewLesson({
-      title: course.title + " - Course Preview",
-      videoUrl: course.videoUrl,
-      duration: "2:30"
-    });
-    setIsPreviewOpen(true);
+    if (isEnrolled) {
+      // If enrolled, play as a lesson
+      setSelectedLesson({
+        id: 0,
+        title: course.title + " - Course Introduction",
+        videoUrl: course.videoUrl,
+        duration: "2:30",
+        isPreview: false
+      });
+      setIsLessonPlayerOpen(true);
+    } else {
+      // If not enrolled, play as preview
+      setPreviewLesson({
+        title: course.title + " - Course Preview",
+        videoUrl: course.videoUrl,
+        duration: "2:30"
+      });
+      setIsPreviewOpen(true);
+    }
   };
 
   const handleEnroll = () => {
@@ -349,13 +367,14 @@ const CourseDetails = () => {
                                   <Badge variant="secondary" className="text-xs">Requires Enrollment</Badge>
                                 )}
                                 {isEnrolled && (
-                                  <Badge variant="default" className="text-xs bg-green-600">Enrolled</Badge>
+                                  <Badge variant="default" className="text-xs bg-green-600">Available</Badge>
                                 )}
                                 <Button
                                   size="sm"
                                   variant="ghost"
                                   onClick={() => handlePlayLesson(lesson)}
                                   className="h-8 px-2"
+                                  title={lesson.isPreview || isEnrolled ? "Play lesson" : "Preview not available"}
                                 >
                                   <Play className="h-3 w-3" />
                                 </Button>

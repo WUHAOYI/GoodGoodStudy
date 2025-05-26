@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface EnrollmentContextType {
   enrolledCourses: number[];
@@ -12,6 +12,24 @@ const EnrollmentContext = createContext<EnrollmentContextType | undefined>(undef
 
 export const EnrollmentProvider = ({ children }: { children: ReactNode }) => {
   const [enrolledCourses, setEnrolledCourses] = useState<number[]>([]);
+
+  // Load enrolled courses from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('enrolledCourses');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setEnrolledCourses(parsed);
+      } catch (error) {
+        console.error('Error loading enrolled courses:', error);
+      }
+    }
+  }, []);
+
+  // Save to localStorage whenever enrolledCourses changes
+  useEffect(() => {
+    localStorage.setItem('enrolledCourses', JSON.stringify(enrolledCourses));
+  }, [enrolledCourses]);
 
   const enrollInCourse = (courseId: number) => {
     setEnrolledCourses(prev => {
