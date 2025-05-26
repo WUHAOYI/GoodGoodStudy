@@ -41,51 +41,52 @@ interface Activity {
   category: string;
 }
 
-const mockRecentActivities: Activity[] = [
+// Mock data for student activities (workshops, events, comments, etc.)
+const mockStudentActivities: Activity[] = [
   {
     id: 1,
-    type: 'enrollment',
-    description: 'John Doe enrolled in React Fundamentals',
+    type: 'workshop',
+    description: 'React Workshop created by John Doe',
     user: 'John Doe',
     timestamp: '2024-05-26T10:30:00',
-    status: 'completed',
-    category: 'enrollment'
+    status: 'pending',
+    category: 'workshop'
   },
   {
     id: 2,
-    type: 'completion',
-    description: 'Jane Smith completed Node.js Masterclass',
+    type: 'event',
+    description: 'Study Group Event created by Jane Smith',
     user: 'Jane Smith',
     timestamp: '2024-05-26T09:45:00',
-    status: 'completed',
-    category: 'completion'
+    status: 'approved',
+    category: 'event'
   },
   {
     id: 3,
-    type: 'payment',
-    description: 'Alice Johnson made a payment for Advanced Python',
+    type: 'comment',
+    description: 'Comment posted by Alice Johnson on React Course',
     user: 'Alice Johnson',
     timestamp: '2024-05-26T08:20:00',
-    status: 'pending',
-    category: 'payment'
+    status: 'approved',
+    category: 'comment'
   },
   {
     id: 4,
-    type: 'enrollment',
-    description: 'Bob Williams enrolled in Data Science Bootcamp',
+    type: 'discussion',
+    description: 'Discussion started by Bob Williams on JavaScript Tips',
     user: 'Bob Williams',
     timestamp: '2024-05-25T15:30:00',
-    status: 'completed',
-    category: 'enrollment'
+    status: 'pending',
+    category: 'discussion'
   },
   {
     id: 5,
-    type: 'completion',
-    description: 'Charlie Brown completed Machine Learning A-Z',
+    type: 'resource_share',
+    description: 'Resource shared by Charlie Brown for Python beginners',
     user: 'Charlie Brown',
     timestamp: '2024-05-25T14:20:00',
-    status: 'completed',
-    category: 'completion'
+    status: 'approved',
+    category: 'resource'
   },
 ];
 
@@ -163,6 +164,10 @@ const AdminDashboard = () => {
 
   const handleResourceUpload = (newResource: any) => {
     console.log('New resource uploaded:', newResource);
+  };
+
+  const handleStudentManagement = () => {
+    navigate('/student-management');
   };
 
   const getStatsModalData = () => {
@@ -295,7 +300,7 @@ const AdminDashboard = () => {
               <Card>
                 <CardHeader>
                   <div className="flex justify-between items-center">
-                    <CardTitle>Recent Activities</CardTitle>
+                    <CardTitle>Recent Student Activities</CardTitle>
                     <Button variant="outline" size="sm" onClick={handleViewAllActivities}>
                       <Eye className="h-4 w-4 mr-2" />
                       View All
@@ -303,12 +308,13 @@ const AdminDashboard = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {mockRecentActivities.slice(0, showAllActivities ? mockRecentActivities.length : 5).map((activity) => (
+                  {mockStudentActivities.slice(0, showAllActivities ? mockStudentActivities.length : 5).map((activity) => (
                     <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50">
                       <div className={`w-2 h-2 rounded-full mt-2 ${
-                        activity.type === 'enrollment' ? 'bg-green-500' :
-                        activity.type === 'completion' ? 'bg-blue-500' :
-                        activity.type === 'payment' ? 'bg-yellow-500' : 'bg-gray-500'
+                        activity.type === 'workshop' ? 'bg-blue-500' :
+                        activity.type === 'event' ? 'bg-green-500' :
+                        activity.type === 'comment' ? 'bg-yellow-500' : 
+                        activity.type === 'discussion' ? 'bg-purple-500' : 'bg-gray-500'
                       }`} />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900">{activity.description}</p>
@@ -339,7 +345,7 @@ const AdminDashboard = () => {
                   <CardDescription>Access key management functions</CardDescription>
                 </CardHeader>
                 <CardContent className="grid grid-cols-2 gap-4">
-                  <Button variant="outline" onClick={() => navigate('/student-management')}>
+                  <Button variant="outline" onClick={handleStudentManagement}>
                     <Users className="h-4 w-4 mr-2" />
                     Students
                   </Button>
@@ -362,7 +368,7 @@ const AdminDashboard = () => {
 
           <TabsContent value="management" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/student-management')}>
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={handleStudentManagement}>
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Users className="h-5 w-5 mr-2" />
@@ -578,7 +584,7 @@ const AdminDashboard = () => {
                   <Clock className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{mockRecentActivities.filter(a => a.status === 'pending').length}</div>
+                  <div className="text-2xl font-bold">{mockStudentActivities.filter(a => a.status === 'pending').length}</div>
                   <Button 
                     variant="link" 
                     className="p-0 h-auto text-xs" 
@@ -591,11 +597,11 @@ const AdminDashboard = () => {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Completed Today</CardTitle>
+                  <CardTitle className="text-sm font-medium">Approved Today</CardTitle>
                   <CheckCircle className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{mockRecentActivities.filter(a => a.status === 'completed').length}</div>
+                  <div className="text-2xl font-bold">{mockStudentActivities.filter(a => a.status === 'approved').length}</div>
                   <Button 
                     variant="link" 
                     className="p-0 h-auto text-xs"
@@ -612,7 +618,7 @@ const AdminDashboard = () => {
                   <Activity className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{mockRecentActivities.length}</div>
+                  <div className="text-2xl font-bold">{mockStudentActivities.length}</div>
                   <Button 
                     variant="link" 
                     className="p-0 h-auto text-xs"
@@ -627,7 +633,7 @@ const AdminDashboard = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Activity Management</CardTitle>
-                <CardDescription>Monitor and manage platform activities</CardDescription>
+                <CardDescription>Monitor and manage student-created activities</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -635,21 +641,17 @@ const AdminDashboard = () => {
                     <Activity className="h-4 w-4 mr-2" />
                     Manage Activities
                   </Button>
-                  <Button variant="outline" onClick={() => navigate('/analytics?tab=activity-analytics')}>
-                    <BarChart3 className="h-4 w-4 mr-2" />
-                    Activity Analytics
-                  </Button>
                 </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Activity Analytics</CardTitle>
-                <CardDescription>Analysis of activity-related data</CardDescription>
+                <CardTitle>Student Activity Analytics</CardTitle>
+                <CardDescription>Analysis of student-created activities (workshops, events, comments, etc.)</CardDescription>
               </CardHeader>
               <CardContent>
-                <ActivityAnalytics activities={mockRecentActivities} />
+                <ActivityAnalytics activities={mockStudentActivities} />
               </CardContent>
             </Card>
           </TabsContent>
