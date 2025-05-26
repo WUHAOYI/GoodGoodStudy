@@ -11,6 +11,7 @@ import { useState } from 'react';
 import StatCard from '@/components/StatCard';
 import StatsModal from '@/components/StatsModal';
 import ActivityManagement from '@/components/ActivityManagement';
+import StudentManagement from '@/components/StudentManagement';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ const AdminDashboard = () => {
     title: '',
     items: []
   });
-  const [activeTab, setActiveTab] = useState<'overview' | 'activities'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'activities' | 'students'>('overview');
   const [activityDetailModal, setActivityDetailModal] = useState<{
     isOpen: boolean;
     activity: any;
@@ -216,6 +217,16 @@ const AdminDashboard = () => {
               >
                 Activity Management
               </button>
+              <button
+                onClick={() => setActiveTab('students')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'students'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Student Management
+              </button>
             </nav>
           </div>
         </div>
@@ -223,10 +234,14 @@ const AdminDashboard = () => {
         {activeTab === 'overview' ? (
           <>
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
               <Button className="h-16 flex flex-col gap-1" onClick={() => navigate('/teacher-management')}>
                 <Users className="h-5 w-5" />
                 <span className="text-sm">Manage Teachers</span>
+              </Button>
+              <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => setActiveTab('students')}>
+                <Users className="h-5 w-5" />
+                <span className="text-sm">Manage Students</span>
               </Button>
               <Button variant="outline" className="h-16 flex flex-col gap-1" onClick={() => navigate('/resource-management')}>
                 <FileText className="h-5 w-5" />
@@ -545,8 +560,10 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
           </>
-        ) : (
+        ) : activeTab === 'activities' ? (
           <ActivityManagement onViewDetails={handleViewActivityDetails} />
+        ) : (
+          <StudentManagement />
         )}
       </div>
 

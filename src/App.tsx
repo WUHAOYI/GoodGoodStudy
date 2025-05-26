@@ -40,6 +40,10 @@ import ContactSales from "./pages/ContactSales";
 import HowItWorks from "./pages/HowItWorks";
 import InstructorApplication from "./pages/InstructorApplication";
 import Pricing from "./pages/Pricing";
+import StudentManagement from "./components/StudentManagement";
+import StudentDetails from "./pages/StudentDetails";
+import StudentAnalytics from "./pages/StudentAnalytics";
+import StudentPerformance from "./pages/StudentPerformance";
 
 const queryClient = new QueryClient();
 
@@ -150,6 +154,22 @@ const App = () => (
                     <Route path="/course-request" element={
                       <ProtectedRoute allowedRoles={['student']}>
                         <CourseRequest />
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="/student-details/:id" element={
+                      <ProtectedRoute allowedRoles={['admin']}>
+                        <StudentDetails />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/student-analytics" element={
+                      <ProtectedRoute allowedRoles={['admin']}>
+                        <StudentAnalytics />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/student-performance" element={
+                      <ProtectedRoute allowedRoles={['admin']}>
+                        <StudentPerformance />
                       </ProtectedRoute>
                     } />
                     
