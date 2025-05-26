@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,7 +21,10 @@ import {
   Plus,
   UserPlus,
   GraduationCap,
-  Award
+  Award,
+  FileText,
+  ArrowRight,
+  Database
 } from 'lucide-react';
 import Header from '@/components/Header';
 import { useNavigate } from 'react-router-dom';
@@ -78,21 +82,22 @@ const AdminDashboard = () => {
   const { user } = useAuth();
   const [selectedStat, setSelectedStat] = useState<string | null>(null);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const [showAllActivities, setShowAllActivities] = useState(false);
 
   const handleViewAllActivities = () => {
-    alert('View All Activities clicked');
+    setShowAllActivities(true);
   };
 
   const handleViewPendingActivities = () => {
-    alert('View Pending Activities clicked');
+    navigate('/analytics?tab=pending-activities');
   };
 
   const handleViewCompletedActivities = () => {
-    alert('View Completed Activities clicked');
+    navigate('/analytics?tab=completed-activities');
   };
 
-  const handleManageActivities = () => {
-    alert('Manage Activities clicked');
+  const handleActivityManagement = () => {
+    navigate('/analytics?tab=activity-management');
   };
 
   const handleViewActivityDetails = (activity: Activity) => {
@@ -169,10 +174,11 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="students">Student Management</TabsTrigger>
-            <TabsTrigger value="activities">Activity Management</TabsTrigger>
+            <TabsTrigger value="management">Management</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="activities">Activities</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
@@ -243,7 +249,7 @@ const AdminDashboard = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {mockRecentActivities.slice(0, 5).map((activity) => (
+                  {mockRecentActivities.slice(0, showAllActivities ? mockRecentActivities.length : 5).map((activity) => (
                     <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50">
                       <div className={`w-2 h-2 rounded-full mt-2 ${
                         activity.type === 'enrollment' ? 'bg-green-500' :
@@ -263,138 +269,230 @@ const AdminDashboard = () => {
                       </Button>
                     </div>
                   ))}
+                  {showAllActivities && (
+                    <div className="flex justify-center pt-4">
+                      <Button variant="outline" onClick={() => setShowAllActivities(false)}>
+                        Show Less
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
-                  <CardDescription>Frequently used admin functions</CardDescription>
+                  <CardTitle>Management Quick Access</CardTitle>
+                  <CardDescription>Access key management functions</CardDescription>
                 </CardHeader>
                 <CardContent className="grid grid-cols-2 gap-4">
-                  <Button variant="outline" onClick={() => navigate('/analytics')}>
-                    <BarChart3 className="h-4 w-4 mr-2" />
-                    Analytics
+                  <Button variant="outline" onClick={() => navigate('/student-management')}>
+                    <Users className="h-4 w-4 mr-2" />
+                    Students
                   </Button>
-                  <Button variant="outline" onClick={() => navigate('/content-review')}>
+                  <Button variant="outline" onClick={() => navigate('/teacher-management')}>
+                    <GraduationCap className="h-4 w-4 mr-2" />
+                    Teachers
+                  </Button>
+                  <Button variant="outline" onClick={() => navigate('/course-management/new')}>
                     <BookOpen className="h-4 w-4 mr-2" />
-                    Content Review
+                    Courses
                   </Button>
-                  <Button variant="outline" onClick={() => navigate('/security')}>
-                    <Shield className="h-4 w-4 mr-2" />
-                    Security
-                  </Button>
-                  <Button variant="outline" onClick={handleManageActivities}>
-                    <Activity className="h-4 w-4 mr-2" />
-                    Activity Management
+                  <Button variant="outline" onClick={() => navigate('/resource-management')}>
+                    <Database className="h-4 w-4 mr-2" />
+                    Resources
                   </Button>
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
 
-          <TabsContent value="students" className="space-y-6">
+          <TabsContent value="management" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/student-management')}>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Users className="h-5 w-5 mr-2" />
+                    Student Management
+                  </CardTitle>
+                  <CardDescription>Manage student accounts, enrollments, and certificates</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="text-2xl font-bold">15,234</div>
+                      <p className="text-sm text-muted-foreground">Total Students</p>
+                    </div>
+                    <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/teacher-management')}>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <GraduationCap className="h-5 w-5 mr-2" />
+                    Teacher Management
+                  </CardTitle>
+                  <CardDescription>Manage instructors and their permissions</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="text-2xl font-bold">342</div>
+                      <p className="text-sm text-muted-foreground">Active Teachers</p>
+                    </div>
+                    <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/course-management/new')}>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <BookOpen className="h-5 w-5 mr-2" />
+                    Course Management
+                  </CardTitle>
+                  <CardDescription>Review and approve course submissions</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="text-2xl font-bold">23</div>
+                      <p className="text-sm text-muted-foreground">Pending Approval</p>
+                    </div>
+                    <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/resource-management')}>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Database className="h-5 w-5 mr-2" />
+                    Resource Management
+                  </CardTitle>
+                  <CardDescription>Manage files, videos, and course materials</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="text-2xl font-bold">1,247</div>
+                      <p className="text-sm text-muted-foreground">Total Resources</p>
+                    </div>
+                    <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/security')}>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Shield className="h-5 w-5 mr-2" />
+                    Security Management
+                  </CardTitle>
+                  <CardDescription>Manage security settings and permissions</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="text-sm font-medium">Security Status</div>
+                      <p className="text-sm text-green-600">All Systems Secure</p>
+                    </div>
+                    <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/settings')}>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Settings className="h-5 w-5 mr-2" />
+                    System Settings
+                  </CardTitle>
+                  <CardDescription>Configure platform settings</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="text-sm font-medium">Platform Settings</div>
+                      <p className="text-sm text-muted-foreground">Configure System</p>
+                    </div>
+                    <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Active Students</CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium">Platform Revenue</CardTitle>
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">12,847</div>
+                  <div className="text-2xl font-bold">$124,580</div>
                   <p className="text-xs text-muted-foreground">
-                    <span className="text-green-600">+5.2%</span> from last week
+                    <span className="text-green-600">+15.3%</span> from last month
                   </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">New Enrollments</CardTitle>
-                  <UserPlus className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium">Course Completion Rate</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">342</div>
-                  <p className="text-xs text-muted-foreground">This week</p>
+                  <div className="text-2xl font-bold">73.2%</div>
+                  <p className="text-xs text-muted-foreground">
+                    <span className="text-green-600">+2.1%</span> from last month
+                  </p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Course Completions</CardTitle>
-                  <GraduationCap className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium">User Satisfaction</CardTitle>
+                  <Star className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">1,247</div>
-                  <p className="text-xs text-muted-foreground">This month</p>
+                  <div className="text-2xl font-bold">4.8/5</div>
+                  <p className="text-xs text-muted-foreground">Average rating</p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Certificates Issued</CardTitle>
-                  <Award className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium">System Performance</CardTitle>
+                  <BarChart3 className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">956</div>
-                  <p className="text-xs text-muted-foreground">This month</p>
+                  <div className="text-2xl font-bold">99.9%</div>
+                  <p className="text-xs text-muted-foreground">Uptime</p>
                 </CardContent>
               </Card>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Student Management Actions</CardTitle>
-                  <CardDescription>Manage student accounts and activities</CardDescription>
-                </CardHeader>
-                <CardContent className="grid grid-cols-1 gap-4">
-                  <Button onClick={() => navigate('/student-management')}>
-                    <Users className="h-4 w-4 mr-2" />
-                    View All Students
+            <Card>
+              <CardHeader>
+                <CardTitle>Platform Analytics</CardTitle>
+                <CardDescription>Comprehensive platform performance metrics</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Button onClick={() => navigate('/analytics')}>
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    View Detailed Analytics
                   </Button>
                   <Button variant="outline" onClick={() => navigate('/student-analytics')}>
-                    <BarChart3 className="h-4 w-4 mr-2" />
+                    <Users className="h-4 w-4 mr-2" />
                     Student Analytics
                   </Button>
-                  <Button variant="outline" onClick={() => navigate('/student-performance')}>
-                    <TrendingUp className="h-4 w-4 mr-2" />
-                    Performance Reports
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Student Activity</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <div className="flex-1">
-                        <p className="text-sm">Sarah Johnson completed "React Fundamentals"</p>
-                        <p className="text-xs text-gray-500">2 minutes ago</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <div className="flex-1">
-                        <p className="text-sm">Mike Chen enrolled in "Data Science Basics"</p>
-                        <p className="text-xs text-gray-500">5 minutes ago</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                      <div className="flex-1">
-                        <p className="text-sm">Emma Davis earned certificate for "Web Design"</p>
-                        <p className="text-xs text-gray-500">10 minutes ago</p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="activities" className="space-y-6">
@@ -458,13 +556,13 @@ const AdminDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Button onClick={handleManageActivities}>
+                  <Button onClick={handleActivityManagement}>
                     <Activity className="h-4 w-4 mr-2" />
                     Manage Activities
                   </Button>
-                  <Button variant="outline" onClick={() => navigate('/analytics')}>
+                  <Button variant="outline" onClick={() => navigate('/analytics?tab=activities')}>
                     <BarChart3 className="h-4 w-4 mr-2" />
-                    View Analytics
+                    Activity Analytics
                   </Button>
                 </div>
               </CardContent>
@@ -501,13 +599,13 @@ const AdminDashboard = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Content Management</CardTitle>
-                  <CardDescription>Review and manage content</CardDescription>
+                  <CardTitle>Platform Analytics</CardTitle>
+                  <CardDescription>View comprehensive analytics</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button onClick={() => navigate('/content-review')} className="w-full">
-                    <BookOpen className="h-4 w-4 mr-2" />
-                    Content Review
+                  <Button onClick={() => navigate('/analytics')} className="w-full">
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    Analytics Dashboard
                   </Button>
                 </CardContent>
               </Card>
