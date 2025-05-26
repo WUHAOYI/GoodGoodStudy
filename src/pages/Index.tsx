@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,11 +9,13 @@ import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import CourseCard from '@/components/CourseCard';
 import UserTypeSelector from '@/components/UserTypeSelector';
+import StatsPopup from '@/components/StatsPopup';
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [userType, setUserType] = useState<'student' | 'teacher' | 'admin'>('student');
+  const [showStatsPopup, setShowStatsPopup] = useState<'courses' | 'students' | 'institutions' | null>(null);
   const navigate = useNavigate();
 
   // Mock course data
@@ -132,24 +135,36 @@ const Index = () => {
             />
           </div>
 
-          {/* Stats */}
+          {/* Interactive Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+            <Card 
+              className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105 bg-white/80 backdrop-blur-sm border-0 shadow-lg"
+              onClick={() => setShowStatsPopup('courses')}
+            >
               <CardContent className="pt-6">
                 <div className="text-3xl font-bold text-blue-600 mb-2">500+</div>
                 <div className="text-gray-600">Expert Courses</div>
+                <div className="text-xs text-blue-500 mt-1">Click to explore</div>
               </CardContent>
             </Card>
-            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+            <Card 
+              className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105 bg-white/80 backdrop-blur-sm border-0 shadow-lg"
+              onClick={() => setShowStatsPopup('students')}
+            >
               <CardContent className="pt-6">
                 <div className="text-3xl font-bold text-green-600 mb-2">50K+</div>
                 <div className="text-gray-600">Active Students</div>
+                <div className="text-xs text-green-500 mt-1">View leaderboard</div>
               </CardContent>
             </Card>
-            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+            <Card 
+              className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105 bg-white/80 backdrop-blur-sm border-0 shadow-lg"
+              onClick={() => setShowStatsPopup('institutions')}
+            >
               <CardContent className="pt-6">
                 <div className="text-3xl font-bold text-purple-600 mb-2">200+</div>
                 <div className="text-gray-600">Partner Institutions</div>
+                <div className="text-xs text-purple-500 mt-1">See partners</div>
               </CardContent>
             </Card>
           </div>
@@ -228,6 +243,14 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Stats Popup */}
+      {showStatsPopup && (
+        <StatsPopup 
+          type={showStatsPopup}
+          onClose={() => setShowStatsPopup(null)}
+        />
+      )}
     </div>
   );
 };

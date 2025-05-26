@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -43,7 +42,17 @@ const CourseDetails = () => {
     console.log('Enrollment status changed for course', courseId, ':', isEnrolled);
   }, [isEnrolled, courseId]);
 
-  // Mock course data - in a real app, this would be fetched based on the ID
+  // Sample video URLs - ensuring each gets a working video
+  const sampleVideos = [
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4", 
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
+  ];
+
+  // Mock course data with proper video URLs
   const course = {
     id: courseId,
     title: "Full Stack Web Development Bootcamp",
@@ -57,7 +66,7 @@ const CourseDetails = () => {
     level: "Beginner to Advanced",
     image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=250&fit=crop",
     description: "Master full-stack web development with this comprehensive bootcamp. Learn HTML, CSS, JavaScript, React, Node.js, and more.",
-    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    videoUrl: sampleVideos[0],
     requirements: [
       "Basic computer skills",
       "No prior programming experience required",
@@ -67,24 +76,24 @@ const CourseDetails = () => {
       { 
         title: "Introduction to Web Development", 
         lessons: [
-          { id: 1, title: "What is Web Development?", duration: "15:30", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", isPreview: true },
-          { id: 2, title: "Setting Up Your Development Environment", duration: "20:45", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4", isPreview: false },
-          { id: 3, title: "Your First Web Page", duration: "18:20", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4", isPreview: false }
+          { id: 1, title: "What is Web Development?", duration: "15:30", videoUrl: sampleVideos[1], isPreview: true },
+          { id: 2, title: "Setting Up Your Development Environment", duration: "20:45", videoUrl: sampleVideos[2], isPreview: false },
+          { id: 3, title: "Your First Web Page", duration: "18:20", videoUrl: sampleVideos[3], isPreview: false }
         ], 
         duration: "2 hours" 
       },
       { 
         title: "HTML & CSS Fundamentals", 
         lessons: [
-          { id: 4, title: "HTML Structure and Semantics", duration: "25:10", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4", isPreview: true },
-          { id: 5, title: "CSS Styling Basics", duration: "30:15", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4", isPreview: false }
+          { id: 4, title: "HTML Structure and Semantics", duration: "25:10", videoUrl: sampleVideos[4], isPreview: true },
+          { id: 5, title: "CSS Styling Basics", duration: "30:15", videoUrl: sampleVideos[5], isPreview: false }
         ], 
         duration: "4 hours" 
       },
       { 
         title: "JavaScript Essentials", 
         lessons: [
-          { id: 6, title: "Variables and Data Types", duration: "22:30", videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4", isPreview: false }
+          { id: 6, title: "Variables and Data Types", duration: "22:30", videoUrl: sampleVideos[0], isPreview: false }
         ], 
         duration: "6 hours" 
       },
@@ -104,7 +113,7 @@ const CourseDetails = () => {
       console.log('User enrolled - playing in lesson player');
       setSelectedLesson({
         ...lesson,
-        videoUrl: lesson.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+        videoUrl: lesson.videoUrl
       });
       setIsLessonPlayerOpen(true);
     } else if (lesson.isPreview) {
@@ -112,7 +121,7 @@ const CourseDetails = () => {
       console.log('User not enrolled - playing preview');
       setPreviewLesson({
         title: lesson.title,
-        videoUrl: lesson.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+        videoUrl: lesson.videoUrl,
         duration: lesson.duration
       });
       setIsPreviewOpen(true);

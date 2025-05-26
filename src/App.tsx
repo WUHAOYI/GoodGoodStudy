@@ -5,34 +5,35 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { CourseProvider } from "@/contexts/CourseContext";
 import { EnrollmentProvider } from "@/contexts/EnrollmentContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 import { TeacherApplicationProvider } from "@/contexts/TeacherApplicationContext";
+import { CourseProvider } from "@/contexts/CourseContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import Courses from "./pages/Courses";
+import CourseDetails from "./pages/CourseDetails";
 import StudentDashboard from "./pages/StudentDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
-import Courses from "./pages/Courses";
-import CourseDetails from "./pages/CourseDetails";
 import Payment from "./pages/Payment";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import ContinueLearning from "./pages/ContinueLearning";
+import Wishlist from "./pages/Wishlist";
 import Categories from "./pages/Categories";
 import ForBusiness from "./pages/ForBusiness";
 import TeachOnPlatform from "./pages/TeachOnPlatform";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import CourseManagement from "./pages/CourseManagement";
+import Analytics from "./pages/Analytics";
+import TeacherManagement from "./pages/TeacherManagement";
 import ContentReview from "./pages/ContentReview";
-import ContinueLearning from "./pages/ContinueLearning";
+import CourseManagement from "./pages/CourseManagement";
+import ResourceManagement from "./pages/ResourceManagement";
+import Security from "./pages/Security";
 import LearningGoals from "./pages/LearningGoals";
 import CourseRequest from "./pages/CourseRequest";
-import TeacherManagement from "./pages/TeacherManagement";
-import ResourceManagement from "./pages/ResourceManagement";
-import Analytics from "./pages/Analytics";
-import Security from "./pages/Security";
-import Wishlist from "./pages/Wishlist";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,27 +43,22 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <AuthProvider>
-        <EnrollmentProvider>
-          <WishlistProvider>
-            <TeacherApplicationProvider>
-              <CourseProvider>
-                <BrowserRouter>
+      <BrowserRouter>
+        <AuthProvider>
+          <EnrollmentProvider>
+            <WishlistProvider>
+              <TeacherApplicationProvider>
+                <CourseProvider>
                   <Routes>
                     <Route path="/" element={<Index />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/courses" element={<Courses />} />
                     <Route path="/course/:id" element={<CourseDetails />} />
                     <Route path="/categories" element={<Categories />} />
                     <Route path="/for-business" element={<ForBusiness />} />
                     <Route path="/teach" element={<TeachOnPlatform />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/payment" element={<Payment />} />
-                    <Route path="/payment-success" element={<PaymentSuccess />} />
-                    <Route path="/continue-learning" element={<ContinueLearning />} />
-                    <Route path="/learning-goals" element={<LearningGoals />} />
-                    <Route path="/course-request" element={<CourseRequest />} />
-                    <Route path="/wishlist" element={<Wishlist />} />
                     
                     {/* Protected Routes */}
                     <Route path="/student-dashboard" element={
@@ -80,24 +76,24 @@ const App = () => (
                         <AdminDashboard />
                       </ProtectedRoute>
                     } />
-                    <Route path="/course-management/:id" element={
-                      <ProtectedRoute allowedRoles={['teacher', 'admin']}>
-                        <CourseManagement />
+                    <Route path="/payment" element={
+                      <ProtectedRoute allowedRoles={['student']}>
+                        <Payment />
                       </ProtectedRoute>
                     } />
-                    <Route path="/content-review/:id" element={
-                      <ProtectedRoute allowedRoles={['admin']}>
-                        <ContentReview />
+                    <Route path="/payment-success" element={
+                      <ProtectedRoute allowedRoles={['student']}>
+                        <PaymentSuccess />
                       </ProtectedRoute>
                     } />
-                    <Route path="/teacher-management" element={
-                      <ProtectedRoute allowedRoles={['admin']}>
-                        <TeacherManagement />
+                    <Route path="/continue-learning" element={
+                      <ProtectedRoute allowedRoles={['student']}>
+                        <ContinueLearning />
                       </ProtectedRoute>
                     } />
-                    <Route path="/resource-management" element={
-                      <ProtectedRoute allowedRoles={['admin']}>
-                        <ResourceManagement />
+                    <Route path="/wishlist" element={
+                      <ProtectedRoute allowedRoles={['student']}>
+                        <Wishlist />
                       </ProtectedRoute>
                     } />
                     <Route path="/analytics" element={
@@ -105,21 +101,50 @@ const App = () => (
                         <Analytics />
                       </ProtectedRoute>
                     } />
+                    <Route path="/teacher-management" element={
+                      <ProtectedRoute allowedRoles={['admin']}>
+                        <TeacherManagement />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/content-review" element={
+                      <ProtectedRoute allowedRoles={['admin']}>
+                        <ContentReview />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/course-management" element={
+                      <ProtectedRoute allowedRoles={['teacher', 'admin']}>
+                        <CourseManagement />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/resource-management" element={
+                      <ProtectedRoute allowedRoles={['teacher', 'admin']}>
+                        <ResourceManagement />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/security" element={
                       <ProtectedRoute allowedRoles={['admin']}>
                         <Security />
                       </ProtectedRoute>
                     } />
+                    <Route path="/learning-goals" element={
+                      <ProtectedRoute allowedRoles={['student']}>
+                        <LearningGoals />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/course-request" element={
+                      <ProtectedRoute allowedRoles={['student']}>
+                        <CourseRequest />
+                      </ProtectedRoute>
+                    } />
                     
-                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
-                </BrowserRouter>
-              </CourseProvider>
-            </TeacherApplicationProvider>
-          </WishlistProvider>
-        </EnrollmentProvider>
-      </AuthProvider>
+                </CourseProvider>
+              </TeacherApplicationProvider>
+            </WishlistProvider>
+          </EnrollmentProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
