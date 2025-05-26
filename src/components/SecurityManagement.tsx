@@ -1,5 +1,5 @@
-
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,11 +8,13 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Shield, Users, Eye, Edit, Clock, AlertTriangle, Settings, Key, Lock, UserCheck, UserX, Crown, Star } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Shield, Users, Eye, Edit, Clock, AlertTriangle, Settings, Key, Lock, UserCheck, UserX, Crown, Star, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const SecurityManagement = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState<any>(null);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [selectedLog, setSelectedLog] = useState<any>(null);
@@ -150,6 +152,30 @@ const SecurityManagement = () => {
     }
   ]);
 
+  // Service-level permissions configuration
+  const tierPermissions = {
+    trial: ['limited_course_access', 'basic_profile_management'],
+    regular: ['course_access', 'profile_management', 'community_access', 'download_resources'],
+    premium: ['course_access', 'profile_management', 'community_access', 'download_resources', 'advanced_analytics', 'priority_support', 'offline_access']
+  };
+
+  const availablePermissions = [
+    'course_access',
+    'limited_course_access', 
+    'download_resources',
+    'community_access',
+    'course_creation',
+    'student_management',
+    'analytics_view',
+    'content_upload',
+    'system_settings',
+    'basic_profile_management',
+    'profile_management',
+    'advanced_analytics',
+    'priority_support',
+    'offline_access'
+  ];
+
   const handleEditPermission = (role: any) => {
     setSelectedRole(role);
     setEditRoleModalOpen(true);
@@ -224,6 +250,29 @@ const SecurityManagement = () => {
     setShowPasswordPolicy(false);
   };
 
+  const handleUserTierChange = (userId: number, newTier: string) => {
+    setUsers(users.map(user => {
+      if (user.id === userId) {
+        const tierPerms = tierPermissions[newTier as keyof typeof tierPermissions];
+        return { 
+          ...user, 
+          tier: newTier,
+          customPermissions: [...tierPerms, ...user.customPermissions.filter(p => !Object.values(tierPermissions).flat().includes(p))]
+        };
+      }
+      return user;
+    }));
+
+    toast({
+      title: "User Tier Updated",
+      description: `User tier changed to ${newTier} with appropriate permissions.`,
+    });
+  };
+
+  const handleBackNavigation = () => {
+    navigate(-1);
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'success': return 'bg-green-100 text-green-800';
@@ -255,9 +304,20 @@ const SecurityManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Security Management</h2>
-        <p className="text-gray-600">Manage system security, permissions, and audit logs</p>
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleBackNavigation}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </Button>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Security Management</h2>
+          <p className="text-gray-600">Manage system security, permissions, and audit logs</p>
+        </div>
       </div>
 
       <Tabs defaultValue="permissions" className="space-y-4">
@@ -310,7 +370,7 @@ const SecurityManagement = () => {
           <Card>
             <CardHeader>
               <CardTitle>Individual User Permissions</CardTitle>
-              <CardDescription>Configure custom permissions for specific users</CardDescription>
+              <CardDescription>Configure custom permissions and service levels for specific users</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -328,6 +388,19 @@ const SecurityManagement = () => {
                         </div>
                         <p className="text-sm text-gray-600">{user.email}</p>
                         <p className="text-xs text-gray-500">Role: {user.role}</p>
+                        <div className="mt-2">
+                          <label className="text-xs text-gray-500 block mb-1">Service Level:</label>
+                          <Select value={user.tier} onValueChange={(value) => handleUserTierChange(user.id, value)}>
+                            <SelectTrigger className="w-32 h-8">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="trial">Trial</SelectItem>
+                              <SelectItem value="regular">Regular</SelectItem>
+                              <SelectItem value="premium">Premium</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
                       <div className="flex gap-2">
                         <Button size="sm" variant="outline" onClick={() => handleEditUserPermission(user)}>
@@ -358,12 +431,29 @@ const SecurityManagement = () => {
                       </div>
                     </div>
                     
-                    <div className="flex flex-wrap gap-2">
-                      {user.customPermissions.map((permission, index) => (
-                        <Badge key={index} variant="secondary">
-                          {permission.replace('_', ' ')}
-                        </Badge>
-                      ))}
+                    <div className="space-y-2">
+                      <div>
+                        <span className="text-xs text-gray-500">Tier-based permissions:</span>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {tierPermissions[user.tier as keyof typeof tierPermissions].map((permission, index) => (
+                            <Badge key={index} variant="secondary" className="text-xs">
+                              {permission.replace('_', ' ')}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      {user.customPermissions.filter(p => !tierPermissions[user.tier as keyof typeof tierPermissions].includes(p)).length > 0 && (
+                        <div>
+                          <span className="text-xs text-gray-500">Additional permissions:</span>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {user.customPermissions.filter(p => !tierPermissions[user.tier as keyof typeof tierPermissions].includes(p)).map((permission, index) => (
+                              <Badge key={index} variant="outline" className="text-xs">
+                                {permission.replace('_', ' ')}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -562,14 +652,32 @@ const SecurityManagement = () => {
                 <label className="text-sm font-medium">User</label>
                 <Input value={`${selectedUser.name} (${selectedUser.email})`} readOnly className="bg-gray-50" />
               </div>
-              <div>
-                <label className="text-sm font-medium">Current Role</label>
-                <Input value={selectedUser.role} readOnly className="bg-gray-50" />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Current Role</label>
+                  <Input value={selectedUser.role} readOnly className="bg-gray-50" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Service Tier</label>
+                  <Input value={selectedUser.tier} readOnly className="bg-gray-50" />
+                </div>
               </div>
               <div>
-                <label className="text-sm font-medium">Custom Permissions</label>
-                <div className="space-y-2 mt-2">
-                  {['course_access', 'download_resources', 'community_access', 'course_creation', 'student_management', 'analytics_view', 'content_upload', 'system_settings'].map((permission) => (
+                <label className="text-sm font-medium">Tier-based Permissions</label>
+                <div className="bg-blue-50 p-2 rounded mt-1">
+                  <div className="flex flex-wrap gap-1">
+                    {tierPermissions[selectedUser.tier as keyof typeof tierPermissions].map((permission, index) => (
+                      <Badge key={index} variant="secondary" className="text-xs">
+                        {permission.replace('_', ' ')}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Additional Custom Permissions</label>
+                <div className="space-y-2 mt-2 max-h-48 overflow-y-auto">
+                  {availablePermissions.filter(p => !tierPermissions[selectedUser.tier as keyof typeof tierPermissions].includes(p)).map((permission) => (
                     <div key={permission} className="flex items-center space-x-2">
                       <input
                         type="checkbox"
