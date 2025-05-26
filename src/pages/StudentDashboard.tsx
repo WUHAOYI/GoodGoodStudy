@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -22,11 +23,13 @@ import StatCard from '@/components/StatCard';
 import StatsModal from '@/components/StatsModal';
 import CertificateModal from '@/components/CertificateModal';
 import { useCourses } from '@/contexts/CourseContext';
+import { useEnrollment } from '@/contexts/EnrollmentContext';
 import { useToast } from '@/hooks/use-toast';
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const { achievements } = useCourses();
+  const { enrolledCourses } = useEnrollment();
   const { toast } = useToast();
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
@@ -39,8 +42,8 @@ const StudentDashboard = () => {
   });
   const [certificateModalOpen, setCertificateModalOpen] = useState(false);
 
-  // Mock data for courses
-  const courses = [
+  // Mock data for courses - filter based on enrolled courses
+  const allCourses = [
     {
       id: 1,
       title: "Full Stack Web Development Bootcamp",
@@ -63,6 +66,9 @@ const StudentDashboard = () => {
       lastActivity: "Completed"
     }
   ];
+
+  // Filter courses based on enrollment
+  const courses = allCourses.filter(course => enrolledCourses.includes(course.id));
 
   // Mock data for learning paths
   const learningPaths = [
@@ -235,19 +241,29 @@ const StudentDashboard = () => {
               <CardDescription>Your active courses</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {courses.map((course) => (
-                <div key={course.id} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-gray-900">{course.title}</h3>
-                    <Badge variant="outline">{course.lastActivity}</Badge>
+              {courses.length > 0 ? (
+                courses.map((course) => (
+                  <div key={course.id} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-gray-900">{course.title}</h3>
+                      <Badge variant="outline">{course.lastActivity}</Badge>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Clock className="h-4 w-4" />
+                      <span>{course.duration}</span>
+                    </div>
+                    <Progress value={course.progress} />
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Clock className="h-4 w-4" />
-                    <span>{course.duration}</span>
-                  </div>
-                  <Progress value={course.progress} />
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600 mb-4">No enrolled courses yet</p>
+                  <Button onClick={() => navigate('/courses')}>
+                    Browse Courses
+                  </Button>
                 </div>
-              ))}
+              )}
             </CardContent>
           </Card>
 

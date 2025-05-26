@@ -13,7 +13,7 @@ import Header from '@/components/Header';
 const Payment = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const course = location.state?.course;
+  const { course, courseId } = location.state || {};
 
   const [paymentMethod, setPaymentMethod] = useState('card');
   const [formData, setFormData] = useState({
@@ -37,10 +37,11 @@ const Payment = () => {
     // Simulate payment processing
     console.log('Processing payment for:', course?.title);
     
-    // Redirect to success page
+    // Redirect to success page with the courseId for enrollment
     navigate('/payment-success', { 
       state: { 
         course,
+        courseId,
         orderId: `ORD-${Date.now()}`,
         amount: course?.price || 0
       }

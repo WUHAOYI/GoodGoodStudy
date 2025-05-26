@@ -1,16 +1,31 @@
+
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Download, Play, Share2 } from 'lucide-react';
 import Header from '@/components/Header';
 import { useToast } from '@/hooks/use-toast';
+import { useEnrollment } from '@/contexts/EnrollmentContext';
 
 const PaymentSuccess = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { course, orderId, amount } = location.state || {};
+  const { enrollInCourse } = useEnrollment();
+  const { course, orderId, amount, courseId } = location.state || {};
+
+  // Enroll the user when the component mounts
+  useEffect(() => {
+    if (courseId) {
+      enrollInCourse(courseId);
+      toast({
+        title: "Successfully Enrolled!",
+        description: `You are now enrolled in ${course?.title}`,
+      });
+    }
+  }, [courseId, enrollInCourse, course?.title, toast]);
 
   const handleDownloadReceipt = () => {
     toast({
@@ -89,12 +104,7 @@ Thank you for your purchase!
 
   const handleStartLearning = () => {
     // Navigate back to the course details page where users can access the content
-    navigate(`/course/${course?.id}`, { 
-      state: { 
-        enrolled: true, 
-        course: course 
-      } 
-    });
+    navigate(`/course/${course?.id}`);
   };
 
   if (!course) {
@@ -152,7 +162,6 @@ Thank you for your purchase!
             </CardContent>
           </Card>
 
-          {/* Course Access */}
           <Card className="mb-8">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
@@ -173,7 +182,6 @@ Thank you for your purchase!
             </CardContent>
           </Card>
 
-          {/* Action Buttons */}
           <div className="space-y-4">
             <Button 
               size="lg" 
@@ -203,7 +211,6 @@ Thank you for your purchase!
             </div>
           </div>
 
-          {/* Next Steps */}
           <Card className="mt-8">
             <CardHeader>
               <CardTitle className="text-left">What's Next?</CardTitle>

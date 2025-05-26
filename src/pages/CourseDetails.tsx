@@ -132,17 +132,21 @@ const CourseDetails = () => {
 
   const handleEnroll = () => {
     console.log('Processing payment for:', course.title);
+    // Navigate to payment page with course data, but don't pass functions
     navigate('/payment', { 
       state: { 
-        course: course,
+        course: {
+          id: course.id,
+          title: course.title,
+          instructor: course.instructor,
+          price: course.price,
+          originalPrice: course.originalPrice,
+          level: course.level,
+          image: course.image,
+          duration: course.duration
+        },
         amount: course.price,
-        onSuccess: () => {
-          enrollInCourse(courseId);
-          toast({
-            title: "Successfully Enrolled!",
-            description: `You are now enrolled in ${course.title}`,
-          });
-        }
+        courseId: courseId
       } 
     });
   };
