@@ -7,42 +7,21 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Eye, Edit, Plus, Search, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-interface Course {
-  id: number;
-  title: string;
-  description: string;
-  price: number;
-  level: string;
-  category: string;
-  duration: string;
-  language: string;
-  status: 'Draft' | 'Published' | 'Under Review' | 'Pending Deletion';
-  students: number;
-  revenue: number;
-  rating: number;
-  lastUpdated: string;
-  instructor?: string;
-}
+import { useCourses } from '@/contexts/CourseContext';
 
 interface CourseManagementProps {
-  courses: Course[];
   onViewCourse: (courseId: number) => void;
   onEditCourse: (courseId: number) => void;
   onCreateCourse: () => void;
-  onApproveCourse: (courseId: number) => void;
-  onRejectCourse: (courseId: number) => void;
 }
 
 const CourseManagement = ({ 
-  courses, 
   onViewCourse, 
   onEditCourse, 
-  onCreateCourse,
-  onApproveCourse,
-  onRejectCourse
+  onCreateCourse
 }: CourseManagementProps) => {
   const { toast } = useToast();
+  const { courses, updateReviewStatus } = useCourses();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
@@ -90,18 +69,20 @@ const CourseManagement = ({
   };
 
   const handleApproveCourse = (courseId: number) => {
-    onApproveCourse(courseId);
+    updateReviewStatus(courseId, 'Published');
     toast({
       title: "Course Approved",
-      description: "The course has been approved and published.",
+      description: "The course has been approved and published to the catalog.",
+      variant: "default",
     });
   };
 
   const handleRejectCourse = (courseId: number) => {
-    onRejectCourse(courseId);
+    updateReviewStatus(courseId, 'Draft', 'Course needs improvements before approval');
     toast({
       title: "Course Rejected",
       description: "The course has been rejected and sent back to draft.",
+      variant: "destructive",
     });
   };
 
@@ -207,9 +188,9 @@ const CourseManagement = ({
                         <h4 className="font-semibold mb-2">{course.title}</h4>
                         <p className="text-sm text-gray-600 mb-2">{course.description}</p>
                         <div className="flex items-center gap-4 text-sm text-gray-500">
-                          <span>Instructor: {course.instructor || 'Unknown'}</span>
                           <span>Level: {course.level}</span>
                           <span>Category: {course.category}</span>
+                          <span>Price: ${course.price}</span>
                           <span>Submitted: {course.lastUpdated}</span>
                         </div>
                       </div>

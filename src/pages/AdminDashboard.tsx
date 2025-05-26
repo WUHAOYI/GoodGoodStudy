@@ -127,7 +127,7 @@ const mockPendingCourses = [
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { courses, updateReviewStatus } = useCourses();
+  const { courses } = useCourses();
   const [selectedStat, setSelectedStat] = useState<string | null>(null);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [showAllActivities, setShowAllActivities] = useState(false);
@@ -195,14 +195,6 @@ const AdminDashboard = () => {
 
   const handleCreateCourse = () => {
     navigate('/course-management/new');
-  };
-
-  const handleApproveCourse = (courseId: number) => {
-    updateReviewStatus(courseId, 'Published');
-  };
-
-  const handleRejectCourse = (courseId: number) => {
-    updateReviewStatus(courseId, 'Draft', 'Needs improvement');
   };
 
   const getStatsModalData = () => {
@@ -451,12 +443,9 @@ const AdminDashboard = () => {
 
               <TabsContent value="courses">
                 <CourseManagement 
-                  courses={courses}
                   onViewCourse={handleViewCourse}
                   onEditCourse={handleEditCourse}
                   onCreateCourse={handleCreateCourse}
-                  onApproveCourse={handleApproveCourse}
-                  onRejectCourse={handleRejectCourse}
                 />
               </TabsContent>
 

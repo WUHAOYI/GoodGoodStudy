@@ -4,11 +4,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Shield, Users, Eye, Edit, Clock, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const SecurityManagement = () => {
   const { toast } = useToast();
+  const [selectedRole, setSelectedRole] = useState<any>(null);
+  const [selectedLog, setSelectedLog] = useState<any>(null);
+  const [editRoleModalOpen, setEditRoleModalOpen] = useState(false);
+  const [auditDetailsModalOpen, setAuditDetailsModalOpen] = useState(false);
 
   const [permissions] = useState([
     {
@@ -42,7 +49,9 @@ const SecurityManagement = () => {
       timestamp: '2024-05-26 10:30:00',
       status: 'success',
       ip: '192.168.1.100',
-      details: 'Successful admin login'
+      details: 'Successful admin login',
+      browser: 'Chrome 125.0',
+      location: 'New York, NY'
     },
     {
       id: 2,
@@ -51,7 +60,9 @@ const SecurityManagement = () => {
       timestamp: '2024-05-26 09:15:00',
       status: 'warning',
       ip: '192.168.1.105',
-      details: 'Course "Old Python Tutorial" deleted'
+      details: 'Course "Old Python Tutorial" deleted',
+      browser: 'Firefox 124.0',
+      location: 'San Francisco, CA'
     },
     {
       id: 3,
@@ -60,7 +71,9 @@ const SecurityManagement = () => {
       timestamp: '2024-05-26 08:45:00',
       status: 'info',
       ip: '192.168.1.100',
-      details: 'Updated teacher permissions'
+      details: 'Updated teacher permissions',
+      browser: 'Chrome 125.0',
+      location: 'New York, NY'
     },
     {
       id: 4,
@@ -69,22 +82,29 @@ const SecurityManagement = () => {
       timestamp: '2024-05-26 07:30:00',
       status: 'error',
       ip: '192.168.1.200',
-      details: 'Multiple failed login attempts detected'
+      details: 'Multiple failed login attempts detected',
+      browser: 'Unknown',
+      location: 'Unknown'
     }
   ]);
 
-  const handleEditPermission = (roleId: number) => {
-    toast({
-      title: "Edit Permissions",
-      description: `Editing permissions for role ID: ${roleId}`,
-    });
+  const handleEditPermission = (role: any) => {
+    setSelectedRole(role);
+    setEditRoleModalOpen(true);
   };
 
-  const handleViewAuditDetails = (logId: number) => {
+  const handleViewAuditDetails = (log: any) => {
+    setSelectedLog(log);
+    setAuditDetailsModalOpen(true);
+  };
+
+  const handleSaveRolePermissions = () => {
     toast({
-      title: "Audit Log Details",
-      description: `Viewing details for log ID: ${logId}`,
+      title: "Permissions Updated",
+      description: `Permissions for ${selectedRole?.role} have been updated successfully.`,
     });
+    setEditRoleModalOpen(false);
+    setSelectedRole(null);
   };
 
   const getStatusColor = (status: string) => {
@@ -137,7 +157,7 @@ const SecurityManagement = () => {
                         <p className="text-sm text-gray-500 mt-1">{role.users} users with this role</p>
                       </div>
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline" onClick={() => handleEditPermission(role.id)}>
+                        <Button size="sm" variant="outline" onClick={() => handleEditPermission(role)}>
                           <Edit className="h-4 w-4 mr-1" />
                           Edit
                         </Button>
@@ -187,7 +207,7 @@ const SecurityManagement = () => {
                         <Badge className={getStatusColor(log.status)}>
                           {log.status}
                         </Badge>
-                        <Button size="sm" variant="outline" onClick={() => handleViewAuditDetails(log.id)}>
+                        <Button size="sm" variant="outline" onClick={() => handleViewAuditDetails(log)}>
                           <Eye className="h-4 w-4 mr-1" />
                           Details
                         </Button>
@@ -200,6 +220,111 @@ const SecurityManagement = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Edit Role Permissions Modal */}
+      <Dialog open={editRoleModalOpen} onOpenChange={setEditRoleModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Role Permissions</DialogTitle>
+            <DialogDescription>
+              Modify permissions for the {selectedRole?.role} role
+            </DialogDescription>
+          </DialogHeader>
+          {selectedRole && (
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Role Name</label>
+                <Input value={selectedRole.role} readOnly className="bg-gray-50" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Description</label>
+                <Textarea value={selectedRole.description} placeholder="Role description" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Permissions</label>
+                <div className="space-y-2 mt-2">
+                  {['All Access', 'User Management', 'Course Management', 'Content Upload', 'Student Management', 'System Settings', 'Analytics View'].map((permission) => (
+                    <div key={permission} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id={permission}
+                        defaultChecked={selectedRole.permissions.includes(permission)}
+                        className="rounded"
+                      />
+                      <label htmlFor={permission} className="text-sm">{permission}</label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setEditRoleModalOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSaveRolePermissions}>
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Audit Log Details Modal */}
+      <Dialog open={auditDetailsModalOpen} onOpenChange={setAuditDetailsModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Audit Log Details</DialogTitle>
+            <DialogDescription>
+              Detailed information about this security event
+            </DialogDescription>
+          </DialogHeader>
+          {selectedLog && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Action</label>
+                  <p className="text-sm">{selectedLog.action}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Status</label>
+                  <Badge className={getStatusColor(selectedLog.status)}>{selectedLog.status}</Badge>
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-600">User</label>
+                <p className="text-sm">{selectedLog.user}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-600">Timestamp</label>
+                <p className="text-sm">{selectedLog.timestamp}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-600">IP Address</label>
+                  <p className="text-sm">{selectedLog.ip}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Browser</label>
+                  <p className="text-sm">{selectedLog.browser}</p>
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-600">Location</label>
+                <p className="text-sm">{selectedLog.location}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-600">Details</label>
+                <p className="text-sm">{selectedLog.details}</p>
+              </div>
+              <div className="flex justify-end">
+                <Button variant="outline" onClick={() => setAuditDetailsModalOpen(false)}>
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
