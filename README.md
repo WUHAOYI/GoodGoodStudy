@@ -2,6 +2,7 @@
 
 ## Project info
 
+**Public URL**: https://edu-boost-network.lovable.app/
 **URL**: https://lovable.dev/projects/fdfb6873-ddef-4422-b3f5-a76c773062b8
 
 ## How can I edit this code?
