@@ -23,6 +23,7 @@ const Index = () => {
     {
       id: 1,
       title: "Full Stack Web Development Bootcamp",
+      description: "Master both frontend and backend development with hands-on projects and real-world applications. Learn React, Node.js, and modern web technologies.",
       instructor: "Tech Academy",
       price: 299,
       originalPrice: 499,
@@ -38,6 +39,7 @@ const Index = () => {
     {
       id: 2,
       title: "Digital Marketing Fundamentals",
+      description: "Learn the essentials of digital marketing including SEO, social media marketing, content strategy, and analytics to grow your business online.",
       instructor: "Marketing Pro Institute",
       price: 0,
       rating: 4.6,
@@ -52,6 +54,7 @@ const Index = () => {
     {
       id: 3,
       title: "Project Management Professional (PMP)",
+      description: "Comprehensive preparation for PMP certification covering project lifecycle, risk management, and leadership skills for successful project delivery.",
       instructor: "Business Excellence Academy",
       price: 199,
       rating: 4.9,
@@ -66,6 +69,7 @@ const Index = () => {
     {
       id: 4,
       title: "UI/UX Design Masterclass",
+      description: "Create stunning user interfaces and experiences with industry-standard design principles, prototyping tools, and user research methodologies.",
       instructor: "Design Studio Pro",
       price: 0,
       rating: 4.7,
