@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +12,7 @@ import VideoPreview from './VideoPreview';
 interface Course {
   id: number;
   title: string;
+  description: string;
   instructor: string;
   price: number;
   originalPrice?: number;
