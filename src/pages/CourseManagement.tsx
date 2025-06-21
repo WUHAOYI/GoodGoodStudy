@@ -51,9 +51,18 @@ const CourseManagement = () => {
     } else {
       // Add missing properties for new course creation
       const newCourse = {
+        id: Date.now(), // Generate a unique ID
         ...course,
+        instructor: "Course Creator",
+        thumbnail: "/placeholder.svg",
+        features: ["Lifetime access", "Certificate of completion"],
+        curriculum: lessons.map(lesson => ({
+          id: lesson.id,
+          title: lesson.title,
+          duration: lesson.duration,
+          videoUrl: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4"
+        })),
         students: 0,
-        revenue: 0,
         rating: 0,
         lastUpdated: new Date().toISOString().split('T')[0]
       };
@@ -77,27 +86,28 @@ const CourseManagement = () => {
     } else {
       // Save first, then publish for new courses
       const newCourse = {
+        id: Date.now(), // Generate a unique ID
         ...course,
+        instructor: "Course Creator",
+        thumbnail: "/placeholder.svg",
+        features: ["Lifetime access", "Certificate of completion"],
+        curriculum: lessons.map(lesson => ({
+          id: lesson.id,
+          title: lesson.title,
+          duration: lesson.duration,
+          videoUrl: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4"
+        })),
         students: 0,
-        revenue: 0,
         rating: 0,
         lastUpdated: new Date().toISOString().split('T')[0]
       };
       addCourse(newCourse);
-      
-      // Get the newly created course ID from the courses array after a small delay
-      setTimeout(() => {
-        const allCourses = courses;
-        const latestCourse = allCourses[allCourses.length - 1];
-        if (latestCourse) {
-          publishCourse(latestCourse.id + 1); // Approximate the new course ID
-        }
-        toast({
-          title: "Course submitted for review!",
-          description: `Course "${course.title}" has been submitted for admin review.`,
-        });
-        navigate('/teacher-dashboard');
-      }, 100);
+      publishCourse(newCourse.id);
+      toast({
+        title: "Course submitted for review!",
+        description: `Course "${course.title}" has been submitted for admin review.`,
+      });
+      navigate('/teacher-dashboard');
     }
   };
 

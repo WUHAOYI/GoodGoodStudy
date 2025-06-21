@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -65,7 +64,7 @@ const ContinueLearning = () => {
 
   // Filter courses based on enrollment
   const currentCourses = getAllCourses().filter(course => 
-    enrolledCourses.includes(course.id)
+    enrolledCourses.some(enrolled => enrolled.id === course.id)
   );
 
   const handleContinueCourse = (courseId: number) => {

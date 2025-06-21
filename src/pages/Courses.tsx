@@ -318,14 +318,14 @@ const Courses = () => {
     .map(course => ({
       id: course.id,
       title: course.title,
-      instructor: "Course Creator",
+      instructor: course.instructor || "Course Creator",
       price: course.price,
       rating: course.rating || 4.5,
       students: course.students,
       duration: course.duration,
       level: course.level,
       category: course.category.toLowerCase(),
-      image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=250&fit=crop",
+      image: course.thumbnail || "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=250&fit=crop",
       isPaid: course.price > 0,
       isPopular: course.students > 1000
     }));

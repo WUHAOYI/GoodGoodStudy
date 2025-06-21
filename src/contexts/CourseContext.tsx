@@ -21,6 +21,9 @@ interface Course {
     videoUrl?: string;
     completed?: boolean;
   }>;
+  status?: string;
+  language?: string;
+  lastUpdated?: string;
 }
 
 interface CourseContextType {
@@ -29,6 +32,8 @@ interface CourseContextType {
   addCourse: (course: Course) => void;
   updateCourse: (id: number, updates: Partial<Course>) => void;
   deleteCourse: (id: number) => void;
+  updateReviewStatus: (id: number, status: string, reason?: string) => void;
+  publishCourse: (id: number) => void;
 }
 
 const CourseContext = createContext<CourseContextType | undefined>(undefined);
@@ -51,7 +56,10 @@ const sampleCourses: Course[] = [
       { id: 1, title: "Introduction to React", duration: "15 min", videoUrl: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4" },
       { id: 2, title: "Components and Props", duration: "20 min", videoUrl: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4" },
       { id: 3, title: "State and Lifecycle", duration: "25 min", videoUrl: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_5mb.mp4" }
-    ]
+    ],
+    status: "Published",
+    language: "English",
+    lastUpdated: "2024-01-15"
   },
   {
     id: 2,
@@ -70,7 +78,10 @@ const sampleCourses: Course[] = [
       { id: 1, title: "Closures and Scope", duration: "30 min", videoUrl: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4" },
       { id: 2, title: "Prototypes and Inheritance", duration: "35 min", videoUrl: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4" },
       { id: 3, title: "Async Programming", duration: "40 min", videoUrl: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_5mb.mp4" }
-    ]
+    ],
+    status: "Published",
+    language: "English",
+    lastUpdated: "2024-01-20"
   },
   {
     id: 3,
@@ -89,7 +100,10 @@ const sampleCourses: Course[] = [
       { id: 1, title: "Getting Started with Node.js", duration: "20 min", videoUrl: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4" },
       { id: 2, title: "Express Framework", duration: "25 min", videoUrl: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4" },
       { id: 3, title: "Working with Databases", duration: "30 min", videoUrl: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_5mb.mp4" }
-    ]
+    ],
+    status: "Published",
+    language: "English",
+    lastUpdated: "2024-01-10"
   }
 ];
 
@@ -116,13 +130,39 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
     setCourses(prev => prev.filter(course => course.id !== id));
   };
 
+  const updateReviewStatus = (id: number, status: string, reason?: string) => {
+    setCourses(prev =>
+      prev.map(course =>
+        course.id === id ? { 
+          ...course, 
+          status, 
+          lastUpdated: new Date().toISOString().split('T')[0]
+        } : course
+      )
+    );
+  };
+
+  const publishCourse = (id: number) => {
+    setCourses(prev =>
+      prev.map(course =>
+        course.id === id ? { 
+          ...course, 
+          status: 'Under Review',
+          lastUpdated: new Date().toISOString().split('T')[0]
+        } : course
+      )
+    );
+  };
+
   return (
     <CourseContext.Provider value={{
       courses,
       getCourseById,
       addCourse,
       updateCourse,
-      deleteCourse
+      deleteCourse,
+      updateReviewStatus,
+      publishCourse
     }}>
       {children}
     </CourseContext.Provider>

@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -75,7 +74,16 @@ const CourseCard = ({ course }: CourseCardProps) => {
       navigate('/payment', { state: { course } });
     } else {
       // For free courses, enroll directly and redirect to course details
-      enrollInCourse(course.id);
+      enrollInCourse({
+        id: course.id,
+        title: course.title,
+        description: course.description,
+        progress: 0,
+        category: course.category,
+        instructor: course.instructor,
+        duration: course.duration,
+        level: course.level
+      });
       toast({
         title: "Enrolled Successfully!",
         description: `You have been enrolled in ${course.title}`,
