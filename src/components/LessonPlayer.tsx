@@ -1,4 +1,5 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Maximize } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
@@ -122,11 +123,12 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
     video.pause();
     video.currentTime = 0;
     
-    // Use the provided videoUrl or fall back to a working sample
+    // Use the provided videoUrl with working fallback
     const videoUrl = lesson.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
     video.src = videoUrl;
     video.preload = 'metadata';
     video.muted = isMuted;
+    video.crossOrigin = 'anonymous';
 
     const handleLoadedMetadata = () => {
       const duration = video.duration;
@@ -228,7 +230,6 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
     return null;
   }
 
-  // Always use the lesson's videoUrl, with fallback to working sample video
   const videoUrl = lesson.videoUrl || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
   const progressPercentage = totalTime > 0 && isFinite(currentTime) ? (currentTime / totalTime) * 100 : 0;
 
@@ -237,6 +238,9 @@ const LessonPlayer = ({ isOpen, onClose, lesson, courseTitle }: LessonPlayerProp
       <DialogContent className="max-w-5xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>{lesson.title}</DialogTitle>
+          <DialogDescription>
+            Course: {courseTitle} • Duration: {lesson.duration}
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4">
