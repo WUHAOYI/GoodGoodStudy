@@ -24,11 +24,39 @@ const StudentDashboard = () => {
   const { enrolledCourses } = useEnrollment();
   const navigate = useNavigate();
 
-  const [stats, setStats] = useState([
-    { label: 'Courses Enrolled', value: enrolledCourses.length, icon: BookOpen, color: 'blue' },
-    { label: 'Hours Studied', value: 42, icon: Clock, color: 'green' },
-    { label: 'Achievements', value: 15, icon: Award, color: 'yellow' },
-    { label: 'Goals Completed', value: 8, icon: Target, color: 'red' },
+  const [stats] = useState([
+    { 
+      title: 'Courses Enrolled', 
+      value: enrolledCourses.length.toString(), 
+      subtitle: '+2 this month',
+      icon: BookOpen, 
+      iconBgColor: 'bg-blue-100',
+      iconColor: 'text-blue-600'
+    },
+    { 
+      title: 'Hours Studied', 
+      value: '42', 
+      subtitle: '+8 this week',
+      icon: Clock, 
+      iconBgColor: 'bg-green-100',
+      iconColor: 'text-green-600'
+    },
+    { 
+      title: 'Achievements', 
+      value: '15', 
+      subtitle: '+3 new badges',
+      icon: Award, 
+      iconBgColor: 'bg-yellow-100',
+      iconColor: 'text-yellow-600'
+    },
+    { 
+      title: 'Goals Completed', 
+      value: '8', 
+      subtitle: '2 pending',
+      icon: Target, 
+      iconBgColor: 'bg-red-100',
+      iconColor: 'text-red-600'
+    },
   ]);
 
   const [learningTrends, setLearningTrends] = useState([

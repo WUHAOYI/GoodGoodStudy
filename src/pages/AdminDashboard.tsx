@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -14,11 +14,26 @@ import {
   DollarSign,
   Activity,
   Bot,
-  FileText
+  FileText,
+  GraduationCap,
+  FileCheck,
+  Database,
+  Shield,
+  BarChart3,
+  ArrowRight,
+  Upload,
+  Star,
+  Clock,
+  CheckCircle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import StatCard from '@/components/StatCard';
+import CourseManagement from '@/components/CourseManagement';
+import SecurityManagement from '@/components/SecurityManagement';
+import ActivityAnalytics from '@/components/ActivityAnalytics';
+import StatsModal from '@/components/StatsModal';
+import ResourceUploadModal from '@/components/ResourceUploadModal';
 
 interface Activity {
   id: number;

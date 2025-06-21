@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,7 +24,7 @@ const TeacherDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [teacherStats, setTeacherStats] = useState({
+  const [teacherStats] = useState({
     totalCourses: 7,
     activeStudents: 150,
     averageRating: 4.8,
@@ -106,27 +107,35 @@ const TeacherDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
             title="Total Courses"
-            value={teacherStats.totalCourses}
+            value={teacherStats.totalCourses.toString()}
+            subtitle="+2 this month"
             icon={BookOpen}
-            color="text-blue-600"
+            iconBgColor="bg-blue-100"
+            iconColor="text-blue-600"
           />
           <StatCard
             title="Active Students"
-            value={teacherStats.activeStudents}
+            value={teacherStats.activeStudents.toString()}
+            subtitle="+15 new enrollments"
             icon={Users}
-            color="text-green-600"
+            iconBgColor="bg-green-100"
+            iconColor="text-green-600"
           />
           <StatCard
             title="Average Rating"
-            value={teacherStats.averageRating}
+            value={teacherStats.averageRating.toString()}
+            subtitle="Excellent feedback"
             icon={Award}
-            color="text-yellow-600"
+            iconBgColor="bg-yellow-100"
+            iconColor="text-yellow-600"
           />
           <StatCard
             title="Revenue Generated"
             value={`$${teacherStats.revenueGenerated}`}
+            subtitle="+12% from last month"
             icon={TrendingUp}
-            color="text-purple-600"
+            iconBgColor="bg-purple-100"
+            iconColor="text-purple-600"
           />
         </div>
 
