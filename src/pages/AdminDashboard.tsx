@@ -1,41 +1,24 @@
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/contexts/AuthContext';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Users, 
   BookOpen, 
-  BarChart3,
-  Shield,
-  Activity,
-  TrendingUp,
-  DollarSign,
-  Star,
-  Clock,
-  CheckCircle,
-  Eye,
-  UserPlus,
-  GraduationCap,
-  ArrowRight,
-  Database,
-  Edit,
-  FileCheck,
+  TrendingUp, 
+  Award, 
   UserCheck,
-  Upload,
-  Settings,
-  Calendar,
-  MessageSquare
+  Eye,
+  DollarSign,
+  Activity,
+  Bot,
+  FileText
 } from 'lucide-react';
-import Header from '@/components/Header';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { useCourses } from '@/contexts/CourseContext';
-import StatsModal from '@/components/StatsModal';
-import ResourceUploadModal from '@/components/ResourceUploadModal';
-import ActivityAnalytics from '@/components/ActivityAnalytics';
-import CourseManagement from '@/components/CourseManagement';
-import SecurityManagement from '@/components/SecurityManagement';
+import Header from '@/components/Header';
+import StatCard from '@/components/StatCard';
 
 interface Activity {
   id: number;
@@ -127,7 +110,7 @@ const mockPendingCourses = [
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { courses } = useCourses();
+
   const [selectedStat, setSelectedStat] = useState<string | null>(null);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [showAllActivities, setShowAllActivities] = useState(false);
@@ -255,8 +238,18 @@ const AdminDashboard = () => {
       <div className="container mx-auto px-6 py-8">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-            <p className="text-gray-600">Welcome back, {user?.name || 'Admin'}</p>
+            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p className="text-gray-600 mt-2">Manage platform operations and analytics</p>
+          </div>
+          <div className="flex gap-2">
+            <Button onClick={() => navigate('/ai-assistant')} className="flex items-center gap-2">
+              <Bot className="h-4 w-4" />
+              AI Assistant
+            </Button>
+            <Button onClick={() => navigate('/quiz-management')} variant="outline" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Quiz Management
+            </Button>
           </div>
         </div>
 

@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -95,6 +94,17 @@ const App = () => (
                         <AdminDashboard />
                       </ProtectedRoute>
                     } />
+                    <Route path="/ai-assistant" element={
+                      <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
+                        <AIAssistant />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/quiz-management" element={
+                      <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
+                        <QuizManagement />
+                      </ProtectedRoute>
+                    } />
+                    
                     <Route path="/course-management/:id" element={
                       <ProtectedRoute allowedRoles={['teacher', 'admin']}>
                         <CourseManagement />
