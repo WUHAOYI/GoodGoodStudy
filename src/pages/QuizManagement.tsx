@@ -79,8 +79,8 @@ const QuizManagement = () => {
   const handleEditQuiz = (quizId: number) => {
     const quiz = quizzes.find(q => q.id === quizId);
     if (quiz) {
-      // Navigate to quiz editor page
-      navigate(`/quiz-editor/${quizId}`);
+      // For now, navigate to course management with quiz ID
+      navigate(`/course-management/${quizId}`);
       toast({
         title: "Opening Quiz Editor",
         description: `Editing: ${quiz.title}`,
@@ -91,8 +91,8 @@ const QuizManagement = () => {
   const handleViewQuiz = (quizId: number) => {
     const quiz = quizzes.find(q => q.id === quizId);
     if (quiz) {
-      // Navigate to quiz preview page
-      navigate(`/quiz-preview/${quizId}`);
+      // For now, navigate to course details with quiz ID
+      navigate(`/course/${quizId}`);
       toast({
         title: "Viewing Quiz",
         description: `Opening: ${quiz.title}`,

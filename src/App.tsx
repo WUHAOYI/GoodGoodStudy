@@ -105,6 +105,12 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     
+                    {/* Course Management Routes - Updated to handle both edit and view */}
+                    <Route path="/course-management/:id/edit" element={
+                      <ProtectedRoute allowedRoles={['teacher', 'admin']}>
+                        <CourseManagement />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/course-management/:id" element={
                       <ProtectedRoute allowedRoles={['teacher', 'admin']}>
                         <CourseManagement />
@@ -120,6 +126,8 @@ const App = () => (
                         <CourseManagement />
                       </ProtectedRoute>
                     } />
+                    
+                    {/* Other protected routes */}
                     <Route path="/payment" element={
                       <ProtectedRoute allowedRoles={['student']}>
                         <Payment />

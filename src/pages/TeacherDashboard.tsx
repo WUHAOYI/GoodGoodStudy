@@ -63,7 +63,7 @@ const TeacherDashboard = () => {
   };
 
   const handleEditCourse = (courseId: number) => {
-    navigate(`/course-management/${courseId}/edit`);
+    navigate(`/course-management/${courseId}`);
   };
 
   function getStatDetails(statType: string) {
