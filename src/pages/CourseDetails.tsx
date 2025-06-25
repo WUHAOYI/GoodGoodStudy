@@ -19,6 +19,7 @@ import Header from '@/components/Header';
 import { useToast } from '@/hooks/use-toast';
 import { useEnrollment } from '@/contexts/EnrollmentContext';
 import { useWishlist } from '@/contexts/WishlistContext';
+import { useCourses } from '@/contexts/CourseContext';
 import LessonPlayer from '@/components/LessonPlayer';
 import VideoPreview from '@/components/VideoPreview';
 import CourseReviews from '@/components/CourseReviews';
@@ -30,6 +31,7 @@ const CourseDetails = () => {
   const { toast } = useToast();
   const { isEnrolled: checkEnrollment, enrollInCourse, enrolledCourses } = useEnrollment();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { getCourseById } = useCourses();
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [isLessonPlayerOpen, setIsLessonPlayerOpen] = useState(false);
   const [previewLesson, setPreviewLesson] = useState(null);
@@ -37,6 +39,9 @@ const CourseDetails = () => {
 
   const courseId = parseInt(id || '1');
   const isEnrolled = checkEnrollment(courseId);
+
+  // Get course data from CourseContext
+  const courseFromContext = getCourseById(courseId);
 
   // Get course progress from enrolled courses
   const enrolledCourse = enrolledCourses.find(course => course.id === courseId);
@@ -57,8 +62,52 @@ const CourseDetails = () => {
     "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
   ];
 
-  // Dynamic course data based on courseId - matching the courses from Courses.tsx
-  const getCourseData = (id: number) => {
+  // If course exists in CourseContext, use it; otherwise fall back to hardcoded data
+  const course = courseFromContext ? {
+    id: courseFromContext.id,
+    title: courseFromContext.title,
+    instructor: courseFromContext.instructor,
+    price: courseFromContext.price,
+    originalPrice: courseFromContext.price + 50, // Add some original price for display
+    rating: courseFromContext.rating,
+    students: courseFromContext.students,
+    duration: courseFromContext.duration,
+    lessons: courseFromContext.curriculum?.reduce((total, section) => total + (section.videoUrl ? 1 : 0), 0) || 10,
+    level: courseFromContext.level,
+    image: courseFromContext.thumbnail,
+    description: courseFromContext.description,
+    videoUrl: courseFromContext.curriculum?.[0]?.videoUrl || sampleVideos[0],
+    category: courseFromContext.category,
+    requirements: [
+      "Basic computer skills",
+      "No prior experience required",
+      "A computer with internet connection"
+    ],
+    curriculum: courseFromContext.curriculum?.map((item, index) => ({
+      title: `${courseFromContext.category} Section ${index + 1}`,
+      lessons: [
+        { 
+          id: item.id, 
+          title: item.title, 
+          duration: item.duration || "15:30", 
+          videoUrl: item.videoUrl || sampleVideos[index % sampleVideos.length], 
+          isPreview: index === 0 
+        }
+      ],
+      duration: item.duration || "2 hours"
+    })) || [
+      { 
+        title: "Introduction", 
+        lessons: [
+          { id: 1, title: "Getting Started", duration: "15:30", videoUrl: sampleVideos[0], isPreview: true }
+        ], 
+        duration: "2 hours" 
+      }
+    ]
+  } : getCourseData(courseId);
+
+  // Fallback course data function (keeping the existing logic for courses not in CourseContext)
+  function getCourseData(id: number) {
     const coursesData = {
       1: {
         id: 1,
@@ -188,118 +237,11 @@ const CourseDetails = () => {
           { title: "Quality Management", lessons: [], duration: "8 hours" },
           { title: "PMP Exam Preparation", lessons: [], duration: "22 hours" }
         ]
-      },
-      4: {
-        id: 4,
-        title: "UI/UX Design Masterclass",
-        instructor: "Design Studio Pro",
-        price: 0,
-        originalPrice: 0,
-        rating: 4.7,
-        students: 15230,
-        duration: "35 hours",
-        lessons: 127,
-        level: "Beginner",
-        image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=250&fit=crop",
-        description: "Create stunning user interfaces and experiences with industry-standard design principles, prototyping tools, and user research methodologies.",
-        videoUrl: sampleVideos[3],
-        category: "design",
-        requirements: [
-          "Creative mindset",
-          "Basic computer skills",
-          "Design software access (Figma, Sketch, or Adobe XD)"
-        ],
-        curriculum: [
-          { 
-            title: "Design Fundamentals", 
-            lessons: [
-              { id: 1, title: "Introduction to UI/UX Design", duration: "16:30", videoUrl: sampleVideos[3], isPreview: true },
-              { id: 2, title: "Design Principles", duration: "24:45", videoUrl: sampleVideos[4], isPreview: false }
-            ], 
-            duration: "5 hours" 
-          },
-          { title: "User Research", lessons: [], duration: "6 hours" },
-          { title: "Wireframing & Prototyping", lessons: [], duration: "8 hours" },
-          { title: "Visual Design", lessons: [], duration: "10 hours" },
-          { title: "Usability Testing", lessons: [], duration: "6 hours" }
-        ]
-      },
-      5: {
-        id: 5,
-        title: "Advanced JavaScript Programming",
-        instructor: "Code Masters",
-        price: 149,
-        originalPrice: 199,
-        rating: 4.9,
-        students: 8700,
-        duration: "30 hours",
-        lessons: 98,
-        level: "Advanced",
-        image: "https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?w=400&h=250&fit=crop",
-        description: "Deep dive into advanced JavaScript concepts, ES6+, and modern development patterns.",
-        videoUrl: sampleVideos[4],
-        category: "programming",
-        requirements: [
-          "Solid understanding of JavaScript basics",
-          "Experience with DOM manipulation",
-          "Familiarity with HTML and CSS"
-        ],
-        curriculum: [
-          { 
-            title: "Advanced JavaScript Concepts", 
-            lessons: [
-              { id: 1, title: "Closures and Scope", duration: "28:30", videoUrl: sampleVideos[4], isPreview: true },
-              { id: 2, title: "Prototypes and Inheritance", duration: "32:45", videoUrl: sampleVideos[5], isPreview: false }
-            ], 
-            duration: "8 hours" 
-          },
-          { title: "ES6+ Features", lessons: [], duration: "6 hours" },
-          { title: "Asynchronous JavaScript", lessons: [], duration: "7 hours" },
-          { title: "Design Patterns", lessons: [], duration: "5 hours" },
-          { title: "Performance Optimization", lessons: [], duration: "4 hours" }
-        ]
-      },
-      6: {
-        id: 6,
-        title: "Photography Basics",
-        instructor: "Visual Arts Academy",
-        price: 89,
-        originalPrice: 129,
-        rating: 4.5,
-        students: 3200,
-        duration: "20 hours",
-        lessons: 65,
-        level: "Beginner",
-        image: "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400&h=250&fit=crop",
-        description: "Learn the fundamentals of photography including composition, lighting, and post-processing.",
-        videoUrl: sampleVideos[5],
-        category: "photography",
-        requirements: [
-          "Camera (DSLR, mirrorless, or smartphone)",
-          "Basic computer skills for editing",
-          "Creative interest in photography"
-        ],
-        curriculum: [
-          { 
-            title: "Photography Fundamentals", 
-            lessons: [
-              { id: 1, title: "Camera Basics", duration: "18:30", videoUrl: sampleVideos[5], isPreview: true },
-              { id: 2, title: "Composition Techniques", duration: "22:45", videoUrl: sampleVideos[0], isPreview: false }
-            ], 
-            duration: "4 hours" 
-          },
-          { title: "Lighting Techniques", lessons: [], duration: "5 hours" },
-          { title: "Portrait Photography", lessons: [], duration: "4 hours" },
-          { title: "Landscape Photography", lessons: [], duration: "3 hours" },
-          { title: "Post-Processing", lessons: [], duration: "4 hours" }
-        ]
       }
     };
 
     return coursesData[id] || coursesData[1]; // Default to course 1 if ID not found
-  };
-
-  const course = getCourseData(courseId);
+  }
 
   const handlePlayLesson = (lesson) => {
     console.log('Playing lesson:', lesson, 'isEnrolled:', isEnrolled);
