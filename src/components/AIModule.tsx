@@ -51,6 +51,7 @@ const AIModule = () => {
   const { user } = useAuth();
   const { courses } = useCourses();
   const navigate = useNavigate();
+  
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
@@ -63,51 +64,112 @@ const AIModule = () => {
   const [isTyping, setIsTyping] = useState(false);
 
   // Generate recommendations from actual courses in the course library
-  const mockRecommendations: Recommendation[] = courses.slice(0, 3).map(course => ({
-    id: course.id,
-    title: course.title,
-    type: "course" as const,
-    description: `Perfect for expanding your skills based on your learning history - ${course.description.substring(0, 80)}...`,
-    rating: course.rating,
-    difficulty: course.level,
-    category: course.category
-  }));
-
-  // Updated with real course IDs from the course system
-  const mockAnalytics: AnalysisInsight[] = [
-    {
-      id: 1,
-      title: "Average Completion Rate",
-      value: "87%",
-      trend: "up",
-      description: "Students are completing courses at a higher rate this month",
-      category: "learning"
-    },
-    {
-      id: 2,
-      title: "Engagement Score",
-      value: "4.6/5",
-      trend: "stable",
-      description: "Student engagement remains consistently high",
-      category: "engagement"
-    },
-    {
-      id: 3,
-      title: "Teaching Effectiveness",
-      value: "92%",
-      trend: "up",
-      description: "Teacher performance indicators show improvement",
-      category: "teaching"
-    },
-    {
-      id: 4,
-      title: "Quiz Success Rate",
-      value: "78%",
-      trend: "down",
-      description: "Quiz completion rates need attention",
-      category: "learning"
+  const getTeacherRecommendations = (): Recommendation[] => {
+    if (user?.role === 'teacher') {
+      return [
+        {
+          id: 1,
+          title: "Advanced React Hooks Course",
+          type: "course" as const,
+          description: "High demand topic - 85% of students request advanced React content. Focus on useContext, useReducer, and custom hooks.",
+          category: "Course Creation"
+        },
+        {
+          id: 2,
+          title: "TypeScript Integration Module",
+          type: "topic" as const,
+          description: "Popular skill enhancement - Would increase course completion by 23%. Cover basic types, interfaces, and generics.",
+          category: "Knowledge Area"
+        },
+        {
+          id: 3,
+          title: "Database Design Fundamentals",
+          type: "topic" as const,
+          description: "Students struggle with this concept - needs more examples and practical exercises. Focus on normalization and relationships.",
+          category: "Knowledge Area"
+        },
+        {
+          id: 4,
+          title: "API Development Best Practices",
+          type: "course" as const,
+          description: "Trending topic with 40% increase in student inquiries. Cover REST APIs, authentication, and error handling.",
+          category: "Course Creation"
+        },
+        {
+          id: 5,
+          title: "Async Programming Concepts",
+          type: "topic" as const,
+          description: "67% of students need additional support. Break down promises, async/await, and error handling patterns.",
+          category: "Knowledge Area"
+        }
+      ];
     }
-  ];
+    
+    // Fallback to course recommendations for students
+    return courses.slice(0, 3).map(course => ({
+      id: course.id,
+      title: course.title,
+      type: "course" as const,
+      description: `Perfect for expanding your skills based on your learning history - ${course.description.substring(0, 80)}...`,
+      rating: course.rating,
+      difficulty: course.level,
+      category: course.category
+    }));
+  };
+
+  // Teacher-specific analytics insights
+  const getTeacherAnalytics = (): AnalysisInsight[] => {
+    if (user?.role === 'teacher') {
+      return [
+        {
+          id: 1,
+          title: "Weak Knowledge Area: Async Programming",
+          value: "67%",
+          trend: "down",
+          description: "Students struggle with promises and async/await concepts. Consider adding more interactive examples.",
+          category: "learning"
+        },
+        {
+          id: 2,
+          title: "High Interest: Machine Learning",
+          value: "42 requests",
+          trend: "up",
+          description: "Students actively requesting ML course content. Great opportunity for new course creation.",
+          category: "engagement"
+        },
+        {
+          id: 3,
+          title: "Course Completion Challenge",
+          value: "78%",
+          trend: "down",
+          description: "JavaScript Advanced course has lower completion rates. Consider breaking into smaller modules.",
+          category: "teaching"
+        },
+        {
+          id: 4,
+          title: "Trending Topic: Mobile Development",
+          value: "156% increase",
+          trend: "up",
+          description: "Search volume and student interest in mobile development is rapidly growing.",
+          category: "engagement"
+        },
+        {
+          id: 5,
+          title: "Student Feedback: More Practice",
+          value: "89%",
+          trend: "stable",
+          description: "Students consistently request more hands-on coding exercises across all courses.",
+          category: "learning"
+        }
+      ];
+    }
+    
+    // Fallback analytics for students
+    return mockAnalytics;
+  };
+
+  const mockRecommendations: Recommendation[] = getTeacherRecommendations();
+  const mockAnalytics: AnalysisInsight[] = getTeacherAnalytics();
 
   const sendMessage = async () => {
     if (!inputMessage.trim()) return;
@@ -179,8 +241,12 @@ const AIModule = () => {
       <Tabs defaultValue="chat" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="chat">AI Chat</TabsTrigger>
-          <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="recommendations">
+            {user?.role === 'teacher' ? 'Teaching Recommendations' : 'Recommendations'}
+          </TabsTrigger>
+          <TabsTrigger value="analytics">
+            {user?.role === 'teacher' ? 'Student Analytics' : 'Analytics'}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="chat" className="space-y-4">
@@ -247,7 +313,7 @@ const AIModule = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Target className="h-5 w-5" />
-                Personalized Recommendations
+                {user?.role === 'teacher' ? 'Course Creation & Knowledge Area Recommendations' : 'Personalized Recommendations'}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -269,13 +335,22 @@ const AIModule = () => {
                       <h4 className="font-semibold mb-2">{rec.title}</h4>
                       <p className="text-sm text-gray-600 mb-3">{rec.description}</p>
                       <div className="flex items-center justify-between">
-                        <Badge variant="outline">{rec.difficulty}</Badge>
-                        <Button 
-                          size="sm"
-                          onClick={() => navigate(`/course/${rec.id}`)}
-                        >
-                          View Details
-                        </Button>
+                        <Badge variant="outline">{rec.category}</Badge>
+                        {user?.role === 'teacher' ? (
+                          <Button 
+                            size="sm"
+                            onClick={() => navigate('/course-management/new')}
+                          >
+                            Create Course
+                          </Button>
+                        ) : (
+                          <Button 
+                            size="sm"
+                            onClick={() => navigate(`/course/${rec.id}`)}
+                          >
+                            View Details
+                          </Button>
+                        )}
                       </div>
                     </CardContent>
                   </Card>

@@ -1,4 +1,3 @@
-
 import Header from '@/components/Header';
 import QuizModule from '@/components/QuizModule';
 import { Button } from '@/components/ui/button';
@@ -80,23 +79,24 @@ const QuizManagement = () => {
   const handleEditQuiz = (quizId: number) => {
     const quiz = quizzes.find(q => q.id === quizId);
     if (quiz) {
+      // Navigate to quiz editor page
+      navigate(`/quiz-editor/${quizId}`);
       toast({
         title: "Opening Quiz Editor",
         description: `Editing: ${quiz.title}`,
       });
-      // In a real app, this would navigate to the quiz editor
-      console.log(`Editing quiz ${quizId}:`, quiz);
     }
   };
 
   const handleViewQuiz = (quizId: number) => {
     const quiz = quizzes.find(q => q.id === quizId);
     if (quiz) {
+      // Navigate to quiz preview page
+      navigate(`/quiz-preview/${quizId}`);
       toast({
         title: "Viewing Quiz",
         description: `Opening: ${quiz.title}`,
       });
-      console.log(`Viewing quiz ${quizId}:`, quiz);
     }
   };
 

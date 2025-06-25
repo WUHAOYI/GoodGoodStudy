@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -59,7 +58,18 @@ const TeacherDashboard = () => {
     },
   ]);
 
-  // Teacher-specific stat card details
+  const handleViewCourseDetails = (courseId: number) => {
+    navigate(`/course/${courseId}`);
+  };
+
+  const handleEditCourse = (courseId: number) => {
+    const course = courses.find(c => c.id === courseId);
+    if (course) {
+      navigate(`/course-management/${courseId}/edit`);
+      console.log(`Editing course ${courseId}:`, course);
+    }
+  };
+
   const getStatDetails = (statType: string) => {
     switch (statType) {
       case 'courses':
@@ -186,11 +196,19 @@ const TeacherDashboard = () => {
                       <span className="text-sm text-gray-500">Rating: {course.rating}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <Button variant="secondary" size="sm" onClick={() => navigate(`/course-management/${course.id}`)}>
+                      <Button 
+                        variant="secondary" 
+                        size="sm" 
+                        onClick={() => handleViewCourseDetails(course.id)}
+                      >
                         <Eye className="h-4 w-4 mr-2" />
                         View Details
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleEditCourse(course.id)}
+                      >
                         <Edit className="h-4 w-4 mr-2" />
                         Edit
                       </Button>
