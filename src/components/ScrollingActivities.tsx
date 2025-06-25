@@ -58,9 +58,9 @@ const ScrollingActivities = () => {
       </CardHeader>
       <CardContent>
         <div className="relative h-64 overflow-hidden">
-          <div className="animate-scroll-up space-y-3">
+          <div className="animate-pulse space-y-3">
             {[...activities, ...activities].map((activity, index) => (
-              <div key={`${activity.id}-${index}`} className="flex items-center gap-3 p-3 border rounded-lg bg-white">
+              <div key={`${activity.id}-${index}`} className="flex items-center gap-3 p-3 border rounded-lg bg-white animate-fade-in">
                 <div className="flex-shrink-0">
                   {activity.icon}
                 </div>
@@ -81,20 +81,6 @@ const ScrollingActivities = () => {
           </div>
         </div>
       </CardContent>
-      
-      <style jsx>{`
-        @keyframes scroll-up {
-          0% {
-            transform: translateY(0);
-          }
-          100% {
-            transform: translateY(-50%);
-          }
-        }
-        .animate-scroll-up {
-          animation: scroll-up 20s linear infinite;
-        }
-      `}</style>
     </Card>
   );
 };
