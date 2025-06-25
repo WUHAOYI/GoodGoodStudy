@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Clock, BookOpen, Trophy, Star } from 'lucide-react';
@@ -13,7 +13,7 @@ interface Activity {
 }
 
 const ScrollingActivities = () => {
-  const [activities] = useState<Activity[]>([
+  const activities: Activity[] = [
     { 
       id: 1, 
       description: 'Completed "React Fundamentals" course', 
@@ -48,24 +48,37 @@ const ScrollingActivities = () => {
       date: '2024-07-05',
       type: 'completion',
       icon: <BookOpen className="h-4 w-4 text-green-600" />
+    },
+    { 
+      id: 6, 
+      description: 'Perfect score on TypeScript quiz', 
+      date: '2024-07-03',
+      type: 'quiz',
+      icon: <Star className="h-4 w-4 text-yellow-600" />
     }
-  ]);
+  ];
+
+  // Triple the activities to ensure smooth continuous loop
+  const extendedActivities = [...activities, ...activities, ...activities];
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
-        <CardTitle>Recent Activities</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <Clock className="h-5 w-5 text-blue-600" />
+          Recent Activities
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="relative h-64 overflow-hidden">
+        <div className="relative h-80 overflow-hidden">
           <div 
             className="space-y-3"
             style={{
-              animation: 'marquee 30s linear infinite'
+              animation: 'marquee 45s linear infinite'
             }}
           >
-            {[...activities, ...activities, ...activities].map((activity, index) => (
-              <div key={`${activity.id}-${index}`} className="flex items-center gap-3 p-3 border rounded-lg bg-white">
+            {extendedActivities.map((activity, index) => (
+              <div key={`${activity.id}-${index}`} className="flex items-center gap-3 p-3 border rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex-shrink-0">
                   {activity.icon}
                 </div>
@@ -76,7 +89,7 @@ const ScrollingActivities = () => {
                   <div className="flex items-center gap-2 mt-1">
                     <Clock className="h-3 w-3 text-gray-400" />
                     <span className="text-xs text-gray-500">{activity.date}</span>
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs capitalize">
                       {activity.type}
                     </Badge>
                   </div>

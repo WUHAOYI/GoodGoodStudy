@@ -49,7 +49,7 @@ const VideoProgressBar = ({ currentTime, totalTime, onSeek }: VideoProgressBarPr
   return (
     <div className="bg-gray-50 p-4 rounded-lg">
       <div 
-        className="w-full bg-gray-200 rounded-full h-2 mb-4 cursor-pointer relative hover:h-3 transition-all duration-200"
+        className="w-full bg-gray-200 rounded-full h-3 mb-4 cursor-pointer relative hover:h-4 transition-all duration-200"
         onClick={handleSeek}
         onMouseDown={handleMouseDown}
       >
@@ -57,17 +57,17 @@ const VideoProgressBar = ({ currentTime, totalTime, onSeek }: VideoProgressBarPr
           className="bg-blue-600 h-full rounded-full transition-all duration-300 relative"
           style={{ width: `${Math.max(0, Math.min(100, progressPercentage))}%` }}
         >
-          <div className="absolute right-0 top-1/2 transform translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-blue-600 rounded-full opacity-0 hover:opacity-100 transition-opacity duration-200 cursor-grab active:cursor-grabbing"></div>
+          <div className="absolute right-0 top-1/2 transform translate-x-1/2 -translate-y-1/2 w-5 h-5 bg-blue-600 rounded-full shadow-lg cursor-grab hover:cursor-grabbing transition-all duration-200 hover:scale-110"></div>
         </div>
       </div>
       
       <div className="flex items-center justify-between">
-        <div className="text-sm text-gray-600">
-          <span className="font-medium">{formatTime(currentTime)}</span>
-          <span className="mx-1">/</span>
+        <div className="text-sm text-gray-700 font-medium">
+          <span className="text-blue-600">{formatTime(currentTime)}</span>
+          <span className="mx-2 text-gray-400">/</span>
           <span>{formatTime(totalTime)}</span>
         </div>
-        <div className="text-xs text-gray-500">
+        <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
           {totalTime > 0 ? `${Math.round(progressPercentage)}% complete` : 'Loading...'}
         </div>
       </div>

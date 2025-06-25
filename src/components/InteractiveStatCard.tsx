@@ -2,9 +2,14 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { LucideIcon } from 'lucide-react';
+
+interface DetailItem {
+  name: string;
+  value: string;
+  extra?: string;
+}
 
 interface InteractiveStatCardProps {
   title: string;
@@ -13,8 +18,7 @@ interface InteractiveStatCardProps {
   icon: LucideIcon;
   iconBgColor: string;
   iconColor: string;
-  detailsData?: any[];
-  detailsTitle?: string;
+  details?: DetailItem[];
 }
 
 const InteractiveStatCard = ({ 
@@ -24,8 +28,7 @@ const InteractiveStatCard = ({
   icon: Icon, 
   iconBgColor, 
   iconColor,
-  detailsData = [],
-  detailsTitle
+  details = []
 }: InteractiveStatCardProps) => {
   const [showDetails, setShowDetails] = useState(false);
 
@@ -54,7 +57,7 @@ const InteractiveStatCard = ({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Icon className={`h-5 w-5 ${iconColor}`} />
-              {detailsTitle || title}
+              {title} Details
             </DialogTitle>
             <DialogDescription>
               Detailed information about your {title.toLowerCase()}
@@ -62,36 +65,17 @@ const InteractiveStatCard = ({
           </DialogHeader>
           
           <div className="space-y-4">
-            {detailsData.length > 0 ? (
-              detailsData.map((item, index) => (
-                <div key={index} className="border rounded-lg p-4">
+            {details.length > 0 ? (
+              details.map((item, index) => (
+                <div key={index} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
                   <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-medium">{item.title || item.name}</h4>
-                    {item.status && (
-                      <Badge variant={item.status === 'completed' ? 'default' : 'outline'}>
-                        {item.status}
-                      </Badge>
-                    )}
+                    <h4 className="font-medium text-gray-900">{item.name}</h4>
+                    <Badge variant="outline" className="text-xs">
+                      {item.value}
+                    </Badge>
                   </div>
-                  {item.description && (
-                    <p className="text-sm text-gray-600 mb-2">{item.description}</p>
-                  )}
-                  {item.progress !== undefined && (
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-blue-600 h-2 rounded-full" 
-                          style={{ width: `${item.progress}%` }}
-                        />
-                      </div>
-                      <span className="text-sm text-gray-600">{item.progress}%</span>
-                    </div>
-                  )}
-                  {item.hours && (
-                    <p className="text-xs text-gray-500 mt-1">{item.hours} hours</p>
-                  )}
-                  {item.date && (
-                    <p className="text-xs text-gray-500 mt-1">{item.date}</p>
+                  {item.extra && (
+                    <p className="text-sm text-gray-600">{item.extra}</p>
                   )}
                 </div>
               ))

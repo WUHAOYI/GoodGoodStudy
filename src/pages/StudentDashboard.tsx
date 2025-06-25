@@ -12,7 +12,8 @@ import {
   Award, 
   Target, 
   Bot,
-  FileText
+  FileText,
+  ArrowLeft
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -114,22 +115,23 @@ const StudentDashboard = () => {
           <h2 className="text-2xl font-semibold text-gray-900 mb-4">Enrolled Courses</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {enrolledCourses.map((course) => (
-              <Card key={course.id}>
+              <Card key={course.id} className="hover:shadow-lg transition-all duration-300">
                 <CardHeader>
-                  <CardTitle>{course.title}</CardTitle>
+                  <CardTitle className="text-lg">{course.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600 mb-4">{course.description}</p>
+                  <p className="text-gray-600 mb-4 text-sm line-clamp-2">{course.description}</p>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">Progress:</span>
-                    <span className="text-sm font-bold">{course.progress}%</span>
+                    <span className="text-sm font-medium text-gray-700">Progress:</span>
+                    <span className="text-sm font-bold text-blue-600">{course.progress}%</span>
                   </div>
-                  <Progress value={course.progress} className="mb-4" />
+                  <Progress value={course.progress} className="mb-4 h-2" />
                   <div className="flex justify-between items-center">
-                    <Badge variant="secondary">{course.category}</Badge>
+                    <Badge variant="secondary" className="text-xs">{course.category}</Badge>
                     <Button 
                       onClick={() => navigate(`/course/${course.id}`)}
                       size="sm"
+                      className="bg-blue-600 hover:bg-blue-700"
                     >
                       Continue Learning
                     </Button>
@@ -140,7 +142,7 @@ const StudentDashboard = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div className="space-y-8">
           <ScrollingActivities />
           <AchievementsDisplay />
         </div>
