@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEnrollment } from '@/contexts/EnrollmentContext';
@@ -153,11 +152,11 @@ const StudentDashboard = () => {
           )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <div className="lg:col-span-1">
+        <div className="space-y-8 mb-8">
+          <div className="w-full">
             <ScrollingActivities />
           </div>
-          <div className="lg:col-span-1">
+          <div className="w-full">
             <AchievementsDisplay />
           </div>
         </div>

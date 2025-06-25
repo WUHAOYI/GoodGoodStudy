@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,7 +19,9 @@ import {
   FileText,
   Award,
   BarChart3,
-  Users
+  Users,
+  Play,
+  Trophy
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -59,6 +60,14 @@ interface QuizAttempt {
   timeSpent: number; // in minutes
 }
 
+interface QuizTaking {
+  quizId: number;
+  currentQuestionIndex: number;
+  answers: Record<number, string>;
+  startTime: Date;
+  timeRemaining: number;
+}
+
 const QuizModule = () => {
   const { user } = useAuth();
   const [quizzes, setQuizzes] = useState<Quiz[]>([
@@ -76,11 +85,41 @@ const QuizModule = () => {
           options: ["var x = 1", "let x = 1", "const x = 1", "All of the above"],
           correctAnswer: "All of the above",
           points: 10
+        },
+        {
+          id: 2,
+          text: "JavaScript is a compiled language.",
+          type: "true-false",
+          options: ["True", "False"],
+          correctAnswer: "False",
+          points: 5
         }
       ],
       timeLimit: 30,
-      totalPoints: 10,
+      totalPoints: 15,
       attempts: 5,
+      isPublished: true,
+      createdAt: new Date()
+    },
+    {
+      id: 2,
+      title: "React Components Quiz",
+      description: "Test your understanding of React components",
+      courseId: 2,
+      courseName: "React Development",
+      questions: [
+        {
+          id: 1,
+          text: "What is JSX?",
+          type: "multiple-choice",
+          options: ["JavaScript XML", "Java Syntax Extension", "JSON Extension", "JavaScript Exchange"],
+          correctAnswer: "JavaScript XML",
+          points: 10
+        }
+      ],
+      timeLimit: 20,
+      totalPoints: 10,
+      attempts: 3,
       isPublished: true,
       createdAt: new Date()
     }
@@ -92,13 +131,27 @@ const QuizModule = () => {
       quizId: 1,
       studentId: 1,
       studentName: "John Doe",
-      answers: { 1: "All of the above" },
+      answers: { 1: "All of the above", 2: "False" },
+      score: 15,
+      totalPoints: 15,
+      completedAt: new Date('2024-07-15'),
+      timeSpent: 15
+    },
+    {
+      id: 2,
+      quizId: 2,
+      studentId: 1,
+      studentName: "John Doe",
+      answers: { 1: "JavaScript XML" },
       score: 10,
       totalPoints: 10,
-      completedAt: new Date(),
-      timeSpent: 15
+      completedAt: new Date('2024-07-10'),
+      timeSpent: 8
     }
   ]);
+
+  const [currentQuizTaking, setCurrentQuizTaking] = useState<QuizTaking | null>(null);
+  const [selectedAnswer, setSelectedAnswer] = useState<string>('');
 
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
   const [isCreateQuizOpen, setIsCreateQuizOpen] = useState(false);
@@ -188,6 +241,65 @@ const QuizModule = () => {
       strengths: percentage >= 80 ? 'Strong grasp of fundamental concepts' : 'Basic understanding',
       improvements: percentage < 80 ? 'Review course materials thoroughly' : 'Continue advanced practice'
     };
+  };
+
+  const startQuiz = (quizId: number) => {
+    const quiz = quizzes.find(q => q.id === quizId);
+    if (!quiz) return;
+
+    setCurrentQuizTaking({
+      quizId,
+      currentQuestionIndex: 0,
+      answers: {},
+      startTime: new Date(),
+      timeRemaining: quiz.timeLimit * 60 // Convert to seconds
+    });
+  };
+
+  const submitAnswer = () => {
+    if (!currentQuizTaking || !selectedAnswer) return;
+
+    const updatedAnswers = {
+      ...currentQuizTaking.answers,
+      [currentQuizTaking.currentQuestionIndex + 1]: selectedAnswer
+    };
+
+    const quiz = quizzes.find(q => q.id === currentQuizTaking.quizId);
+    if (!quiz) return;
+
+    if (currentQuizTaking.currentQuestionIndex < quiz.questions.length - 1) {
+      // Move to next question
+      setCurrentQuizTaking({
+        ...currentQuizTaking,
+        currentQuestionIndex: currentQuizTaking.currentQuestionIndex + 1,
+        answers: updatedAnswers
+      });
+      setSelectedAnswer('');
+    } else {
+      // Quiz completed, calculate score
+      let score = 0;
+      quiz.questions.forEach((question, index) => {
+        if (updatedAnswers[index + 1] === question.correctAnswer) {
+          score += question.points;
+        }
+      });
+
+      const newAttempt: QuizAttempt = {
+        id: attempts.length + 1,
+        quizId: quiz.id,
+        studentId: 1,
+        studentName: user?.name || "Student",
+        answers: updatedAnswers,
+        score,
+        totalPoints: quiz.totalPoints,
+        completedAt: new Date(),
+        timeSpent: Math.round((Date.now() - currentQuizTaking.startTime.getTime()) / 60000)
+      };
+
+      setAttempts(prev => [...prev, newAttempt]);
+      setCurrentQuizTaking(null);
+      setSelectedAnswer('');
+    }
   };
 
   if (user?.role === 'teacher' || user?.role === 'admin') {
@@ -528,39 +640,222 @@ const QuizModule = () => {
   }
 
   // Student view for taking quizzes
+  if (currentQuizTaking) {
+    const quiz = quizzes.find(q => q.id === currentQuizTaking.quizId);
+    const currentQuestion = quiz?.questions[currentQuizTaking.currentQuestionIndex];
+
+    if (!quiz || !currentQuestion) return null;
+
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle>{quiz.title}</CardTitle>
+              <Badge variant="outline">
+                Question {currentQuizTaking.currentQuestionIndex + 1} of {quiz.questions.length}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h3 className="font-semibold mb-2">{currentQuestion.text}</h3>
+                <p className="text-sm text-gray-600">Points: {currentQuestion.points}</p>
+              </div>
+
+              {currentQuestion.type === 'multiple-choice' && (
+                <RadioGroup value={selectedAnswer} onValueChange={setSelectedAnswer}>
+                  {currentQuestion.options?.map((option, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <RadioGroupItem value={option} id={`option-${index}`} />
+                      <Label htmlFor={`option-${index}`}>{option}</Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              )}
+
+              {currentQuestion.type === 'true-false' && (
+                <RadioGroup value={selectedAnswer} onValueChange={setSelectedAnswer}>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="True" id="true" />
+                    <Label htmlFor="true">True</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="False" id="false" />
+                    <Label htmlFor="false">False</Label>
+                  </div>
+                </RadioGroup>
+              )}
+
+              {currentQuestion.type === 'short-answer' && (
+                <Textarea
+                  value={selectedAnswer}
+                  onChange={(e) => setSelectedAnswer(e.target.value)}
+                  placeholder="Enter your answer..."
+                />
+              )}
+
+              <div className="flex justify-between">
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentQuizTaking(null)}
+                >
+                  Exit Quiz
+                </Button>
+                <Button
+                  onClick={submitAnswer}
+                  disabled={!selectedAnswer}
+                >
+                  {currentQuizTaking.currentQuestionIndex < quiz.questions.length - 1 
+                    ? 'Next Question' 
+                    : 'Submit Quiz'
+                  }
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Available Quizzes</h1>
+      <h1 className="text-3xl font-bold">My Quizzes</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {quizzes.filter(q => q.isPublished).map((quiz) => (
-          <Card key={quiz.id}>
-            <CardHeader>
-              <CardTitle className="text-lg">{quiz.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600 mb-4">{quiz.description}</p>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span>Questions:</span>
-                  <span>{quiz.questions.length}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Time Limit:</span>
-                  <span>{quiz.timeLimit} min</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Total Points:</span>
-                  <span>{quiz.totalPoints}</span>
-                </div>
-              </div>
-              <Button className="w-full mt-4">
-                Start Quiz
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <Tabs defaultValue="available">
+        <TabsList>
+          <TabsTrigger value="available">Available Quizzes</TabsTrigger>
+          <TabsTrigger value="results">My Results</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="available">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {quizzes.filter(q => q.isPublished).map((quiz) => (
+              <Card key={quiz.id}>
+                <CardHeader>
+                  <CardTitle className="text-lg">{quiz.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600 mb-4">{quiz.description}</p>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Questions:</span>
+                      <span>{quiz.questions.length}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Time Limit:</span>
+                      <span>{quiz.timeLimit} min</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Total Points:</span>
+                      <span>{quiz.totalPoints}</span>
+                    </div>
+                  </div>
+                  <Button 
+                    className="w-full mt-4" 
+                    onClick={() => startQuiz(quiz.id)}
+                  >
+                    <Play className="h-4 w-4 mr-2" />
+                    Start Quiz
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="results">
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2">
+                    <Trophy className="h-5 w-5 text-yellow-600" />
+                    <div>
+                      <p className="text-sm text-gray-600">Quizzes Completed</p>
+                      <p className="text-2xl font-bold">{attempts.length}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2">
+                    <Award className="h-5 w-5 text-green-600" />
+                    <div>
+                      <p className="text-sm text-gray-600">Average Score</p>
+                      <p className="text-2xl font-bold">
+                        {attempts.length > 0 
+                          ? Math.round(attempts.reduce((sum, a) => sum + (a.score / a.totalPoints) * 100, 0) / attempts.length)
+                          : 0}%
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-blue-600" />
+                    <div>
+                      <p className="text-sm text-gray-600">Total Time</p>
+                      <p className="text-2xl font-bold">
+                        {attempts.reduce((sum, a) => sum + a.timeSpent, 0)} min
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {attempts.map((attempt) => {
+              const quiz = quizzes.find(q => q.id === attempt.quizId);
+              const percentage = (attempt.score / attempt.totalPoints) * 100;
+              
+              return (
+                <Card key={attempt.id}>
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h4 className="font-semibold">{quiz?.title}</h4>
+                        <p className="text-sm text-gray-600">
+                          Completed on {attempt.completedAt.toLocaleDateString()}
+                        </p>
+                      </div>
+                      <Badge variant={
+                        percentage >= 80 ? "default" : 
+                        percentage >= 70 ? "secondary" : "destructive"
+                      }>
+                        {percentage.toFixed(1)}%
+                      </Badge>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <strong>Score:</strong> {attempt.score}/{attempt.totalPoints}
+                      </div>
+                      <div>
+                        <strong>Time:</strong> {attempt.timeSpent} min
+                      </div>
+                      <div>
+                        <strong>Performance:</strong> {
+                          percentage >= 90 ? 'Excellent' :
+                          percentage >= 80 ? 'Good' :
+                          percentage >= 70 ? 'Satisfactory' : 'Needs Improvement'
+                        }
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
