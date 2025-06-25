@@ -26,10 +26,14 @@ const VideoProgressBar = ({ currentTime, totalTime, onSeek }: VideoProgressBarPr
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
+    
+    const progressBar = e.currentTarget;
+    if (!progressBar) return;
+    
     const handleMouseMove = (moveEvent: MouseEvent) => {
       if (totalTime === 0) return;
       
-      const rect = e.currentTarget.getBoundingClientRect();
+      const rect = progressBar.getBoundingClientRect();
       const percent = (moveEvent.clientX - rect.left) / rect.width;
       const newTime = Math.max(0, Math.min(totalTime, percent * totalTime));
       onSeek(newTime);
@@ -54,7 +58,7 @@ const VideoProgressBar = ({ currentTime, totalTime, onSeek }: VideoProgressBarPr
         onMouseDown={handleMouseDown}
       >
         <div 
-          className="bg-blue-600 h-full rounded-full transition-all duration-300 relative"
+          className="bg-blue-600 h-full rounded-full transition-all duration-150 relative"
           style={{ width: `${Math.max(0, Math.min(100, progressPercentage))}%` }}
         >
           <div className="absolute right-0 top-1/2 transform translate-x-1/2 -translate-y-1/2 w-5 h-5 bg-blue-600 rounded-full shadow-lg cursor-grab hover:cursor-grabbing transition-all duration-200 hover:scale-110"></div>

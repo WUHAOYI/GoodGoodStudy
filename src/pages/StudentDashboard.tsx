@@ -113,38 +113,53 @@ const StudentDashboard = () => {
 
         <div className="mb-8">
           <h2 className="text-2xl font-semibold text-gray-900 mb-4">Enrolled Courses</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {enrolledCourses.map((course) => (
-              <Card key={course.id} className="hover:shadow-lg transition-all duration-300">
-                <CardHeader>
-                  <CardTitle className="text-lg">{course.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 mb-4 text-sm line-clamp-2">{course.description}</p>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700">Progress:</span>
-                    <span className="text-sm font-bold text-blue-600">{course.progress}%</span>
-                  </div>
-                  <Progress value={course.progress} className="mb-4 h-2" />
-                  <div className="flex justify-between items-center">
-                    <Badge variant="secondary" className="text-xs">{course.category}</Badge>
-                    <Button 
-                      onClick={() => navigate(`/course/${course.id}`)}
-                      size="sm"
-                      className="bg-blue-600 hover:bg-blue-700"
-                    >
-                      Continue Learning
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {enrolledCourses.length === 0 ? (
+            <div className="text-center py-12">
+              <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No enrolled courses</h3>
+              <p className="text-gray-600 mb-6">Start your learning journey by enrolling in a course</p>
+              <Button onClick={() => navigate('/courses')}>
+                Browse Courses
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {enrolledCourses.map((course) => (
+                <Card key={course.id} className="hover:shadow-lg transition-all duration-300">
+                  <CardHeader>
+                    <CardTitle className="text-lg">{course.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 mb-4 text-sm line-clamp-2">{course.description}</p>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-700">Progress:</span>
+                      <span className="text-sm font-bold text-blue-600">{course.progress}%</span>
+                    </div>
+                    <Progress value={course.progress} className="mb-4 h-2" />
+                    <div className="flex justify-between items-center">
+                      <Badge variant="secondary" className="text-xs">{course.category}</Badge>
+                      <Button 
+                        onClick={() => navigate(`/course/${course.id}`)}
+                        size="sm"
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        Continue Learning
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
 
-        <div className="space-y-8">
-          <ScrollingActivities />
-          <AchievementsDisplay />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <div className="lg:col-span-1">
+            <ScrollingActivities />
+          </div>
+          <div className="lg:col-span-1">
+            <AchievementsDisplay />
+          </div>
         </div>
       </div>
     </div>

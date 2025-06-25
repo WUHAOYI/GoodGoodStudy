@@ -58,8 +58,11 @@ const ScrollingActivities = () => {
     }
   ];
 
-  // Triple the activities to ensure smooth continuous loop
-  const extendedActivities = [...activities, ...activities, ...activities];
+  // Create enough copies to ensure continuous scrolling without gaps
+  const repeatedActivities = Array(4).fill(activities).flat().map((activity, index) => ({
+    ...activity,
+    id: `${activity.id}-${Math.floor(index / activities.length)}`
+  }));
 
   return (
     <Card className="w-full">
@@ -72,13 +75,10 @@ const ScrollingActivities = () => {
       <CardContent>
         <div className="relative h-80 overflow-hidden">
           <div 
-            className="space-y-3"
-            style={{
-              animation: 'marquee 45s linear infinite'
-            }}
+            className="animate-marquee-continuous space-y-3"
           >
-            {extendedActivities.map((activity, index) => (
-              <div key={`${activity.id}-${index}`} className="flex items-center gap-3 p-3 border rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
+            {repeatedActivities.map((activity, index) => (
+              <div key={activity.id} className="flex items-center gap-3 p-3 border rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex-shrink-0">
                   {activity.icon}
                 </div>
@@ -101,13 +101,17 @@ const ScrollingActivities = () => {
       </CardContent>
       
       <style>{`
-        @keyframes marquee {
+        @keyframes marquee-continuous {
           0% {
-            transform: translateY(100%);
+            transform: translateY(0);
           }
           100% {
-            transform: translateY(-100%);
+            transform: translateY(-50%);
           }
+        }
+        
+        .animate-marquee-continuous {
+          animation: marquee-continuous 60s linear infinite;
         }
       `}</style>
     </Card>
