@@ -18,7 +18,8 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
-import StatCard from '@/components/StatCard';
+import InteractiveStatCard from '@/components/InteractiveStatCard';
+import ScrollingActivities from '@/components/ScrollingActivities';
 
 const TeacherDashboard = () => {
   const { user } = useAuth();
@@ -58,26 +59,47 @@ const TeacherDashboard = () => {
     },
   ]);
 
-  const [recentActivities, setRecentActivities] = useState([
-    {
-      id: 1,
-      course: "Advanced JavaScript",
-      activity: "New assignment submitted",
-      time: "2 hours ago",
-    },
-    {
-      id: 2,
-      course: "React Masterclass",
-      activity: "Quiz completed by students",
-      time: "5 hours ago",
-    },
-    {
-      id: 3,
-      course: "Node.js API Development",
-      activity: "New discussion started",
-      time: "1 day ago",
-    },
-  ]);
+  // Teacher-specific stat card details
+  const getStatDetails = (statType: string) => {
+    switch (statType) {
+      case 'courses':
+        return [
+          { name: 'Advanced JavaScript', value: '50 students', extra: 'Highest enrollment' },
+          { name: 'React Masterclass', value: '65 students', extra: 'Most popular' },
+          { name: 'Node.js API Development', value: '35 students', extra: 'Recently updated' },
+          { name: 'Python Basics', value: '28 students', extra: 'New course' },
+          { name: 'Web Design Fundamentals', value: '42 students', extra: 'High completion rate' },
+          { name: 'Database Management', value: '31 students', extra: 'Professional level' },
+          { name: 'Mobile Development', value: '19 students', extra: 'Advanced course' }
+        ];
+      case 'students':
+        return [
+          { name: 'John Smith', value: 'JavaScript Course', extra: 'Completed 85% - Excellent progress' },
+          { name: 'Emily Davis', value: 'React Course', extra: 'Completed 92% - Top performer' },
+          { name: 'Michael Johnson', value: 'Node.js Course', extra: 'Completed 78% - Good engagement' },
+          { name: 'Sarah Wilson', value: 'Python Course', extra: 'Completed 67% - Needs encouragement' },
+          { name: 'David Brown', value: 'Web Design Course', extra: 'Completed 89% - Creative work' }
+        ];
+      case 'rating':
+        return [
+          { name: 'Course Content Quality', value: '4.9/5', extra: 'Students love the detailed explanations' },
+          { name: 'Teaching Methodology', value: '4.8/5', extra: 'Clear and engaging delivery' },
+          { name: 'Assignment Feedback', value: '4.7/5', extra: 'Helpful and constructive comments' },
+          { name: 'Response Time', value: '4.8/5', extra: 'Quick responses to student queries' },
+          { name: 'Course Structure', value: '4.9/5', extra: 'Well-organized and progressive' }
+        ];
+      case 'revenue':
+        return [
+          { name: 'Advanced JavaScript', value: '$3,200', extra: 'Top earning course this month' },
+          { name: 'React Masterclass', value: '$4,100', extra: 'Highest revenue generator' },
+          { name: 'Node.js API Development', value: '$2,300', extra: 'Steady income source' },
+          { name: 'Python Basics', value: '$1,800', extra: 'Growing enrollment' },
+          { name: 'Web Design Fundamentals', value: '$700', extra: 'Recently launched' }
+        ];
+      default:
+        return [];
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -105,95 +127,128 @@ const TeacherDashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard
+          <InteractiveStatCard
             title="Total Courses"
             value={teacherStats.totalCourses.toString()}
-            subtitle="+2 this month"
+            subtitle="Click to view details"
             icon={BookOpen}
             iconBgColor="bg-blue-100"
             iconColor="text-blue-600"
+            details={getStatDetails('courses')}
           />
-          <StatCard
+          <InteractiveStatCard
             title="Active Students"
             value={teacherStats.activeStudents.toString()}
-            subtitle="+15 new enrollments"
+            subtitle="Click to view details"
             icon={Users}
             iconBgColor="bg-green-100"
             iconColor="text-green-600"
+            details={getStatDetails('students')}
           />
-          <StatCard
+          <InteractiveStatCard
             title="Average Rating"
             value={teacherStats.averageRating.toString()}
-            subtitle="Excellent feedback"
+            subtitle="Click to view details"
             icon={Award}
             iconBgColor="bg-yellow-100"
             iconColor="text-yellow-600"
+            details={getStatDetails('rating')}
           />
-          <StatCard
+          <InteractiveStatCard
             title="Revenue Generated"
             value={`$${teacherStats.revenueGenerated}`}
-            subtitle="+12% from last month"
+            subtitle="Click to view details"
             icon={TrendingUp}
             iconBgColor="bg-purple-100"
             iconColor="text-purple-600"
+            details={getStatDetails('revenue')}
           />
         </div>
 
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">My Courses</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {courses.map((course) => (
-              <Card key={course.id}>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg">{course.title}</CardTitle>
-                    <Badge className="ml-2">
-                      {course.progress >= 75 ? "High Engagement" : "Moderate"}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 mb-4">{course.description}</p>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-gray-500">Students: {course.students}</span>
-                    <span className="text-sm text-gray-500">Rating: {course.rating}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <Button variant="secondary" size="sm" onClick={() => navigate(`/course-management/${course.id}`)}>
-                      <Eye className="h-4 w-4 mr-2" />
-                      View Details
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">My Courses</h2>
+            <div className="grid grid-cols-1 gap-6">
+              {courses.map((course) => (
+                <Card key={course.id}>
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <CardTitle className="text-lg">{course.title}</CardTitle>
+                      <Badge className="ml-2">
+                        {course.progress >= 75 ? "High Engagement" : "Moderate"}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 mb-4">{course.description}</p>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm text-gray-500">Students: {course.students}</span>
+                      <span className="text-sm text-gray-500">Rating: {course.rating}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <Button variant="secondary" size="sm" onClick={() => navigate(`/course-management/${course.id}`)}>
+                        <Eye className="h-4 w-4 mr-2" />
+                        View Details
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
+
+          <ScrollingActivities />
         </div>
 
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Recent Activities</h2>
+        {/* AI Assistant Module */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Latest Updates</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Bot className="h-5 w-5 text-blue-600" />
+                Teaching Recommendations
+              </CardTitle>
             </CardHeader>
-            <CardContent>
-              <ul className="list-none space-y-3">
-                {recentActivities.map((activity) => (
-                  <li key={activity.id} className="border-b border-gray-200 pb-3 last:border-b-0">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="font-medium text-gray-800">{activity.course}</p>
-                        <p className="text-sm text-gray-600">{activity.activity}</p>
-                      </div>
-                      <span className="text-sm text-gray-500">{activity.time}</span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+            <CardContent className="space-y-4">
+              <div className="p-3 border rounded-lg bg-blue-50">
+                <h4 className="font-medium text-blue-900 mb-2">Create Advanced React Hooks Course</h4>
+                <p className="text-sm text-blue-700">High demand topic - 85% of students request advanced React content</p>
+              </div>
+              <div className="p-3 border rounded-lg bg-green-50">
+                <h4 className="font-medium text-green-900 mb-2">Add TypeScript Integration Module</h4>
+                <p className="text-sm text-green-700">Popular skill - Would increase course completion by 23%</p>
+              </div>
+              <div className="p-3 border rounded-lg bg-purple-50">
+                <h4 className="font-medium text-purple-900 mb-2">Expand Database Design Section</h4>
+                <p className="text-sm text-purple-700">Students struggle with this concept - needs more examples</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-orange-600" />
+                Student Analytics
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="p-3 border rounded-lg bg-orange-50">
+                <h4 className="font-medium text-orange-900 mb-2">Weak Area: Async Programming</h4>
+                <p className="text-sm text-orange-700">67% of students need additional support in this topic</p>
+              </div>
+              <div className="p-3 border rounded-lg bg-red-50">
+                <h4 className="font-medium text-red-900 mb-2">High Interest: Machine Learning</h4>
+                <p className="text-sm text-red-700">42 students requested ML course - consider creating one</p>
+              </div>
+              <div className="p-3 border rounded-lg bg-yellow-50">
+                <h4 className="font-medium text-yellow-900 mb-2">Trending: Mobile Development</h4>
+                <p className="text-sm text-yellow-700">Search volume increased 156% - great opportunity</p>
+              </div>
             </CardContent>
           </Card>
         </div>
