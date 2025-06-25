@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,6 +18,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface Message {
   id: number;
@@ -48,6 +48,7 @@ interface AnalysisInsight {
 
 const AIModule = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
@@ -285,7 +286,12 @@ const AIModule = () => {
                       <p className="text-sm text-gray-600 mb-3">{rec.description}</p>
                       <div className="flex items-center justify-between">
                         <Badge variant="outline">{rec.difficulty}</Badge>
-                        <Button size="sm">View Details</Button>
+                        <Button 
+                          size="sm"
+                          onClick={() => navigate(`/course/${rec.id}`)}
+                        >
+                          View Details
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>

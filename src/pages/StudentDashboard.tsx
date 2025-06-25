@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEnrollment } from '@/contexts/EnrollmentContext';
@@ -123,7 +124,7 @@ const StudentDashboard = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {enrolledCourses.map((course) => (
+              {enrolledCourses.filter(course => course && course.title && course.id).map((course) => (
                 <Card key={course.id} className="hover:shadow-lg transition-all duration-300">
                   <CardHeader>
                     <CardTitle className="text-lg">{course.title}</CardTitle>
@@ -132,9 +133,9 @@ const StudentDashboard = () => {
                     <p className="text-gray-600 mb-4 text-sm line-clamp-2">{course.description}</p>
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-medium text-gray-700">Progress:</span>
-                      <span className="text-sm font-bold text-blue-600">{course.progress}%</span>
+                      <span className="text-sm font-bold text-blue-600">{course.progress || 0}%</span>
                     </div>
-                    <Progress value={course.progress} className="mb-4 h-2" />
+                    <Progress value={course.progress || 0} className="mb-4 h-2" />
                     <div className="flex justify-between items-center">
                       <Badge variant="secondary" className="text-xs">{course.category}</Badge>
                       <Button 
