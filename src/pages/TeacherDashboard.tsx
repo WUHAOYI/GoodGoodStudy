@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -171,7 +172,7 @@ const TeacherDashboard = () => {
           />
         </div>
 
-        {/* Updated layout to reduce crowding */}
+        {/* Updated layout with proper spacing */}
         <div className="space-y-8 mb-8">
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">My Courses</h2>

@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -47,6 +48,8 @@ import StudentPerformance from "./pages/StudentPerformance";
 import ActivityManagement from "./pages/ActivityManagement";
 import AIAssistant from "./pages/AIAssistant";
 import QuizManagement from "./pages/QuizManagement";
+import QuizPreview from "./pages/QuizPreview";
+import QuizEditor from "./pages/QuizEditor";
 
 const queryClient = new QueryClient();
 
@@ -102,6 +105,18 @@ const App = () => (
                     <Route path="/quiz-management" element={
                       <ProtectedRoute allowedRoles={['student', 'teacher', 'admin']}>
                         <QuizManagement />
+                      </ProtectedRoute>
+                    } />
+                    
+                    {/* Quiz Routes */}
+                    <Route path="/quiz-preview/:id" element={
+                      <ProtectedRoute allowedRoles={['teacher', 'admin']}>
+                        <QuizPreview />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/quiz-editor/:id" element={
+                      <ProtectedRoute allowedRoles={['teacher', 'admin']}>
+                        <QuizEditor />
                       </ProtectedRoute>
                     } />
                     
