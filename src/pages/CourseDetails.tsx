@@ -57,58 +57,249 @@ const CourseDetails = () => {
     "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
   ];
 
-  // Mock course data with proper video URLs
-  const course = {
-    id: courseId,
-    title: "Full Stack Web Development Bootcamp",
-    instructor: "Dr. Sarah Johnson",
-    price: 299,
-    originalPrice: 399,
-    rating: 4.8,
-    students: 12543,
-    duration: "40 hours",
-    lessons: 156,
-    level: "Beginner to Advanced",
-    image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=250&fit=crop",
-    description: "Master full-stack web development with this comprehensive bootcamp. Learn HTML, CSS, JavaScript, React, Node.js, and more.",
-    videoUrl: sampleVideos[0],
-    requirements: [
-      "Basic computer skills",
-      "No prior programming experience required",
-      "A computer with internet connection"
-    ],
-    curriculum: [
-      { 
-        title: "Introduction to Web Development", 
-        lessons: [
-          { id: 1, title: "What is Web Development?", duration: "15:30", videoUrl: sampleVideos[1], isPreview: true },
-          { id: 2, title: "Setting Up Your Development Environment", duration: "20:45", videoUrl: sampleVideos[2], isPreview: false },
-          { id: 3, title: "Your First Web Page", duration: "18:20", videoUrl: sampleVideos[3], isPreview: false }
-        ], 
-        duration: "2 hours" 
+  // Dynamic course data based on courseId - matching the courses from Courses.tsx
+  const getCourseData = (id: number) => {
+    const coursesData = {
+      1: {
+        id: 1,
+        title: "Full Stack Web Development Bootcamp",
+        instructor: "Tech Academy",
+        price: 299,
+        originalPrice: 499,
+        rating: 4.8,
+        students: 12450,
+        duration: "40 hours",
+        lessons: 156,
+        level: "Beginner",
+        image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=250&fit=crop",
+        description: "Master both frontend and backend development with hands-on projects and real-world applications. Learn React, Node.js, and modern web technologies.",
+        videoUrl: sampleVideos[0],
+        category: "programming",
+        requirements: [
+          "Basic computer skills",
+          "No prior programming experience required",
+          "A computer with internet connection"
+        ],
+        curriculum: [
+          { 
+            title: "Introduction to Web Development", 
+            lessons: [
+              { id: 1, title: "What is Web Development?", duration: "15:30", videoUrl: sampleVideos[1], isPreview: true },
+              { id: 2, title: "Setting Up Your Development Environment", duration: "20:45", videoUrl: sampleVideos[2], isPreview: false },
+              { id: 3, title: "Your First Web Page", duration: "18:20", videoUrl: sampleVideos[3], isPreview: false }
+            ], 
+            duration: "2 hours" 
+          },
+          { 
+            title: "HTML & CSS Fundamentals", 
+            lessons: [
+              { id: 4, title: "HTML Structure and Semantics", duration: "25:10", videoUrl: sampleVideos[4], isPreview: true },
+              { id: 5, title: "CSS Styling Basics", duration: "30:15", videoUrl: sampleVideos[5], isPreview: false }
+            ], 
+            duration: "4 hours" 
+          },
+          { 
+            title: "JavaScript Essentials", 
+            lessons: [
+              { id: 6, title: "Variables and Data Types", duration: "22:30", videoUrl: sampleVideos[0], isPreview: false }
+            ], 
+            duration: "6 hours" 
+          },
+          { title: "React Framework", lessons: [], duration: "8 hours" },
+          { title: "Backend Development", lessons: [], duration: "6 hours" },
+          { title: "Database Integration", lessons: [], duration: "4 hours" },
+          { title: "Deployment & DevOps", lessons: [], duration: "3 hours" },
+          { title: "Final Project", lessons: [], duration: "7 hours" }
+        ]
       },
-      { 
-        title: "HTML & CSS Fundamentals", 
-        lessons: [
-          { id: 4, title: "HTML Structure and Semantics", duration: "25:10", videoUrl: sampleVideos[4], isPreview: true },
-          { id: 5, title: "CSS Styling Basics", duration: "30:15", videoUrl: sampleVideos[5], isPreview: false }
-        ], 
-        duration: "4 hours" 
+      2: {
+        id: 2,
+        title: "Digital Marketing Fundamentals",
+        instructor: "Marketing Pro Institute",
+        price: 0,
+        originalPrice: 0,
+        rating: 4.6,
+        students: 8930,
+        duration: "25 hours",
+        lessons: 89,
+        level: "Intermediate",
+        image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop",
+        description: "Learn the essentials of digital marketing including SEO, social media marketing, content strategy, and analytics to grow your business online.",
+        videoUrl: sampleVideos[1],
+        category: "marketing",
+        requirements: [
+          "Basic understanding of business concepts",
+          "Access to social media platforms",
+          "Computer with internet connection"
+        ],
+        curriculum: [
+          { 
+            title: "Digital Marketing Basics", 
+            lessons: [
+              { id: 1, title: "Introduction to Digital Marketing", duration: "12:30", videoUrl: sampleVideos[1], isPreview: true },
+              { id: 2, title: "Understanding Your Audience", duration: "18:45", videoUrl: sampleVideos[2], isPreview: false }
+            ], 
+            duration: "3 hours" 
+          },
+          { 
+            title: "SEO Fundamentals", 
+            lessons: [
+              { id: 3, title: "Search Engine Optimization Basics", duration: "25:10", videoUrl: sampleVideos[3], isPreview: true },
+              { id: 4, title: "Keyword Research", duration: "22:15", videoUrl: sampleVideos[4], isPreview: false }
+            ], 
+            duration: "5 hours" 
+          },
+          { title: "Social Media Marketing", lessons: [], duration: "6 hours" },
+          { title: "Content Strategy", lessons: [], duration: "4 hours" },
+          { title: "Analytics & Measurement", lessons: [], duration: "7 hours" }
+        ]
       },
-      { 
-        title: "JavaScript Essentials", 
-        lessons: [
-          { id: 6, title: "Variables and Data Types", duration: "22:30", videoUrl: sampleVideos[0], isPreview: false }
-        ], 
-        duration: "6 hours" 
+      3: {
+        id: 3,
+        title: "Project Management Professional (PMP)",
+        instructor: "Business Excellence Academy",
+        price: 199,
+        originalPrice: 299,
+        rating: 4.9,
+        students: 5670,
+        duration: "60 hours",
+        lessons: 203,
+        level: "Advanced",
+        image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop",
+        description: "Comprehensive preparation for PMP certification covering project lifecycle, risk management, and leadership skills for successful project delivery.",
+        videoUrl: sampleVideos[2],
+        category: "business",
+        requirements: [
+          "3+ years of project management experience",
+          "Bachelor's degree or equivalent",
+          "Understanding of project management concepts"
+        ],
+        curriculum: [
+          { 
+            title: "Project Management Framework", 
+            lessons: [
+              { id: 1, title: "Introduction to Project Management", duration: "20:30", videoUrl: sampleVideos[2], isPreview: true },
+              { id: 2, title: "Project Lifecycle", duration: "35:45", videoUrl: sampleVideos[3], isPreview: false }
+            ], 
+            duration: "8 hours" 
+          },
+          { title: "Risk Management", lessons: [], duration: "10 hours" },
+          { title: "Leadership & Communication", lessons: [], duration: "12 hours" },
+          { title: "Quality Management", lessons: [], duration: "8 hours" },
+          { title: "PMP Exam Preparation", lessons: [], duration: "22 hours" }
+        ]
       },
-      { title: "React Framework", lessons: [], duration: "8 hours" },
-      { title: "Backend Development", lessons: [], duration: "6 hours" },
-      { title: "Database Integration", lessons: [], duration: "4 hours" },
-      { title: "Deployment & DevOps", lessons: [], duration: "3 hours" },
-      { title: "Final Project", lessons: [], duration: "7 hours" }
-    ]
+      4: {
+        id: 4,
+        title: "UI/UX Design Masterclass",
+        instructor: "Design Studio Pro",
+        price: 0,
+        originalPrice: 0,
+        rating: 4.7,
+        students: 15230,
+        duration: "35 hours",
+        lessons: 127,
+        level: "Beginner",
+        image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=250&fit=crop",
+        description: "Create stunning user interfaces and experiences with industry-standard design principles, prototyping tools, and user research methodologies.",
+        videoUrl: sampleVideos[3],
+        category: "design",
+        requirements: [
+          "Creative mindset",
+          "Basic computer skills",
+          "Design software access (Figma, Sketch, or Adobe XD)"
+        ],
+        curriculum: [
+          { 
+            title: "Design Fundamentals", 
+            lessons: [
+              { id: 1, title: "Introduction to UI/UX Design", duration: "16:30", videoUrl: sampleVideos[3], isPreview: true },
+              { id: 2, title: "Design Principles", duration: "24:45", videoUrl: sampleVideos[4], isPreview: false }
+            ], 
+            duration: "5 hours" 
+          },
+          { title: "User Research", lessons: [], duration: "6 hours" },
+          { title: "Wireframing & Prototyping", lessons: [], duration: "8 hours" },
+          { title: "Visual Design", lessons: [], duration: "10 hours" },
+          { title: "Usability Testing", lessons: [], duration: "6 hours" }
+        ]
+      },
+      5: {
+        id: 5,
+        title: "Advanced JavaScript Programming",
+        instructor: "Code Masters",
+        price: 149,
+        originalPrice: 199,
+        rating: 4.9,
+        students: 8700,
+        duration: "30 hours",
+        lessons: 98,
+        level: "Advanced",
+        image: "https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?w=400&h=250&fit=crop",
+        description: "Deep dive into advanced JavaScript concepts, ES6+, and modern development patterns.",
+        videoUrl: sampleVideos[4],
+        category: "programming",
+        requirements: [
+          "Solid understanding of JavaScript basics",
+          "Experience with DOM manipulation",
+          "Familiarity with HTML and CSS"
+        ],
+        curriculum: [
+          { 
+            title: "Advanced JavaScript Concepts", 
+            lessons: [
+              { id: 1, title: "Closures and Scope", duration: "28:30", videoUrl: sampleVideos[4], isPreview: true },
+              { id: 2, title: "Prototypes and Inheritance", duration: "32:45", videoUrl: sampleVideos[5], isPreview: false }
+            ], 
+            duration: "8 hours" 
+          },
+          { title: "ES6+ Features", lessons: [], duration: "6 hours" },
+          { title: "Asynchronous JavaScript", lessons: [], duration: "7 hours" },
+          { title: "Design Patterns", lessons: [], duration: "5 hours" },
+          { title: "Performance Optimization", lessons: [], duration: "4 hours" }
+        ]
+      },
+      6: {
+        id: 6,
+        title: "Photography Basics",
+        instructor: "Visual Arts Academy",
+        price: 89,
+        originalPrice: 129,
+        rating: 4.5,
+        students: 3200,
+        duration: "20 hours",
+        lessons: 65,
+        level: "Beginner",
+        image: "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400&h=250&fit=crop",
+        description: "Learn the fundamentals of photography including composition, lighting, and post-processing.",
+        videoUrl: sampleVideos[5],
+        category: "photography",
+        requirements: [
+          "Camera (DSLR, mirrorless, or smartphone)",
+          "Basic computer skills for editing",
+          "Creative interest in photography"
+        ],
+        curriculum: [
+          { 
+            title: "Photography Fundamentals", 
+            lessons: [
+              { id: 1, title: "Camera Basics", duration: "18:30", videoUrl: sampleVideos[5], isPreview: true },
+              { id: 2, title: "Composition Techniques", duration: "22:45", videoUrl: sampleVideos[0], isPreview: false }
+            ], 
+            duration: "4 hours" 
+          },
+          { title: "Lighting Techniques", lessons: [], duration: "5 hours" },
+          { title: "Portrait Photography", lessons: [], duration: "4 hours" },
+          { title: "Landscape Photography", lessons: [], duration: "3 hours" },
+          { title: "Post-Processing", lessons: [], duration: "4 hours" }
+        ]
+      }
+    };
+
+    return coursesData[id] || coursesData[1]; // Default to course 1 if ID not found
   };
+
+  const course = getCourseData(courseId);
 
   const handlePlayLesson = (lesson) => {
     console.log('Playing lesson:', lesson, 'isEnrolled:', isEnrolled);
@@ -444,8 +635,14 @@ const CourseDetails = () => {
                   <>
                     <div className="flex items-center gap-2 mb-4">
                       <span className="text-3xl font-bold text-gray-900">${course.price}</span>
-                      <span className="text-lg text-gray-500 line-through">${course.originalPrice}</span>
-                      <Badge variant="destructive" className="ml-auto">25% OFF</Badge>
+                      {course.originalPrice > course.price && (
+                        <>
+                          <span className="text-lg text-gray-500 line-through">${course.originalPrice}</span>
+                          <Badge variant="destructive" className="ml-auto">
+                            {Math.round(((course.originalPrice - course.price) / course.originalPrice) * 100)}% OFF
+                          </Badge>
+                        </>
+                      )}
                     </div>
 
                     <Button 
@@ -453,7 +650,7 @@ const CourseDetails = () => {
                       size="lg"
                       onClick={handleEnroll}
                     >
-                      Enroll Now
+                      {course.price === 0 ? 'Enroll for Free' : 'Enroll Now'}
                     </Button>
                   </>
                 ) : (
@@ -529,12 +726,12 @@ const CourseDetails = () => {
                   </div>
                   <div>
                     <h4 className="font-medium text-gray-900">{course.instructor}</h4>
-                    <p className="text-sm text-gray-600">Senior Full Stack Developer</p>
+                    <p className="text-sm text-gray-600">Expert Instructor</p>
                   </div>
                 </div>
                 <p className="text-sm text-gray-600">
-                  Experienced developer with 10+ years in web development. 
-                  Has taught over 50,000 students worldwide.
+                  Experienced professional with years of expertise in the field. 
+                  Has taught thousands of students worldwide.
                 </p>
               </CardContent>
             </Card>
