@@ -1,35 +1,45 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, BookOpen, Users, Award, Star, Filter } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Search, BookOpen, Users, Award, Star, Filter, SlidersHorizontal } from 'lucide-react';
 import Header from '@/components/Header';
 import CourseCard from '@/components/CourseCard';
-import { useCourses } from '@/contexts/CourseContext';
 
 const Courses = () => {
-  const { courses: contextCourses } = useCourses();
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [priceFilter, setPriceFilter] = useState('all');
+  const [selectedLevel, setSelectedLevel] = useState('all');
+  const [selectedPrice, setSelectedPrice] = useState('all');
+  const [sortBy, setSortBy] = useState('popularity');
 
-  // Handle URL parameters for filtering
+  // Get category from URL params on component mount
   useEffect(() => {
+    const categoryParam = searchParams.get('category');
     const filterParam = searchParams.get('filter');
+    
+    console.log('URL params - category:', categoryParam, 'filter:', filterParam);
+    
+    if (categoryParam) {
+      setSelectedCategory(categoryParam);
+    }
     if (filterParam === 'free') {
-      setPriceFilter('free');
+      setSelectedPrice('free');
     } else if (filterParam === 'paid') {
-      setPriceFilter('paid');
+      setSelectedPrice('paid');
     }
   }, [searchParams]);
 
-  // Extended mock course data combined with published courses from context
-  const staticCourses = [
+  // Mock course data
+  const courses = [
     {
-      id: 1001,
+      id: 1,
       title: "Full Stack Web Development Bootcamp",
+      description: "Master both frontend and backend development with hands-on projects and real-world applications. Learn React, Node.js, and modern web technologies.",
       instructor: "Tech Academy",
       price: 299,
       originalPrice: 499,
@@ -45,6 +55,7 @@ const Courses = () => {
     {
       id: 2,
       title: "Digital Marketing Fundamentals",
+      description: "Learn the essentials of digital marketing including SEO, social media marketing, content strategy, and analytics to grow your business online.",
       instructor: "Marketing Pro Institute",
       price: 0,
       rating: 4.6,
@@ -59,6 +70,7 @@ const Courses = () => {
     {
       id: 3,
       title: "Project Management Professional (PMP)",
+      description: "Comprehensive preparation for PMP certification covering project lifecycle, risk management, and leadership skills for successful project delivery.",
       instructor: "Business Excellence Academy",
       price: 199,
       rating: 4.9,
@@ -73,6 +85,7 @@ const Courses = () => {
     {
       id: 4,
       title: "UI/UX Design Masterclass",
+      description: "Create stunning user interfaces and experiences with industry-standard design principles, prototyping tools, and user research methodologies.",
       instructor: "Design Studio Pro",
       price: 0,
       rating: 4.7,
@@ -86,40 +99,12 @@ const Courses = () => {
     },
     {
       id: 5,
-      title: "Python for Data Science",
-      instructor: "Data Science Institute",
-      price: 249,
-      rating: 4.8,
-      students: 9340,
-      duration: "45 hours",
-      level: "Intermediate",
-      category: "programming",
-      image: "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400&h=250&fit=crop",
-      isPaid: true,
-      isPopular: true
-    },
-    {
-      id: 6,
-      title: "Mobile App Development with React Native",
-      instructor: "Mobile Dev Academy",
-      price: 0,
-      rating: 4.5,
-      students: 7820,
-      duration: "50 hours",
-      level: "Advanced",
-      category: "programming",
-      image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7c9c?w=400&h=250&fit=crop",
-      isPaid: false,
-      isPopular: false
-    },
-    {
-      id: 7,
-      title: "Advanced JavaScript & ES6+",
+      title: "Advanced JavaScript Programming",
+      description: "Deep dive into advanced JavaScript concepts, ES6+, and modern development patterns.",
       instructor: "Code Masters",
-      price: 179,
-      originalPrice: 299,
-      rating: 4.7,
-      students: 11200,
+      price: 149,
+      rating: 4.9,
+      students: 8700,
       duration: "30 hours",
       level: "Advanced",
       category: "programming",
@@ -128,347 +113,186 @@ const Courses = () => {
       isPopular: true
     },
     {
-      id: 8,
-      title: "Social Media Marketing Strategy",
-      instructor: "Digital Growth Hub",
-      price: 0,
-      rating: 4.4,
-      students: 6340,
-      duration: "18 hours",
-      level: "Beginner",
-      category: "marketing",
-      image: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=250&fit=crop",
-      isPaid: false,
-      isPopular: false
-    },
-    {
-      id: 9,
-      title: "Entrepreneurship & Startup Fundamentals",
-      instructor: "Business Innovators",
-      price: 159,
-      rating: 4.6,
-      students: 4890,
-      duration: "22 hours",
-      level: "Beginner",
-      category: "business",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=250&fit=crop",
-      isPaid: true,
-      isPopular: false
-    },
-    {
-      id: 10,
-      title: "Graphic Design with Adobe Creative Suite",
-      instructor: "Creative Professionals",
-      price: 0,
+      id: 6,
+      title: "Photography Basics",
+      description: "Learn the fundamentals of photography including composition, lighting, and post-processing.",
+      instructor: "Visual Arts Academy",
+      price: 89,
       rating: 4.5,
-      students: 8750,
-      duration: "28 hours",
-      level: "Intermediate",
-      category: "design",
-      image: "https://images.unsplash.com/photo-1558655146-d09347e92766?w=400&h=250&fit=crop",
-      isPaid: false,
-      isPopular: false
-    },
-    {
-      id: 11,
-      title: "Machine Learning with Python",
-      instructor: "AI Research Lab",
-      price: 399,
-      originalPrice: 599,
-      rating: 4.9,
-      students: 7230,
-      duration: "65 hours",
-      level: "Advanced",
-      category: "programming",
-      image: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=400&h=250&fit=crop",
-      isPaid: true,
-      isPopular: true
-    },
-    {
-      id: 12,
-      title: "Content Marketing & SEO",
-      instructor: "Growth Marketing Team",
-      price: 129,
-      rating: 4.3,
-      students: 5120,
+      students: 3200,
       duration: "20 hours",
-      level: "Intermediate",
-      category: "marketing",
-      image: "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=400&h=250&fit=crop",
-      isPaid: true,
-      isPopular: false
-    },
-    {
-      id: 13,
-      title: "AWS Cloud Computing Fundamentals",
-      instructor: "Cloud Solutions Academy",
-      price: 199,
-      rating: 4.6,
-      students: 6780,
-      duration: "35 hours",
-      level: "Intermediate",
-      category: "programming",
-      image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=250&fit=crop",
-      isPaid: true,
-      isPopular: true
-    },
-    {
-      id: 14,
-      title: "Digital Photography Masterclass",
-      instructor: "Photo Masters Studio",
-      price: 0,
-      rating: 4.7,
-      students: 9450,
-      duration: "30 hours",
       level: "Beginner",
-      category: "design",
-      image: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400&h=250&fit=crop",
-      isPaid: false,
-      isPopular: false
-    },
-    {
-      id: 15,
-      title: "Financial Planning & Investment",
-      instructor: "Finance Expert Group",
-      price: 179,
-      rating: 4.5,
-      students: 4320,
-      duration: "25 hours",
-      level: "Intermediate",
-      category: "business",
-      image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=250&fit=crop",
+      category: "photography",
+      image: "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400&h=250&fit=crop",
       isPaid: true,
-      isPopular: false
-    },
-    {
-      id: 16,
-      title: "Cybersecurity Essentials",
-      instructor: "Security Institute",
-      price: 249,
-      rating: 4.8,
-      students: 5890,
-      duration: "40 hours",
-      level: "Advanced",
-      category: "programming",
-      image: "https://images.unsplash.com/photo-1563206767-5b18f218e8de?w=400&h=250&fit=crop",
-      isPaid: true,
-      isPopular: true
-    },
-    {
-      id: 17,
-      title: "Email Marketing Automation",
-      instructor: "Marketing Automation Pro",
-      price: 0,
-      rating: 4.4,
-      students: 7210,
-      duration: "15 hours",
-      level: "Beginner",
-      category: "marketing",
-      image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=250&fit=crop",
-      isPaid: false,
-      isPopular: false
-    },
-    {
-      id: 18,
-      title: "Leadership & Team Management",
-      instructor: "Executive Learning Center",
-      price: 199,
-      rating: 4.6,
-      students: 3450,
-      duration: "20 hours",
-      level: "Intermediate",
-      category: "business",
-      image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop",
-      isPaid: true,
-      isPopular: false
-    },
-    {
-      id: 19,
-      title: "3D Animation with Blender",
-      instructor: "Animation Studio",
-      price: 159,
-      rating: 4.7,
-      students: 6120,
-      duration: "45 hours",
-      level: "Advanced",
-      category: "design",
-      image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=250&fit=crop",
-      isPaid: true,
-      isPopular: true
-    },
-    {
-      id: 20,
-      title: "Node.js Backend Development",
-      instructor: "Backend Masters",
-      price: 0,
-      rating: 4.5,
-      students: 8930,
-      duration: "38 hours",
-      level: "Intermediate",
-      category: "programming",
-      image: "https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=400&h=250&fit=crop",
-      isPaid: false,
       isPopular: false
     }
   ];
 
-  // Combine static courses with published courses from context, avoiding duplicates
-  const publishedContextCourses = contextCourses
-    .filter(course => course.status === 'Published')
-    .map(course => ({
-      id: course.id,
-      title: course.title,
-      instructor: course.instructor || "Course Creator",
-      price: course.price,
-      rating: course.rating || 4.5,
-      students: course.students,
-      duration: course.duration,
-      level: course.level,
-      category: course.category.toLowerCase(),
-      image: course.thumbnail || "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=250&fit=crop",
-      isPaid: course.price > 0,
-      isPopular: course.students > 1000
-    }));
-
-  // Create a unique set of courses, avoiding duplicates by ID
-  const allCoursesMap = new Map();
-  
-  // Add static courses first
-  staticCourses.forEach(course => {
-    allCoursesMap.set(course.id, course);
-  });
-  
-  // Add context courses, but don't override existing static courses
-  publishedContextCourses.forEach(course => {
-    if (!allCoursesMap.has(course.id)) {
-      allCoursesMap.set(course.id, course);
-    }
-  });
-  
-  const courses = Array.from(allCoursesMap.values());
-
   const categories = [
-    { id: 'all', name: 'All Categories', icon: BookOpen },
+    { id: 'all', name: 'All Courses', icon: BookOpen },
     { id: 'programming', name: 'Programming', icon: BookOpen },
     { id: 'marketing', name: 'Marketing', icon: Users },
     { id: 'business', name: 'Business', icon: Award },
-    { id: 'design', name: 'Design', icon: Star }
+    { id: 'design', name: 'Design', icon: Star },
+    { id: 'photography', name: 'Photography', icon: Star },
+    { id: 'certification', name: 'Certification', icon: Award }
   ];
 
   const filteredCourses = courses.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         course.instructor.toLowerCase().includes(searchQuery.toLowerCase());
+                         course.instructor.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         course.description.toLowerCase().includes(searchQuery.toLowerCase());
+    
     const matchesCategory = selectedCategory === 'all' || course.category === selectedCategory;
+    const matchesLevel = selectedLevel === 'all' || course.level.toLowerCase() === selectedLevel;
+    const matchesPrice = selectedPrice === 'all' || 
+                        (selectedPrice === 'free' && !course.isPaid) ||
+                        (selectedPrice === 'paid' && course.isPaid);
     
-    // Corrected price filtering logic
-    let matchesPrice = true;
-    if (priceFilter === 'free') {
-      matchesPrice = course.price === 0;
-    } else if (priceFilter === 'paid') {
-      matchesPrice = course.price > 0;
-    }
-    // 'all' matches everything, so matchesPrice stays true
-    
-    return matchesSearch && matchesCategory && matchesPrice;
+    return matchesSearch && matchesCategory && matchesLevel && matchesPrice;
   });
+
+  // Sort courses
+  const sortedCourses = [...filteredCourses].sort((a, b) => {
+    switch (sortBy) {
+      case 'price-low':
+        return a.price - b.price;
+      case 'price-high':
+        return b.price - a.price;
+      case 'rating':
+        return b.rating - a.rating;
+      case 'students':
+        return b.students - a.students;
+      case 'newest':
+        return b.id - a.id;
+      default: // popularity
+        return (b.isPopular ? 1 : 0) - (a.isPopular ? 1 : 0);
+    }
+  });
+
+  console.log('Filtered courses:', sortedCourses.length, 'Category:', selectedCategory);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       <Header />
       
       <div className="container mx-auto px-6 py-8">
-        {/* Page Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">All Courses</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Explore our comprehensive catalog of professional courses designed to advance your career
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            {selectedCategory === 'all' ? 'All Courses' : 
+             categories.find(c => c.id === selectedCategory)?.name || 'Courses'}
+          </h1>
+          <p className="text-xl text-gray-600">
+            Discover professional courses to advance your career
           </p>
         </div>
 
         {/* Search and Filters */}
-        <div className="mb-8 space-y-4">
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <Input
-              type="text"
-              placeholder="Search courses, instructors, or topics..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 pr-4 py-3 text-lg rounded-full border-2 border-gray-200 focus:border-blue-500"
-            />
-          </div>
-
-          {/* Filters */}
-          <div className="flex flex-wrap justify-center gap-4">
-            {/* Category Filter */}
-            <div className="flex flex-wrap gap-2">
-              {categories.map((category) => {
-                const Icon = category.icon;
-                return (
-                  <Button
-                    key={category.id}
-                    variant={selectedCategory === category.id ? "default" : "outline"}
-                    onClick={() => setSelectedCategory(category.id)}
-                    className="flex items-center gap-2"
-                  >
-                    <Icon className="h-4 w-4" />
-                    {category.name}
-                  </Button>
-                );
-              })}
+        <div className="bg-white rounded-xl p-6 shadow-lg mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+            {/* Search */}
+            <div className="lg:col-span-2 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                type="text"
+                placeholder="Search courses..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
             </div>
+
+            {/* Category Filter */}
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger>
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Level Filter */}
+            <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+              <SelectTrigger>
+                <SelectValue placeholder="Level" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Levels</SelectItem>
+                <SelectItem value="beginner">Beginner</SelectItem>
+                <SelectItem value="intermediate">Intermediate</SelectItem>
+                <SelectItem value="advanced">Advanced</SelectItem>
+              </SelectContent>
+            </Select>
 
             {/* Price Filter */}
-            <div className="flex gap-2">
-              <Button
-                variant={priceFilter === 'all' ? "default" : "outline"}
-                onClick={() => setPriceFilter('all')}
-                size="sm"
-              >
-                All Prices
-              </Button>
-              <Button
-                variant={priceFilter === 'free' ? "default" : "outline"}
-                onClick={() => setPriceFilter('free')}
-                size="sm"
-              >
-                Free
-              </Button>
-              <Button
-                variant={priceFilter === 'paid' ? "default" : "outline"}
-                onClick={() => setPriceFilter('paid')}
-                size="sm"
-              >
-                Paid
-              </Button>
-            </div>
+            <Select value={selectedPrice} onValueChange={setSelectedPrice}>
+              <SelectTrigger>
+                <SelectValue placeholder="Price" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Prices</SelectItem>
+                <SelectItem value="free">Free</SelectItem>
+                <SelectItem value="paid">Paid</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Sort */}
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger>
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="popularity">Most Popular</SelectItem>
+                <SelectItem value="rating">Highest Rated</SelectItem>
+                <SelectItem value="students">Most Students</SelectItem>
+                <SelectItem value="price-low">Price: Low to High</SelectItem>
+                <SelectItem value="price-high">Price: High to Low</SelectItem>
+                <SelectItem value="newest">Newest</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
-        {/* Results Count */}
+        {/* Results */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-semibold text-gray-900">
-            {selectedCategory === 'all' ? 'All Courses' : `${categories.find(c => c.id === selectedCategory)?.name} Courses`}
+          <h2 className="text-2xl font-bold text-gray-900">
+            {sortedCourses.length} courses found
           </h2>
-          <Badge variant="secondary" className="text-sm">
-            {filteredCourses.length} courses found
+          <Badge variant="secondary">
+            {selectedCategory !== 'all' && categories.find(c => c.id === selectedCategory)?.name}
           </Badge>
         </div>
 
         {/* Course Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredCourses.map((course) => (
-            <CourseCard key={course.id} course={course} />
-          ))}
-        </div>
-
-        {/* No Results */}
-        {filteredCourses.length === 0 && (
+        {sortedCourses.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {sortedCourses.map((course) => (
+              <CourseCard key={course.id} course={course} />
+            ))}
+          </div>
+        ) : (
           <div className="text-center py-12">
             <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-600 mb-2">No courses found</h3>
             <p className="text-gray-500">Try adjusting your search or filter criteria</p>
+            <Button 
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedCategory('all');
+                setSelectedLevel('all');
+                setSelectedPrice('all');
+              }}
+              className="mt-4"
+            >
+              Clear All Filters
+            </Button>
           </div>
         )}
       </div>

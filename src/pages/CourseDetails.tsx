@@ -22,12 +22,13 @@ import { useWishlist } from '@/contexts/WishlistContext';
 import LessonPlayer from '@/components/LessonPlayer';
 import VideoPreview from '@/components/VideoPreview';
 import CourseReviews from '@/components/CourseReviews';
+import QuizButton from '@/components/QuizButton';
 
 const CourseDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { isEnrolled: checkEnrollment, enrollInCourse } = useEnrollment();
+  const { isEnrolled: checkEnrollment, enrollInCourse, enrolledCourses } = useEnrollment();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [isLessonPlayerOpen, setIsLessonPlayerOpen] = useState(false);
@@ -36,6 +37,10 @@ const CourseDetails = () => {
 
   const courseId = parseInt(id || '1');
   const isEnrolled = checkEnrollment(courseId);
+
+  // Get course progress from enrolled courses
+  const enrolledCourse = enrolledCourses.find(course => course.id === courseId);
+  const courseProgress = enrolledCourse?.progress || 0;
 
   // Listen for enrollment changes and refresh the page data
   useEffect(() => {
@@ -408,6 +413,13 @@ const CourseDetails = () => {
                 </div>
               </CardContent>
             </Card>
+
+            <QuizButton 
+              courseId={course.id}
+              courseTitle={course.title}
+              isEnrolled={isEnrolled}
+              progress={courseProgress}
+            />
 
             <CourseReviews courseId={course.id} />
           </div>
