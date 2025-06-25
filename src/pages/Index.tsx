@@ -10,6 +10,7 @@ import Header from '@/components/Header';
 import CourseCard from '@/components/CourseCard';
 import UserTypeSelector from '@/components/UserTypeSelector';
 import StatsPopup from '@/components/StatsPopup';
+import { useCourses } from '@/contexts/CourseContext';
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -17,71 +18,7 @@ const Index = () => {
   const [userType, setUserType] = useState<'student' | 'teacher' | 'admin'>('student');
   const [showStatsPopup, setShowStatsPopup] = useState<'courses' | 'students' | 'institutions' | null>(null);
   const navigate = useNavigate();
-
-  // Mock course data
-  const courses = [
-    {
-      id: 1,
-      title: "Full Stack Web Development Bootcamp",
-      description: "Master both frontend and backend development with hands-on projects and real-world applications. Learn React, Node.js, and modern web technologies.",
-      instructor: "Tech Academy",
-      price: 299,
-      originalPrice: 499,
-      rating: 4.8,
-      students: 12450,
-      duration: "40 hours",
-      level: "Beginner",
-      category: "programming",
-      image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=250&fit=crop",
-      isPaid: true,
-      isPopular: true
-    },
-    {
-      id: 2,
-      title: "Digital Marketing Fundamentals",
-      description: "Learn the essentials of digital marketing including SEO, social media marketing, content strategy, and analytics to grow your business online.",
-      instructor: "Marketing Pro Institute",
-      price: 0,
-      rating: 4.6,
-      students: 8930,
-      duration: "25 hours",
-      level: "Intermediate",
-      category: "marketing",
-      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop",
-      isPaid: false,
-      isPopular: false
-    },
-    {
-      id: 3,
-      title: "Project Management Professional (PMP)",
-      description: "Comprehensive preparation for PMP certification covering project lifecycle, risk management, and leadership skills for successful project delivery.",
-      instructor: "Business Excellence Academy",
-      price: 199,
-      rating: 4.9,
-      students: 5670,
-      duration: "60 hours",
-      level: "Advanced",
-      category: "business",
-      image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop",
-      isPaid: true,
-      isPopular: true
-    },
-    {
-      id: 4,
-      title: "UI/UX Design Masterclass",
-      description: "Create stunning user interfaces and experiences with industry-standard design principles, prototyping tools, and user research methodologies.",
-      instructor: "Design Studio Pro",
-      price: 0,
-      rating: 4.7,
-      students: 15230,
-      duration: "35 hours",
-      level: "Beginner",
-      category: "design",
-      image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=250&fit=crop",
-      isPaid: false,
-      isPopular: false
-    }
-  ];
+  const { courses } = useCourses();
 
   const categories = [
     { id: 'all', name: 'All Courses', icon: BookOpen },
@@ -96,7 +33,7 @@ const Index = () => {
                          course.instructor.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || course.category === selectedCategory;
     return matchesSearch && matchesCategory;
-  });
+  }).slice(0, 4); // Show only first 4 courses on homepage
 
   const handleBrowseFreeCourses = () => {
     navigate('/courses?filter=free');
@@ -105,6 +42,24 @@ const Index = () => {
   const handleViewPremiumPlans = () => {
     navigate('/courses?filter=paid');
   };
+
+  // Transform courses to match CourseCard interface
+  const transformedCourses = filteredCourses.map(course => ({
+    id: course.id,
+    title: course.title,
+    description: course.description,
+    instructor: course.instructor,
+    price: course.price,
+    originalPrice: course.price > 0 ? course.price + 50 : 0,
+    rating: course.rating,
+    students: course.students,
+    duration: course.duration,
+    level: course.level,
+    category: course.category,
+    image: course.thumbnail,
+    isPaid: course.price > 0,
+    isPopular: course.students > 10000
+  }));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
@@ -146,7 +101,7 @@ const Index = () => {
               onClick={() => setShowStatsPopup('courses')}
             >
               <CardContent className="pt-6">
-                <div className="text-3xl font-bold text-blue-600 mb-2">500+</div>
+                <div className="text-3xl font-bold text-blue-600 mb-2">{courses.length}+</div>
                 <div className="text-gray-600">Expert Courses</div>
                 <div className="text-xs text-blue-500 mt-1">Click to explore</div>
               </CardContent>
@@ -208,7 +163,7 @@ const Index = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredCourses.map((course) => (
+          {transformedCourses.map((course) => (
             <CourseCard key={course.id} course={course} />
           ))}
         </div>

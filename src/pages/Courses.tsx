@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Search, BookOpen, Users, Award, Star, Filter, SlidersHorizontal } from 'lucide-react';
 import Header from '@/components/Header';
 import CourseCard from '@/components/CourseCard';
+import { useCourses } from '@/contexts/CourseContext';
 
 const Courses = () => {
   const [searchParams] = useSearchParams();
@@ -16,6 +18,7 @@ const Courses = () => {
   const [selectedLevel, setSelectedLevel] = useState('all');
   const [selectedPrice, setSelectedPrice] = useState('all');
   const [sortBy, setSortBy] = useState('popularity');
+  const { courses } = useCourses();
 
   // Get category from URL params on component mount
   useEffect(() => {
@@ -34,101 +37,6 @@ const Courses = () => {
     }
   }, [searchParams]);
 
-  // Mock course data
-  const courses = [
-    {
-      id: 1,
-      title: "Full Stack Web Development Bootcamp",
-      description: "Master both frontend and backend development with hands-on projects and real-world applications. Learn React, Node.js, and modern web technologies.",
-      instructor: "Tech Academy",
-      price: 299,
-      originalPrice: 499,
-      rating: 4.8,
-      students: 12450,
-      duration: "40 hours",
-      level: "Beginner",
-      category: "programming",
-      image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=250&fit=crop",
-      isPaid: true,
-      isPopular: true
-    },
-    {
-      id: 2,
-      title: "Digital Marketing Fundamentals",
-      description: "Learn the essentials of digital marketing including SEO, social media marketing, content strategy, and analytics to grow your business online.",
-      instructor: "Marketing Pro Institute",
-      price: 0,
-      rating: 4.6,
-      students: 8930,
-      duration: "25 hours",
-      level: "Intermediate",
-      category: "marketing",
-      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop",
-      isPaid: false,
-      isPopular: false
-    },
-    {
-      id: 3,
-      title: "Project Management Professional (PMP)",
-      description: "Comprehensive preparation for PMP certification covering project lifecycle, risk management, and leadership skills for successful project delivery.",
-      instructor: "Business Excellence Academy",
-      price: 199,
-      rating: 4.9,
-      students: 5670,
-      duration: "60 hours",
-      level: "Advanced",
-      category: "business",
-      image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop",
-      isPaid: true,
-      isPopular: true
-    },
-    {
-      id: 4,
-      title: "UI/UX Design Masterclass",
-      description: "Create stunning user interfaces and experiences with industry-standard design principles, prototyping tools, and user research methodologies.",
-      instructor: "Design Studio Pro",
-      price: 0,
-      rating: 4.7,
-      students: 15230,
-      duration: "35 hours",
-      level: "Beginner",
-      category: "design",
-      image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=250&fit=crop",
-      isPaid: false,
-      isPopular: false
-    },
-    {
-      id: 5,
-      title: "Advanced JavaScript Programming",
-      description: "Deep dive into advanced JavaScript concepts, ES6+, and modern development patterns.",
-      instructor: "Code Masters",
-      price: 149,
-      rating: 4.9,
-      students: 8700,
-      duration: "30 hours",
-      level: "Advanced",
-      category: "programming",
-      image: "https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?w=400&h=250&fit=crop",
-      isPaid: true,
-      isPopular: true
-    },
-    {
-      id: 6,
-      title: "Photography Basics",
-      description: "Learn the fundamentals of photography including composition, lighting, and post-processing.",
-      instructor: "Visual Arts Academy",
-      price: 89,
-      rating: 4.5,
-      students: 3200,
-      duration: "20 hours",
-      level: "Beginner",
-      category: "photography",
-      image: "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400&h=250&fit=crop",
-      isPaid: true,
-      isPopular: false
-    }
-  ];
-
   const categories = [
     { id: 'all', name: 'All Courses', icon: BookOpen },
     { id: 'programming', name: 'Programming', icon: BookOpen },
@@ -136,6 +44,8 @@ const Courses = () => {
     { id: 'business', name: 'Business', icon: Award },
     { id: 'design', name: 'Design', icon: Star },
     { id: 'photography', name: 'Photography', icon: Star },
+    { id: 'data-science', name: 'Data Science', icon: BookOpen },
+    { id: 'mobile-development', name: 'Mobile Development', icon: BookOpen },
     { id: 'certification', name: 'Certification', icon: Award }
   ];
 
@@ -147,8 +57,8 @@ const Courses = () => {
     const matchesCategory = selectedCategory === 'all' || course.category === selectedCategory;
     const matchesLevel = selectedLevel === 'all' || course.level.toLowerCase() === selectedLevel;
     const matchesPrice = selectedPrice === 'all' || 
-                        (selectedPrice === 'free' && !course.isPaid) ||
-                        (selectedPrice === 'paid' && course.isPaid);
+                        (selectedPrice === 'free' && course.price === 0) ||
+                        (selectedPrice === 'paid' && course.price > 0);
     
     return matchesSearch && matchesCategory && matchesLevel && matchesPrice;
   });
@@ -167,11 +77,29 @@ const Courses = () => {
       case 'newest':
         return b.id - a.id;
       default: // popularity
-        return (b.isPopular ? 1 : 0) - (a.isPopular ? 1 : 0);
+        return b.students - a.students; // Use student count as popularity metric
     }
   });
 
   console.log('Filtered courses:', sortedCourses.length, 'Category:', selectedCategory);
+
+  // Transform courses to match CourseCard interface
+  const transformedCourses = sortedCourses.map(course => ({
+    id: course.id,
+    title: course.title,
+    description: course.description,
+    instructor: course.instructor,
+    price: course.price,
+    originalPrice: course.price > 0 ? course.price + 50 : 0,
+    rating: course.rating,
+    students: course.students,
+    duration: course.duration,
+    level: course.level,
+    category: course.category,
+    image: course.thumbnail,
+    isPaid: course.price > 0,
+    isPopular: course.students > 10000
+  }));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
@@ -271,9 +199,9 @@ const Courses = () => {
         </div>
 
         {/* Course Grid */}
-        {sortedCourses.length > 0 ? (
+        {transformedCourses.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {sortedCourses.map((course) => (
+            {transformedCourses.map((course) => (
               <CourseCard key={course.id} course={course} />
             ))}
           </div>
