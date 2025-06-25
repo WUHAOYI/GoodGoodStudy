@@ -1,4 +1,5 @@
 
+
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEnrollment } from '@/contexts/EnrollmentContext';
@@ -26,15 +27,18 @@ const StudentDashboard = () => {
   const { enrolledCourses } = useEnrollment();
   const navigate = useNavigate();
 
+  // Filter out courses with missing data
+  const validEnrolledCourses = enrolledCourses.filter(course => course && course.title && course.id);
+
   const [stats] = useState([
     { 
       title: 'Courses Enrolled', 
-      value: enrolledCourses.length.toString(), 
-      subtitle: '+2 this month',
+      value: validEnrolledCourses.length.toString(), 
+      subtitle: `${validEnrolledCourses.length} active courses`,
       icon: BookOpen, 
       iconBgColor: 'bg-blue-100',
       iconColor: 'text-blue-600',
-      details: enrolledCourses.map(course => ({
+      details: validEnrolledCourses.map(course => ({
         name: course.title,
         value: `${course.progress}% complete`,
         extra: course.category
@@ -113,7 +117,7 @@ const StudentDashboard = () => {
 
         <div className="mb-8">
           <h2 className="text-2xl font-semibold text-gray-900 mb-4">Enrolled Courses</h2>
-          {enrolledCourses.length === 0 ? (
+          {validEnrolledCourses.length === 0 ? (
             <div className="text-center py-12">
               <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">No enrolled courses</h3>
@@ -124,7 +128,7 @@ const StudentDashboard = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {enrolledCourses.filter(course => course && course.title && course.id).map((course) => (
+              {validEnrolledCourses.map((course) => (
                 <Card key={course.id} className="hover:shadow-lg transition-all duration-300">
                   <CardHeader>
                     <CardTitle className="text-lg">{course.title}</CardTitle>
@@ -167,3 +171,4 @@ const StudentDashboard = () => {
 };
 
 export default StudentDashboard;
+

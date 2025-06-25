@@ -60,33 +60,34 @@ const AIModule = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
 
+  // Updated with real course IDs from the course system
   const mockRecommendations: Recommendation[] = [
     {
-      id: 1,
-      title: "Advanced JavaScript Patterns",
+      id: 4, // Full Stack Web Development Bootcamp
+      title: "Full Stack Web Development Bootcamp",
       type: "course",
-      description: "Perfect for improving your coding skills based on your learning history",
+      description: "Perfect for expanding your web development skills based on your learning history",
       rating: 4.8,
       difficulty: "Intermediate",
-      category: "Programming"
+      category: "Web Development"
     },
     {
-      id: 2,
-      title: "React Performance Optimization",
-      type: "topic",
-      description: "Trending topic that aligns with your interests",
+      id: 5, // Python for Data Science
+      title: "Python for Data Science",
+      type: "course",
+      description: "Trending course that aligns with your interests in programming",
       rating: 4.9,
       difficulty: "Advanced",
-      category: "Frontend"
+      category: "Data Science"
     },
     {
-      id: 3,
-      title: "Data Structures Deep Dive",
+      id: 6, // UI/UX Design Fundamentals
+      title: "UI/UX Design Fundamentals",
       type: "course",
-      description: "Recommended based on your recent quiz performance",
+      description: "Recommended based on your recent activity and interests",
       rating: 4.7,
-      difficulty: "Intermediate",
-      category: "Computer Science"
+      difficulty: "Beginner",
+      category: "Design"
     }
   ];
 
@@ -157,7 +158,7 @@ const AIModule = () => {
     
     if (lowerMessage.includes('recommend') || lowerMessage.includes('suggest')) {
       if (userRole === 'student') {
-        return "Based on your learning history and performance, I recommend checking out the Advanced JavaScript Patterns course. It builds on concepts you've already mastered and will help you advance to the next level.";
+        return "Based on your learning history and performance, I recommend checking out the Full Stack Web Development Bootcamp. It builds on concepts you've already mastered and will help you advance to the next level.";
       } else if (userRole === 'teacher') {
         return "I suggest focusing on interactive teaching methods for your next course. Data shows that students engage 40% more with hands-on projects. Would you like me to suggest some specific techniques?";
       }
