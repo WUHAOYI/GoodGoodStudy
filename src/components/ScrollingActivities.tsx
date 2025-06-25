@@ -58,7 +58,12 @@ const ScrollingActivities = () => {
       </CardHeader>
       <CardContent>
         <div className="relative h-64 overflow-hidden">
-          <div className="animate-marquee space-y-3">
+          <div 
+            className="space-y-3"
+            style={{
+              animation: 'marquee 30s linear infinite'
+            }}
+          >
             {[...activities, ...activities, ...activities].map((activity, index) => (
               <div key={`${activity.id}-${index}`} className="flex items-center gap-3 p-3 border rounded-lg bg-white">
                 <div className="flex-shrink-0">
@@ -82,7 +87,7 @@ const ScrollingActivities = () => {
         </div>
       </CardContent>
       
-      <style jsx>{`
+      <style>{`
         @keyframes marquee {
           0% {
             transform: translateY(100%);
@@ -90,9 +95,6 @@ const ScrollingActivities = () => {
           100% {
             transform: translateY(-100%);
           }
-        }
-        .animate-marquee {
-          animation: marquee 30s linear infinite;
         }
       `}</style>
     </Card>
