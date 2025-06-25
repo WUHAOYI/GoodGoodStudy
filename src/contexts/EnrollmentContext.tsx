@@ -33,10 +33,10 @@ export const EnrollmentProvider = ({ children }: { children: ReactNode }) => {
         setEnrolledCourses(parsed);
       } catch (error) {
         console.error('Error loading enrolled courses:', error);
-        // Initialize with sample data if loading fails
+        // Initialize with sample data using correct IDs that match CourseContext
         setEnrolledCourses([
           {
-            id: 1,
+            id: 1, // React Fundamentals - matches CourseContext
             title: "React Fundamentals",
             description: "Learn the basics of React development",
             progress: 75,
@@ -46,7 +46,7 @@ export const EnrollmentProvider = ({ children }: { children: ReactNode }) => {
             level: "Beginner"
           },
           {
-            id: 2,
+            id: 2, // JavaScript Advanced - matches CourseContext
             title: "JavaScript Advanced",
             description: "Master advanced JavaScript concepts",
             progress: 60,
@@ -56,7 +56,7 @@ export const EnrollmentProvider = ({ children }: { children: ReactNode }) => {
             level: "Advanced"
           },
           {
-            id: 3,
+            id: 3, // Node.js Basics - matches CourseContext
             title: "Node.js Basics",
             description: "Server-side development with Node.js",
             progress: 30,
@@ -68,10 +68,10 @@ export const EnrollmentProvider = ({ children }: { children: ReactNode }) => {
         ]);
       }
     } else {
-      // Initialize with sample data for new users
+      // Initialize with sample data using correct IDs that match CourseContext
       setEnrolledCourses([
         {
-          id: 1,
+          id: 1, // React Fundamentals - matches CourseContext
           title: "React Fundamentals",
           description: "Learn the basics of React development",
           progress: 75,
@@ -81,7 +81,7 @@ export const EnrollmentProvider = ({ children }: { children: ReactNode }) => {
           level: "Beginner"
         },
         {
-          id: 2,
+          id: 2, // JavaScript Advanced - matches CourseContext
           title: "JavaScript Advanced",
           description: "Master advanced JavaScript concepts",
           progress: 60,
@@ -91,7 +91,7 @@ export const EnrollmentProvider = ({ children }: { children: ReactNode }) => {
           level: "Advanced"
         },
         {
-          id: 3,
+          id: 3, // Node.js Basics - matches CourseContext
           title: "Node.js Basics",
           description: "Server-side development with Node.js",
           progress: 30,
