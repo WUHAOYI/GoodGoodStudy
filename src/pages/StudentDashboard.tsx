@@ -1,5 +1,3 @@
-
-
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEnrollment } from '@/contexts/EnrollmentContext';
@@ -171,4 +169,3 @@ const StudentDashboard = () => {
 };
 
 export default StudentDashboard;
-

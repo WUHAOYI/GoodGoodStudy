@@ -63,31 +63,31 @@ const AIModule = () => {
   // Updated with real course IDs from the course system
   const mockRecommendations: Recommendation[] = [
     {
-      id: 4, // Full Stack Web Development Bootcamp
-      title: "Full Stack Web Development Bootcamp",
+      id: 1, // React Fundamentals
+      title: "React Fundamentals",
       type: "course",
       description: "Perfect for expanding your web development skills based on your learning history",
       rating: 4.8,
-      difficulty: "Intermediate",
+      difficulty: "Beginner",
       category: "Web Development"
     },
     {
-      id: 5, // Python for Data Science
-      title: "Python for Data Science",
+      id: 2, // JavaScript Advanced
+      title: "JavaScript Advanced",
       type: "course",
       description: "Trending course that aligns with your interests in programming",
       rating: 4.9,
       difficulty: "Advanced",
-      category: "Data Science"
+      category: "Programming"
     },
     {
-      id: 6, // UI/UX Design Fundamentals
-      title: "UI/UX Design Fundamentals",
+      id: 3, // Node.js Basics
+      title: "Node.js Basics",
       type: "course",
       description: "Recommended based on your recent activity and interests",
       rating: 4.7,
-      difficulty: "Beginner",
-      category: "Design"
+      difficulty: "Intermediate",
+      category: "Backend"
     }
   ];
 
@@ -158,7 +158,7 @@ const AIModule = () => {
     
     if (lowerMessage.includes('recommend') || lowerMessage.includes('suggest')) {
       if (userRole === 'student') {
-        return "Based on your learning history and performance, I recommend checking out the Full Stack Web Development Bootcamp. It builds on concepts you've already mastered and will help you advance to the next level.";
+        return "Based on your learning history and performance, I recommend checking out the React Fundamentals course. It builds on concepts you've already mastered and will help you advance to the next level.";
       } else if (userRole === 'teacher') {
         return "I suggest focusing on interactive teaching methods for your next course. Data shows that students engage 40% more with hands-on projects. Would you like me to suggest some specific techniques?";
       }
