@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEnrollment } from '@/contexts/EnrollmentContext';
@@ -10,14 +11,14 @@ import {
   Clock, 
   Award, 
   Target, 
-  TrendingUp, 
-  Calendar,
   Bot,
   FileText
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
-import StatCard from '@/components/StatCard';
+import InteractiveStatCard from '@/components/InteractiveStatCard';
+import ScrollingActivities from '@/components/ScrollingActivities';
+import AchievementsDisplay from '@/components/AchievementsDisplay';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
@@ -31,7 +32,12 @@ const StudentDashboard = () => {
       subtitle: '+2 this month',
       icon: BookOpen, 
       iconBgColor: 'bg-blue-100',
-      iconColor: 'text-blue-600'
+      iconColor: 'text-blue-600',
+      details: enrolledCourses.map(course => ({
+        name: course.title,
+        value: `${course.progress}% complete`,
+        extra: course.category
+      }))
     },
     { 
       title: 'Hours Studied', 
@@ -39,7 +45,13 @@ const StudentDashboard = () => {
       subtitle: '+8 this week',
       icon: Clock, 
       iconBgColor: 'bg-green-100',
-      iconColor: 'text-green-600'
+      iconColor: 'text-green-600',
+      details: [
+        { name: 'React Fundamentals', value: '15 hours', extra: 'Web Development' },
+        { name: 'JavaScript Advanced', value: '12 hours', extra: 'Programming' },
+        { name: 'Node.js Basics', value: '8 hours', extra: 'Backend' },
+        { name: 'CSS Mastery', value: '7 hours', extra: 'Design' }
+      ]
     },
     { 
       title: 'Achievements', 
@@ -47,7 +59,13 @@ const StudentDashboard = () => {
       subtitle: '+3 new badges',
       icon: Award, 
       iconBgColor: 'bg-yellow-100',
-      iconColor: 'text-yellow-600'
+      iconColor: 'text-yellow-600',
+      details: [
+        { name: 'First Steps', value: 'Completed first course', extra: 'Jun 15' },
+        { name: 'Speed Learner', value: '3 courses in one week', extra: 'Jul 1' },
+        { name: 'Perfect Score', value: '100% on quiz', extra: 'Jul 10' },
+        { name: 'Consistency Master', value: '30 consecutive days', extra: 'Jul 20' }
+      ]
     },
     { 
       title: 'Goals Completed', 
@@ -55,20 +73,14 @@ const StudentDashboard = () => {
       subtitle: '2 pending',
       icon: Target, 
       iconBgColor: 'bg-red-100',
-      iconColor: 'text-red-600'
+      iconColor: 'text-red-600',
+      details: [
+        { name: 'Complete React Course', value: 'Completed', extra: 'Jul 15' },
+        { name: 'Score 90% on Quiz', value: 'Completed', extra: 'Jul 10' },
+        { name: 'Study 40 hours', value: 'Completed', extra: 'Jul 20' },
+        { name: 'Master JavaScript', value: 'In Progress', extra: '75% done' }
+      ]
     },
-  ]);
-
-  const [learningTrends, setLearningTrends] = useState([
-    { label: 'Consistency', value: 'High', trend: 'up' },
-    { label: 'Engagement', value: 'Excellent', trend: 'up' },
-    { label: 'Pace', value: 'Optimal', trend: 'stable' },
-  ]);
-
-  const [recentActivities, setRecentActivities] = useState([
-    { id: 1, description: 'Completed "React Fundamentals" course', date: '2024-07-15' },
-    { id: 2, description: 'Scored 92% on JavaScript quiz', date: '2024-07-14' },
-    { id: 3, description: 'Started "Node.js Advanced" course', date: '2024-07-10' },
   ]);
 
   return (
@@ -94,7 +106,7 @@ const StudentDashboard = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {stats.map((stat, index) => (
-            <StatCard key={index} {...stat} />
+            <InteractiveStatCard key={index} {...stat} />
           ))}
         </div>
 
@@ -109,13 +121,18 @@ const StudentDashboard = () => {
                 <CardContent>
                   <p className="text-gray-600 mb-4">{course.description}</p>
                   <div className="flex items-center justify-between mb-2">
-                    <span>Progress:</span>
-                    <span>{course.progress}%</span>
+                    <span className="text-sm font-medium">Progress:</span>
+                    <span className="text-sm font-bold">{course.progress}%</span>
                   </div>
-                  <Progress value={course.progress} />
-                  <div className="flex justify-between mt-4">
-                    <Badge>{course.category}</Badge>
-                    <Button onClick={() => navigate(`/course/${course.id}`)}>Continue Learning</Button>
+                  <Progress value={course.progress} className="mb-4" />
+                  <div className="flex justify-between items-center">
+                    <Badge variant="secondary">{course.category}</Badge>
+                    <Button 
+                      onClick={() => navigate(`/course/${course.id}`)}
+                      size="sm"
+                    >
+                      Continue Learning
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -123,18 +140,9 @@ const StudentDashboard = () => {
           </div>
         </div>
 
-        <div>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Recent Activities</h2>
-          <div className="space-y-4">
-            {recentActivities.map((activity) => (
-              <Card key={activity.id}>
-                <CardContent className="flex items-center justify-between">
-                  <p className="text-gray-700">{activity.description}</p>
-                  <span className="text-sm text-gray-500">{activity.date}</span>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <ScrollingActivities />
+          <AchievementsDisplay />
         </div>
       </div>
     </div>
