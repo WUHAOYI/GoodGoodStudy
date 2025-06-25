@@ -63,14 +63,10 @@ const TeacherDashboard = () => {
   };
 
   const handleEditCourse = (courseId: number) => {
-    const course = courses.find(c => c.id === courseId);
-    if (course) {
-      navigate(`/course-management/${courseId}/edit`);
-      console.log(`Editing course ${courseId}:`, course);
-    }
+    navigate(`/course-management/${courseId}/edit`);
   };
 
-  const getStatDetails = (statType: string) => {
+  function getStatDetails(statType: string) {
     switch (statType) {
       case 'courses':
         return [
@@ -109,7 +105,7 @@ const TeacherDashboard = () => {
       default:
         return [];
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -175,10 +171,11 @@ const TeacherDashboard = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Updated layout to reduce crowding */}
+        <div className="space-y-8 mb-8">
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">My Courses</h2>
-            <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
               {courses.map((course) => (
                 <Card key={course.id}>
                   <CardHeader>
@@ -219,7 +216,9 @@ const TeacherDashboard = () => {
             </div>
           </div>
 
-          <ScrollingActivities />
+          <div className="w-full">
+            <ScrollingActivities />
+          </div>
         </div>
 
         {/* AI Assistant Module */}
