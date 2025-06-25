@@ -18,6 +18,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCourses } from '@/contexts/CourseContext';
 import { useNavigate } from 'react-router-dom';
 
 interface Message {
@@ -48,6 +49,7 @@ interface AnalysisInsight {
 
 const AIModule = () => {
   const { user } = useAuth();
+  const { courses } = useCourses();
   const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -60,37 +62,18 @@ const AIModule = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
 
-  // Updated with real course IDs from the course system
-  const mockRecommendations: Recommendation[] = [
-    {
-      id: 1, // React Fundamentals
-      title: "React Fundamentals",
-      type: "course",
-      description: "Perfect for expanding your web development skills based on your learning history",
-      rating: 4.8,
-      difficulty: "Beginner",
-      category: "Web Development"
-    },
-    {
-      id: 2, // JavaScript Advanced
-      title: "JavaScript Advanced",
-      type: "course",
-      description: "Trending course that aligns with your interests in programming",
-      rating: 4.9,
-      difficulty: "Advanced",
-      category: "Programming"
-    },
-    {
-      id: 3, // Node.js Basics
-      title: "Node.js Basics",
-      type: "course",
-      description: "Recommended based on your recent activity and interests",
-      rating: 4.7,
-      difficulty: "Intermediate",
-      category: "Backend"
-    }
-  ];
+  // Generate recommendations from actual courses in the course library
+  const mockRecommendations: Recommendation[] = courses.slice(0, 3).map(course => ({
+    id: course.id,
+    title: course.title,
+    type: "course" as const,
+    description: `Perfect for expanding your skills based on your learning history - ${course.description.substring(0, 80)}...`,
+    rating: course.rating,
+    difficulty: course.level,
+    category: course.category
+  }));
 
+  // Updated with real course IDs from the course system
   const mockAnalytics: AnalysisInsight[] = [
     {
       id: 1,
