@@ -117,6 +117,34 @@ const AIModule = () => {
     }));
   };
 
+  // Default analytics for students
+  const studentAnalytics: AnalysisInsight[] = [
+    {
+      id: 1,
+      title: "Learning Progress",
+      value: "85%",
+      trend: "up",
+      description: "You're making excellent progress across all enrolled courses.",
+      category: "learning"
+    },
+    {
+      id: 2,
+      title: "Course Completion Rate",
+      value: "92%",
+      trend: "up",
+      description: "Your completion rate is above average. Keep up the great work!",
+      category: "learning"
+    },
+    {
+      id: 3,
+      title: "Weekly Study Time",
+      value: "8.5 hrs",
+      trend: "stable",
+      description: "Consistent study habits are helping you maintain steady progress.",
+      category: "engagement"
+    }
+  ];
+
   // Teacher-specific analytics insights
   const getTeacherAnalytics = (): AnalysisInsight[] => {
     if (user?.role === 'teacher') {
@@ -165,7 +193,7 @@ const AIModule = () => {
     }
     
     // Fallback analytics for students
-    return mockAnalytics;
+    return studentAnalytics;
   };
 
   const mockRecommendations: Recommendation[] = getTeacherRecommendations();

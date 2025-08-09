@@ -24,13 +24,20 @@ const QuizEditor = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [quiz, setQuiz] = useState({
+  const [quiz, setQuiz] = useState<{
+    id: number;
+    title: string;
+    subject: string;
+    description: string;
+    duration: number;
+    status: 'draft' | 'published';
+  }>({
     id: parseInt(id || '1'),
     title: "JavaScript Fundamentals Quiz",
     subject: "JavaScript",
     description: "Test your knowledge of JavaScript fundamentals including variables, functions, and basic concepts.",
     duration: 30,
-    status: 'draft' as const,
+    status: 'draft',
   });
 
   const [questions, setQuestions] = useState<Question[]>([
