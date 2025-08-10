@@ -639,7 +639,7 @@ const QuizModule = () => {
     );
   }
 
-  // Student view for taking quizzes
+  // Student view - taking quizzes only
   if (currentQuizTaking) {
     const quiz = quizzes.find(q => q.id === currentQuizTaking.quizId);
     const currentQuestion = quiz?.questions[currentQuizTaking.currentQuestionIndex];
@@ -720,6 +720,7 @@ const QuizModule = () => {
     );
   }
 
+  // Student view - available quizzes and results only
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">My Quizzes</h1>

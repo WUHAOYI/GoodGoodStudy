@@ -1,9 +1,8 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { EnrollmentProvider } from "@/contexts/EnrollmentContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
@@ -50,6 +49,7 @@ import AIAssistant from "./pages/AIAssistant";
 import QuizManagement from "./pages/QuizManagement";
 import QuizPreview from "./pages/QuizPreview";
 import QuizEditor from "./pages/QuizEditor";
+import QuizAnalytics from '@/pages/QuizAnalytics';
 
 const queryClient = new QueryClient();
 
@@ -58,7 +58,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <Router>
         <AuthProvider>
           <EnrollmentProvider>
             <WishlistProvider>
@@ -225,6 +225,8 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     
+                    <Route path="/quiz-analytics/:id" element={<QuizAnalytics />} />
+                    
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </CourseProvider>
@@ -232,7 +234,7 @@ const App = () => (
             </WishlistProvider>
           </EnrollmentProvider>
         </AuthProvider>
-      </BrowserRouter>
+      </Router>
     </TooltipProvider>
   </QueryClientProvider>
 );
