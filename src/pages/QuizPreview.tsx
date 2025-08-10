@@ -1,15 +1,14 @@
+
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Play, Edit, Users, Clock, FileText, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Play, Edit, Users, Clock, FileText } from 'lucide-react';
 import Header from '@/components/Header';
-import { useAuth } from '@/contexts/AuthContext';
 
 const QuizPreview = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
 
   // Mock quiz data - in a real app, this would be fetched based on the ID
   const quiz = {
@@ -50,11 +49,6 @@ const QuizPreview = () => {
     navigate(`/quiz-editor/${id}`);
   };
 
-  const handleViewAnalytics = () => {
-    // Create a proper analytics route for quizzes
-    navigate(`/quiz-analytics/${id}`);
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'published': return 'bg-green-100 text-green-800';
@@ -91,12 +85,10 @@ const QuizPreview = () => {
                       {quiz.status}
                     </Badge>
                   </div>
-                  {(user?.role === 'teacher' || user?.role === 'admin') && (
-                    <Button onClick={handleEditQuiz} variant="outline">
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit Quiz
-                    </Button>
-                  )}
+                  <Button onClick={handleEditQuiz} variant="outline">
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit Quiz
+                  </Button>
                 </div>
               </CardHeader>
               <CardContent>
@@ -126,18 +118,13 @@ const QuizPreview = () => {
                 </div>
 
                 <div className="flex gap-4">
-                  {user?.role === 'student' && (
-                    <Button onClick={handleStartQuiz} className="flex items-center gap-2">
-                      <Play className="h-4 w-4" />
-                      Take Quiz
-                    </Button>
-                  )}
-                  {(user?.role === 'teacher' || user?.role === 'admin') && (
-                    <Button variant="outline" onClick={handleViewAnalytics}>
-                      <BarChart3 className="h-4 w-4 mr-2" />
-                      View Analytics
-                    </Button>
-                  )}
+                  <Button onClick={handleStartQuiz} className="flex items-center gap-2">
+                    <Play className="h-4 w-4" />
+                    Take Quiz
+                  </Button>
+                  <Button variant="outline" onClick={() => navigate(`/quiz-analytics/${id}`)}>
+                    View Analytics
+                  </Button>
                 </div>
               </CardContent>
             </Card>

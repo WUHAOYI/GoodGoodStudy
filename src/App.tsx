@@ -1,8 +1,9 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { EnrollmentProvider } from "@/contexts/EnrollmentContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
@@ -49,7 +50,6 @@ import AIAssistant from "./pages/AIAssistant";
 import QuizManagement from "./pages/QuizManagement";
 import QuizPreview from "./pages/QuizPreview";
 import QuizEditor from "./pages/QuizEditor";
-import QuizAnalytics from '@/pages/QuizAnalytics';
 
 const queryClient = new QueryClient();
 
@@ -58,7 +58,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <Router>
+      <BrowserRouter>
         <AuthProvider>
           <EnrollmentProvider>
             <WishlistProvider>
@@ -71,7 +71,6 @@ const App = () => (
                     <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/courses" element={<Courses />} />
                     <Route path="/course/:id" element={<CourseDetails />} />
-                    <Route path="/course-details/:id" element={<CourseDetails />} />
                     <Route path="/categories" element={<Categories />} />
                     <Route path="/for-business" element={<ForBusiness />} />
                     <Route path="/free-trial" element={<FreeTrial />} />
@@ -226,8 +225,6 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     
-                    <Route path="/quiz-analytics/:id" element={<QuizAnalytics />} />
-                    
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </CourseProvider>
@@ -235,7 +232,7 @@ const App = () => (
             </WishlistProvider>
           </EnrollmentProvider>
         </AuthProvider>
-      </Router>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
