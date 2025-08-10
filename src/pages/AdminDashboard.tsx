@@ -78,25 +78,25 @@ const AdminDashboard = () => {
     {
       id: 1,
       description: "New course 'React Fundamentals' added",
-      timestamp: "2024-07-16T14:30:00",
+      timestamp: new Date().toISOString(),
       type: "Course Added"
     },
     {
       id: 2,
       description: "Student Alice Johnson enrolled in 'JavaScript Basics'",
-      timestamp: "2024-07-15T09:15:00",
+      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
       type: "Enrollment"
     },
     {
       id: 3,
       description: "Teacher Bob Williams created a new quiz",
-      timestamp: "2024-07-14T16:45:00",
+      timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
       type: "Quiz Created"
     },
     {
       id: 4,
       description: "Payment received for course 'Web Development Pro'",
-      timestamp: "2024-07-13T11:00:00",
+      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
       type: "Payment"
     }
   ];
